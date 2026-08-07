@@ -159,6 +159,21 @@ Any 5 V-capable USB-TTL serial adapter works. The common three:
 | **CH340 / CH341** | Built into macOS 11 Big Sur and later | `/dev/cu.wchusbserial*` |
 | **CP2102 / CP210x** | Built into macOS 11 and later | `/dev/cu.usbserial-*` or `/dev/cu.SLAB_USBtoUART` |
 | **FT232R** | Built into macOS (AppleUSBFTDI) | `/dev/cu.usbserial-*` |
+| **An Arduino Uno** | whatever your Uno already uses | `/dev/cu.usbmodem*` |
+
+> [!TIP]
+> **No adapter? An Arduino Uno is one.** Its ATmega16U2 is a USB-serial bridge.
+> Jumper `RESET` to `GND` to hold the ATmega328P out of the way, then treat the
+> board's `RX`/`TX` header pins as the adapter — but note these are wired
+> *straight through*, so Uno `TX`(1) → MCU pin 11 and Uno `RX`(0) → MCU pin 10,
+> the opposite of the crossover in §3.3. It runs at 5 V, which is what we want.
+
+> [!CAUTION]
+> **"ISP" here does not mean SPI.** Coming from AVR, `ISP` means a
+> MOSI/MISO/SCK programmer like a USBasp or mySmartUSB. The STC12 has **no such
+> interface** — those pins exist (P1.5–P1.7) but they are ordinary SPI
+> peripherals, not a programming port. The only way in is the serial bootloader
+> on P3.0/P3.1. This is the single most common wrong assumption about this chip.
 
 On a current macOS you should not need to install anything. If your adapter
 does not enumerate, install the vendor driver
