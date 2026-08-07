@@ -1,5 +1,7 @@
 # STC12C5A60S2 reference
 
+🇬🇧 English · [🇩🇪 Deutsch](PINOUT.de.md)
+
 Everything here is taken from the official
 [STC12C5A60S2 / STC12LE5A60S2 datasheet](https://www.stcmicro.com/datasheet/STC12C5A60S2-en.pdf)
 (STC MCU Limited, revision 2011-07-15). Section numbers refer to that document.

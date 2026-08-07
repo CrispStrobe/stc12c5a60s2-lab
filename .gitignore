@@ -1,5 +1,10 @@
 build/
 
+# Vendor packages downloaded for reference. Kept out of git on purpose: they
+# carry no licence, so they can be read but not redistributed.
+# See README section "References and prior art" for where they come from.
+vendor-reference/
+
 # SDCC intermediates, in case anyone builds in-tree
 *.asm
 *.ihx

@@ -1,5 +1,7 @@
 # Roadmap: an STC12C5A60S2 back-end for BrickWright
 
+🇬🇧 English · [🇩🇪 Deutsch](ROADMAP.de.md)
+
 This repo is the hardware-and-toolchain groundwork. The destination is a
 **BrickWright extension** that lets you drive — and then *permanently program* —
 an STC12C5A60S2 from Scratch blocks, using the same compile-and-flash pipeline
