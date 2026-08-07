@@ -533,6 +533,39 @@ Setting options: done
 Disconnected!
 ```
 
+### Übersetzen, ohne etwas zu installieren
+
+Wer SDCC nicht installieren will — oder das Ganze aus einem Browser heraus
+ansteuert — findet unter **<https://stc-compiler.vercel.app>** einen gehosteten
+Compiler, der genau die oben beschriebene Toolchain ausführt:
+
+```bash
+./tools/compile-remote.sh                  # 01-blink -> 01-blink.hex
+FOSC=12000000 ./tools/compile-remote.sh    # Takt überschreiben
+```
+
+```
+==> Amalgamating 01-blink ...
+==> Compiling via https://stc-compiler.vercel.app (FOSC=11059200) ...
+wrote 01-blink.hex (740 bytes)
+  ROM/EPROM/FLASH 0x0000 0x00ed 238 61440
+```
+
+Geflasht wird danach ganz normal mit `stcgal`.
+
+Der Dienst übersetzt **eine einzige Übersetzungseinheit**. `src/01-blink/main.c`
+lässt sich also nicht direkt hinschicken — das scheitert an `board.h: No such
+file`. Das Skript nimmt einem das ab: es entfernt die lokalen
+`#include "..."`-Zeilen und fügt `include/board.h`, `include/delay.h` und das
+Beispiel zu einer Datei zusammen. System-Includes wie `<stc12.h>` bleiben
+unangetastet, die hat der Server über SDCC selbst.
+
+Der Quelltext liegt in [`CrispStrobe/stc-compiler`](https://github.com/CrispStrobe/stc-compiler).
+Den Dienst gibt es, weil das BrickWright-Backend aus [docs/ROADMAP.de.md](docs/ROADMAP.de.md)
+aus dem Browser heraus übersetzen muss, wo SDCC nicht laufen kann — aus
+demselben Grund, aus dem es `legacy-lego-compiler` für NXT- und EV3-Bytecode
+gibt.
+
 ### Alle make-Ziele
 
 | Ziel | Tut |
@@ -618,6 +651,7 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 ├── tools/
 │   ├── setup-macos.sh       installiert sdcc + stcgal
 │   ├── find-port.sh         findet das serielle Gerät
+│   ├── compile-remote.sh    baut über den gehosteten Compiler, ohne SDCC
 │   └── fetch-vendor-reference.sh   holt das ICStation-Paket 4681 (gitignored)
 └── docs/
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)

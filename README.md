@@ -513,6 +513,38 @@ Setting options: done
 Disconnected!
 ```
 
+### Compiling without installing anything
+
+If you would rather not install SDCC — or you are driving this from a browser —
+there is a hosted compiler at **<https://stc-compiler.vercel.app>** running
+exactly the toolchain documented above:
+
+```bash
+./tools/compile-remote.sh                  # 01-blink -> 01-blink.hex
+FOSC=12000000 ./tools/compile-remote.sh    # override the clock
+```
+
+```
+==> Amalgamating 01-blink ...
+==> Compiling via https://stc-compiler.vercel.app (FOSC=11059200) ...
+wrote 01-blink.hex (740 bytes)
+  ROM/EPROM/FLASH 0x0000 0x00ed 238 61440
+```
+
+Then flash it exactly as usual with `stcgal`.
+
+The service compiles **one translation unit**, so you cannot POST
+`src/01-blink/main.c` directly — it would fail on `board.h: No such file`. The
+script handles that: it strips the local `#include "..."` lines and
+concatenates `include/board.h`, `include/delay.h` and the example into a single
+file. System includes like `<stc12.h>` are left alone, since the server has
+SDCC's own.
+
+Source is at [`CrispStrobe/stc-compiler`](https://github.com/CrispStrobe/stc-compiler).
+It exists because the BrickWright back-end in [docs/ROADMAP.md](docs/ROADMAP.md)
+has to compile from a browser, where SDCC cannot run — the same reason
+`legacy-lego-compiler` exists for NXT and EV3 bytecode.
+
 ### All the make targets
 
 | Target | Does |
@@ -597,6 +629,7 @@ your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
 ├── tools/
 │   ├── setup-macos.sh       installs sdcc + stcgal
 │   ├── find-port.sh         guesses the serial device
+│   ├── compile-remote.sh    builds via the hosted compiler, no SDCC needed
 │   └── fetch-vendor-reference.sh   pulls the ICStation 4681 package (gitignored)
 └── docs/
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
