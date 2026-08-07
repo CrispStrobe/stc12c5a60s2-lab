@@ -1,0 +1,30 @@
+# The same program as src/01-blink/main.c, written as pseudocode.
+#   ./tools/compile-remote.sh --pseudocode 01-blink
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN led1 = P1.0 OUTPUT ACTIVE LOW      # PDIP-40 pin 1
+  PIN led2 = P1.1 OUTPUT ACTIVE LOW      # PDIP-40 pin 2
+
+  WHEN started:
+    set counter to 0
+    FOREVER:
+      REPEAT 6:
+        turn on led1
+        turn off led2
+        wait 0.15 seconds
+        turn off led1
+        turn on led2
+        wait 0.15 seconds
+
+      change counter by 1
+      IF counter > 0 THEN:
+        REPEAT 2:
+          turn on led1
+          turn on led2
+          wait 1 seconds
+          turn off led1
+          turn off led2
+          wait 1 seconds
+        set counter to 0

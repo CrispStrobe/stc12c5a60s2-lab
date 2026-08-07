@@ -3,9 +3,10 @@
 # compile-remote.sh — build an example with the hosted compiler instead of a
 # local SDCC install.
 #
-#   ./tools/compile-remote.sh                       # 01-blink -> 01-blink.hex
+#   ./tools/compile-remote.sh                       # C: 01-blink -> 01-blink.hex
 #   ./tools/compile-remote.sh 01-blink out.hex      # explicit
-#   FOSC=12000000 ./tools/compile-remote.sh         # override the clock
+#   ./tools/compile-remote.sh -p 02-button          # pseudocode/02-button.bw
+#   FOSC=12000000 ./tools/compile-remote.sh         # override the clock (C only)
 #   API=http://localhost:3000 ./tools/compile-remote.sh
 #
 # The service compiles a single translation unit, so this inlines the repo's
@@ -15,19 +16,33 @@
 #
 set -euo pipefail
 
+LANGUAGE=c
+if [[ "${1:-}" == "-p" || "${1:-}" == "--pseudocode" ]]; then
+  LANGUAGE=pseudocode
+  shift
+fi
+
 EXAMPLE="${1:-01-blink}"
 OUT="${2:-${EXAMPLE}.hex}"
 FOSC="${FOSC:-11059200}"
 API="${API:-https://stc-compiler.vercel.app}"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$ROOT/src/$EXAMPLE/main.c"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-[[ -f "$SRC" ]] || { echo "no such example: src/$EXAMPLE/main.c" >&2; exit 1; }
-
 say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
+
+if [[ "$LANGUAGE" == pseudocode ]]; then
+  SRC="$ROOT/pseudocode/$EXAMPLE.bw"
+  [[ -f "$SRC" ]] || { echo "no such example: pseudocode/$EXAMPLE.bw" >&2; exit 1; }
+  # Pseudocode is a single file already, and carries its own CLOCK.
+  cp "$SRC" "$WORK/amalgamated.c"
+  say "Using pseudocode/$EXAMPLE.bw ..."
+else
+
+SRC="$ROOT/src/$EXAMPLE/main.c"
+[[ -f "$SRC" ]] || { echo "no such example: src/$EXAMPLE/main.c" >&2; exit 1; }
 
 say "Amalgamating $EXAMPLE ..."
 python3 - "$ROOT" "$SRC" "$WORK/amalgamated.c" <<'PY'
@@ -45,17 +60,21 @@ parts = [clean(root / "include" / name) for name in ("board.h", "delay.h")]
 parts.append(clean(src))
 out.write_text("\n".join(parts))
 PY
+fi
 
-say "Compiling via $API (FOSC=$FOSC) ..."
-python3 - "$API" "$FOSC" "$WORK/amalgamated.c" "$OUT" <<'PY'
+say "Compiling via $API ($LANGUAGE, FOSC=$FOSC) ..."
+python3 - "$API" "$FOSC" "$WORK/amalgamated.c" "$OUT" "$LANGUAGE" <<'PY'
 import base64, json, pathlib, sys, urllib.error, urllib.request
 
 api, fosc, source, out = sys.argv[1], int(sys.argv[2]), pathlib.Path(sys.argv[3]), sys.argv[4]
+language = sys.argv[5]
 
 payload = json.dumps({
     "code": source.read_text(),
+    "language": language,
     "target": "stc12c5a60s2",
-    "fosc": fosc,
+    # Pseudocode carries its own CLOCK line, which wins over this anyway.
+    "fosc": None if language == "pseudocode" else fosc,
 }).encode()
 
 try:
@@ -71,6 +90,10 @@ if not data.get("success"):
 
 pathlib.Path(out).write_bytes(base64.b64decode(data["base64"]))
 print(f"wrote {out} ({data['bytes']} bytes)")
+if data.get("c"):
+    generated = pathlib.Path(out).with_suffix(".c")
+    generated.write_text(data["c"])
+    print(f"      {generated} (generated C, for reference)")
 for line in data.get("memory", "").splitlines():
     if "ROM/EPROM/FLASH" in line:
         print("  " + " ".join(line.split()))

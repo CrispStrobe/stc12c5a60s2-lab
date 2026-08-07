@@ -1,0 +1,23 @@
+# A button on P3.2 (pin 12) toggles which LED is lit.
+# Wire it to ground with a 10k pull-up to +5V, hence ACTIVE LOW.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN led1   = P1.0 OUTPUT ACTIVE LOW
+  PIN led2   = P1.1 OUTPUT ACTIVE LOW
+  PIN button = P3.2 INPUT ACTIVE LOW     # PDIP-40 pin 12
+
+  DEFINE debounce:
+    wait 20 ms
+
+  WHEN started:
+    turn on led1
+    FOREVER:
+      wait until button
+      debounce
+      toggle led1
+      toggle led2
+      REPEAT UNTIL not button:
+        wait 10 ms
+      debounce

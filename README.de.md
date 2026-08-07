@@ -566,6 +566,51 @@ aus dem Browser heraus übersetzen muss, wo SDCC nicht laufen kann — aus
 demselben Grund, aus dem es `legacy-lego-compiler` für NXT- und EV3-Bytecode
 gibt.
 
+### Dasselbe als Pseudocode
+
+Dieselben Programme gibt es auch als **Pseudocode** in [`pseudocode/`](pseudocode/),
+in dem Dialekt, den BrickWright verwendet — GROSSBUCHSTABEN für Struktur und
+Kontrollfluss, Kleinbuchstaben für Anweisungen, Einrückung für Verschachtelung:
+
+```
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN led1 = P1.0 OUTPUT ACTIVE LOW      # PDIP-40 Pin 1
+  PIN led2 = P1.1 OUTPUT ACTIVE LOW      # PDIP-40 Pin 2
+
+  WHEN started:
+    FOREVER:
+      turn on led1
+      turn off led2
+      wait 0.15 seconds
+      turn off led1
+      turn on led2
+      wait 0.15 seconds
+```
+
+```bash
+./tools/compile-remote.sh -p 01-blink        # -> 01-blink.hex + 01-blink.c
+./tools/compile-remote.sh -p 02-button       # Taster schaltet die LEDs um
+./tools/compile-remote.sh -p 03-potentiometer
+```
+
+Das Skript legt den erzeugten C-Code neben die `.hex`, es bleibt also nichts
+verborgen — die Ausgabe hat dieselbe Form wie die handgeschriebenen Beispiele
+in `src/`.
+
+Entscheidend ist `ACTIVE LOW`: weil ein quasi-bidirektionaler Pin 20 mA nach
+Masse senkt, aber nur ca. 230 µA liefert (§1), werden LEDs low-aktiv
+verdrahtet und `turn on` muss eine `0` ausgeben. Wird die Polarität einmal
+deklariert, sagt der Rest des Programms genau das, was er meint. Die
+vollständige Grammatik — `DEFINE`-Prozeduren, `WHILE`, `REPEAT UNTIL`,
+`wait until`, `ANALOG`-Pins, die über den ADC gelesen werden — steht in der
+[stc-compiler-README](https://github.com/CrispStrobe/stc-compiler#pseudocode).
+
+Das ist die vordere Hälfte des BrickWright-Backends aus
+[docs/ROADMAP.de.md](docs/ROADMAP.de.md): sobald Blöcke diesen Pseudocode
+erzeugen, steht die gesamte Kette vom Scratch-Projekt bis zum geflashten Chip.
+
 ### Alle make-Ziele
 
 | Ziel | Tut |
@@ -647,7 +692,9 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 │   ├── board.h              Pinbelegung, LED-Polarität, Portmodus-Setup
 │   └── delay.h              Millisekunden-Verzögerung über Timer 0
 ├── src/
-│   └── 01-blink/main.c      das Beispiel
+│   └── 01-blink/main.c      das C-Beispiel
+├── pseudocode/
+│   └── *.bw                 dasselbe als BrickWright-Pseudocode
 ├── tools/
 │   ├── setup-macos.sh       installiert sdcc + stcgal
 │   ├── find-port.sh         findet das serielle Gerät
