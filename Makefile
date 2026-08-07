@@ -1,0 +1,97 @@
+# STC12C5A60S2 — build and flash
+#
+#   make                      build the default example (01-blink)
+#   make EXAMPLE=01-blink     build a specific example
+#   make ports                list serial ports that look like a USB-TTL adapter
+#   make flash                build, then flash over ISP (power-cycle when asked)
+#   make erase                erase the chip
+#   make info                 read back the chip's ID and settings, flash nothing
+#   make clean                remove build/
+#
+# Every variable below can be overridden on the command line, e.g.
+#   make flash PORT=/dev/cu.usbserial-1420 FOSC=12000000
+
+EXAMPLE   ?= 01-blink
+FOSC      ?= 11059200
+
+# ------------------------------------------------------------------ toolchain
+SDCC      ?= sdcc
+PACKIHX   ?= packihx
+STCGAL    ?= stcgal
+
+# --------------------------------------------------------------------- target
+# STC12C5A60S2: 60 KB flash, 256 B internal RAM + 1024 B auxiliary (XRAM).
+SDCCFLAGS ?= -mmcs51 --std-c99 \
+             --iram-size 256 --xram-size 1024 --code-size 61440 \
+             -I include -DFOSC_HZ=$(FOSC)UL
+
+# ---------------------------------------------------------------------- flash
+PROTOCOL  ?= stc12
+BAUD      ?= 115200
+HANDSHAKE ?= 2400
+
+# Best guess at the adapter: CH340 shows up as cu.wchusbserial*, CP210x as
+# cu.SLAB_USBtoUART or cu.usbserial-*, FTDI as cu.usbserial-*.
+PORT      ?= $(firstword $(wildcard \
+               /dev/cu.usbserial-* \
+               /dev/cu.wchusbserial* \
+               /dev/cu.SLAB_USBtoUART* \
+               /dev/cu.usbmodem*))
+
+# ----------------------------------------------------------------------- paths
+SRC       := src/$(EXAMPLE)/main.c
+HEADERS   := $(wildcard include/*.h)
+BUILD     := build/$(EXAMPLE)
+IHX       := $(BUILD)/main.ihx
+HEX       := $(BUILD)/$(EXAMPLE).hex
+
+.PHONY: all clean flash erase info ports size check-port
+
+all: $(HEX)
+
+$(IHX): $(SRC) $(HEADERS)
+	@mkdir -p $(BUILD)
+	$(SDCC) $(SDCCFLAGS) -o $(BUILD)/ $(SRC)
+
+$(HEX): $(IHX)
+	$(PACKIHX) $< > $@
+	@echo "built $@"
+
+size: $(IHX)
+	@grep -E "^(Name|Area|CODE|DATA|XRAM)" $(BUILD)/main.mem 2>/dev/null || cat $(BUILD)/main.mem
+
+ports:
+	@echo "Likely USB-TTL adapters:"
+	@ls -1 /dev/cu.usbserial-* /dev/cu.wchusbserial* /dev/cu.SLAB_USBtoUART* /dev/cu.usbmodem* \
+	    2>/dev/null | sed 's/^/  /' || true
+	@ls /dev/cu.usbserial-* /dev/cu.wchusbserial* /dev/cu.SLAB_USBtoUART* /dev/cu.usbmodem* \
+	    >/dev/null 2>&1 || echo "  (none - plug in the adapter, or run ./tools/find-port.sh --watch)"
+	@echo
+	@echo "All other serial devices (Bluetooth pairings, debug consoles - not these):"
+	@ls -1 /dev/cu.* 2>/dev/null \
+	    | grep -Ev 'usbserial|wchusbserial|SLAB_USBtoUART|usbmodem' | sed 's/^/  /' || true
+	@echo
+	@echo "PORT is currently: $(if $(PORT),$(PORT),<none - pass PORT=/dev/cu.xxx>)"
+
+check-port:
+	@test -n "$(PORT)" || { \
+	  echo "No serial port found. Plug in the USB-TTL adapter, then:"; \
+	  echo "  make ports"; \
+	  echo "  make flash PORT=/dev/cu.usbserial-XXXX"; \
+	  exit 1; }
+
+flash: $(HEX) check-port
+	@echo "Flashing $(HEX) via $(PORT) ..."
+	@echo ">>> Power-cycle the MCU now (unplug/replug its VCC) <<<"
+	$(STCGAL) -P $(PROTOCOL) -p $(PORT) -l $(HANDSHAKE) -b $(BAUD) $(HEX)
+
+erase: check-port
+	@echo ">>> Power-cycle the MCU now <<<"
+	$(STCGAL) -P $(PROTOCOL) -p $(PORT) -l $(HANDSHAKE) -b $(BAUD) -e
+
+info: check-port
+	@echo ">>> Power-cycle the MCU now <<<"
+	$(STCGAL) -P $(PROTOCOL) -p $(PORT) -l $(HANDSHAKE) -b $(BAUD)
+
+clean:
+	rm -rf build/

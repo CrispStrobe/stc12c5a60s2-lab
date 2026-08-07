@@ -1,0 +1,17 @@
+build/
+
+# SDCC intermediates, in case anyone builds in-tree
+*.asm
+*.ihx
+*.hex
+*.lst
+*.map
+*.mem
+*.rel
+*.rst
+*.sym
+*.lk
+*.adb
+*.cdb
+
+.DS_Store
