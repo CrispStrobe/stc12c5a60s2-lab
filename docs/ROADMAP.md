@@ -164,6 +164,40 @@ Worth being honest about, because it shapes the order of work:
   changes nothing. Software delay loops would have run 6-12x fast — which is
   why the generator never emits one, and why the Keil translator now warns
   when it sees them in migrated code.
+* **Where this sits against the state of the art, and two things that are NOT
+  concessions (2026-08-08).** The closest comparables: **Proteus VSM**
+  (commercial) does 8051 co-simulation in mixed-mode SPICE with source-level
+  debugging — that is the target; **SimulIDE** is the nearest open-source
+  equivalent and does have an 8051, but it is **AGPLv3**, so `brickwright-lite`
+  can learn from it and can never link it; **Wokwi** has no 8051 and no path to
+  one (its Custom Chips API models peripherals, not cores), which is why the
+  browser core has to be built and why reusing MIT `wokwi-elements` for the UI
+  is the right depth of adoption. Nothing found does **Scratch blocks →
+  bare-metal 8051 with no Arduino runtime** — mBlock, MakeCode and eBlock all
+  assume a framework. That, and two independently written emulators
+  cross-validated against 349 real firmware images, are the genuinely
+  unoccupied ground.
+  **Two corrections to an earlier reading of this comparison.** First, the
+  circuit simulator is a *core deliverable*, not something to cede to SimulIDE
+  and Proteus: it is being built now (`bw-board`, `bw-circuit-ui`), the teaching
+  goal needs a real solver rather than a plausible animation, and "we will not
+  beat SPICE" is not a reason to stop — it is a reason to be honest about
+  fidelity. Second, **peripheral breadth is a goal, not scope creep.** The
+  evidence was already in hand and read the wrong way round: 275 of 349
+  third-party firmware images already pass differential execution, which is a
+  *run-foreign-firmware* capability, and every peripheral added raises it. The
+  emitter's own needs are a floor on the model, never a ceiling.
+* **Example bundles are the integration test (2026-08-08).** `make examples`
+  builds one bundle per pseudocode program — source, generated C, `.hex`,
+  `pins.json` for boundary C, `symbols.json` for boundary D — committed so
+  another repo needs no toolchain to open one. Every layer had its own tests;
+  nothing tested that they compose. The set covers all four `inferNetlist` rows
+  and the builder fails if that regresses. **The gap it exposes is the next
+  work:** everything is GPIO and ADC because that is all the emitter emits, so
+  `ledBrightness` and `buzzerTone` — both specified in boundary B — have never
+  been exercised, because nothing produces a duty cycle. **PWM via the PCA is
+  the next slice**, and it needs §5 of the peripheral model filled in from the
+  datasheet first.
 * **STC15 is a delta; STC8H is a separate project (decided 2026-08-08).**
   [`STC15-PERIPHERAL-MODEL.md`](STC15-PERIPHERAL-MODEL.md) says only what differs
   from the STC12: 74 SFRs identical, **no register keeps its name at a different

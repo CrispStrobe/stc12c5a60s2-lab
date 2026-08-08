@@ -174,6 +174,44 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Warteschleifen liefen 6–12× zu schnell — genau deshalb erzeugt der
   Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
   Code.
+* **Wo das gegenüber dem Stand der Technik steht, und zwei Punkte, die KEINE
+  Zugeständnisse sind (08.08.2026).** Die nächsten Vergleichspunkte:
+  **Proteus VSM** (kommerziell) simuliert 8051 und Schaltung gemeinsam in
+  Mixed-Mode-SPICE, mit Debugging auf Quelltextebene — das ist die Zielmarke;
+  **SimulIDE** ist das nächstliegende Open-Source-Gegenstück und hat einen
+  8051, steht aber unter **AGPLv3**, `brickwright-lite` darf also davon lernen
+  und es niemals einbinden; **Wokwi** hat keinen 8051 und keinen Weg dorthin
+  (seine Custom-Chips-API modelliert Peripherie, keine Kerne) — deshalb muss
+  der Browser-Kern gebaut werden, und deshalb ist die Nachnutzung der
+  MIT-lizenzierten `wokwi-elements` für die Oberfläche genau die richtige
+  Tiefe. Nichts Gefundenes macht **Scratch-Blöcke → 8051 ohne Arduino-Runtime**
+  — mBlock, MakeCode und eBlock setzen alle ein Framework voraus. Das, und zwei
+  unabhängig geschriebene, gegen 349 echte Firmware-Images abgeglichene
+  Emulatoren, sind das wirklich unbesetzte Feld.
+  **Zwei Korrekturen an einer früheren Lesart dieses Vergleichs.** Erstens ist
+  der Schaltungssimulator ein *Kernprodukt* und nichts, was man SimulIDE und
+  Proteus überlässt: Er wird gerade gebaut (`bw-board`, `bw-circuit-ui`), das
+  didaktische Ziel braucht einen echten Löser statt einer plausiblen Animation,
+  und „wir schlagen SPICE nicht" ist kein Grund aufzuhören, sondern einer,
+  ehrlich über die Genauigkeit zu sein. Zweitens ist **Peripherie-Breite ein
+  Ziel und kein Wildwuchs.** Der Beleg lag schon vor und wurde falsch herum
+  gelesen: 275 von 349 fremden Firmware-Images bestehen den differenziellen
+  Lauf bereits — das *ist* die Fähigkeit, fremde Firmware auszuführen, und jede
+  weitere Peripherie hebt die Zahl. Was der Codegenerator braucht, ist eine
+  Untergrenze für das Modell, nie eine Obergrenze.
+* **Die Beispielbündel sind der Integrationstest (08.08.2026).** `make examples`
+  baut pro Pseudocode-Programm ein Bündel — Quelle, erzeugtes C, `.hex`,
+  `pins.json` für Schnittstelle C, `symbols.json` für Schnittstelle D — und es
+  wird eingecheckt, damit ein anderes Repository keine Toolchain braucht, um
+  ein Beispiel zu öffnen. Jede Schicht hatte eigene Tests; dass sie
+  *zusammenspielen*, hat nie etwas geprüft. Der Satz deckt alle vier
+  `inferNetlist`-Zeilen ab, und der Generator schlägt fehl, wenn das nicht mehr
+  gilt. **Die Lücke, die er sichtbar macht, ist die nächste Arbeit:** alles ist
+  GPIO und ADC, weil der Generator nichts anderes ausgibt — `ledBrightness` und
+  `buzzerTone`, beide in Schnittstelle B festgelegt, wurden also noch nie
+  ausgeübt, weil nichts ein Tastverhältnis erzeugt. **PWM über die PCA ist die
+  nächste Scheibe**, und dafür muss §5 des Peripheriemodells erst aus dem
+  Datenblatt gefüllt werden.
 * **Der STC15 ist ein Delta, der STC8H ein eigenes Projekt (entschieden am
   08.08.2026).** [`STC15-PERIPHERAL-MODEL.md`](STC15-PERIPHERAL-MODEL.md) (nur
   Englisch — interne Implementierungsvorgabe) beschreibt nur die Unterschiede zum
