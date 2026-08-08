@@ -135,6 +135,33 @@ comparable at all — while `skewNs` keeps the front end honest that the *world*
 stopping the timer would itself break what is being debugged. The emulator answers
 `'freeze-timers'` and ignores the other.
 
+### 3.1 What the board does while halted — boundary A × boundary D
+
+The circuit simulator sits behind
+[`simulation-contract.md`](../../sb3-creator/reference/simulation-contract.md) boundary A, where
+**the MCU owns time and the board is passive**: it learns that time passed only when the MCU
+calls `advanceTo(tNs)`. Halting therefore needs no new interface at all — a halted MCU stops
+calling `advanceTo`, so board time stops with program time, and the whole world freezes
+coherently. **That is the rule. Do not add a "pause" call to boundary A.**
+
+Three consequences, none of which falls out on its own:
+
+1. **Do not catch up on resume.** The tempting bug is to resume by calling `advanceTo` with the
+   real elapsed wall time. Do not: the board would integrate one enormous `dt` in a single step,
+   so RC networks jump, PWM brightness averaging is wrong for a frame, and a buzzer's measured
+   frequency is nonsense. Resume continues from where program time stopped. This is the board's
+   version of the scheduler firing every overdue task at once, and it has the same fix.
+2. **`setControl` stays live while halted.** Turning the pot or pressing the button in the UI is
+   user *intent*, not physics — it is the one thing that legitimately changes in a frozen world.
+   It takes effect at the MCU's next `readAnalog` / `readPin` after resume. Do not queue it, and
+   do not refuse it.
+3. **A live target's world does not freeze, and the UI must not pretend otherwise.** When the
+   panel is mirroring real hardware rather than driving an emulator, halting stops the program,
+   not the capacitors, the motors or the person turning the knob. `skewNs` (§7) is exactly the
+   signal for this: zero on an emulator, non-zero on silicon. A panel showing a live board with
+   `skewNs > 0` is showing a *snapshot of something that kept moving*, and should say so rather
+   than presenting it identically to a genuinely frozen simulation.
+
 ---
 
 ## 4. Stepping — three operations, not one word
