@@ -497,7 +497,7 @@ keine Datei bearbeitet werden.
 ## 5. Bauen und flashen
 
 ```bash
-make                    # kompilieren -> build/01-blink/01-blink.hex
+make                    # kompilieren -> build/stc12c5a60s2/01-blink/01-blink.hex
 make ports              # welches /dev/cu.* ist der Adapter?
 make flash              # bauen + flashen, dann auf Aufforderung Spannung aus/ein
 ```
@@ -507,17 +507,17 @@ Erwartete Ausgabe:
 ```
 $ make
 sdcc -mmcs51 --std-c99 --iram-size 256 --xram-size 1024 --code-size 61440 \
-     -I include -DFOSC_HZ=11059200UL -o build/01-blink/ src/01-blink/main.c
-packihx build/01-blink/main.ihx > build/01-blink/01-blink.hex
+     -I include -DFOSC_HZ=11059200UL -o build/stc12c5a60s2/01-blink/ src/01-blink/main.c
+packihx build/stc12c5a60s2/01-blink/main.ihx > build/stc12c5a60s2/01-blink/01-blink.hex
 packihx: read 19 lines, wrote 27: OK.
-built build/01-blink/01-blink.hex
+built build/stc12c5a60s2/01-blink/01-blink.hex
 ```
 
 308 Byte Code, von 61440 verfügbaren.
 
 ```
 $ make flash PORT=/dev/cu.usbserial-1420
-Flashing build/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
+Flashing build/stc12c5a60s2/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
 >>> Power-cycle the MCU now (unplug/replug its VCC) <<<
 Waiting for MCU, please cycle power: done
 Target model:
@@ -628,6 +628,7 @@ erzeugen, steht die gesamte Kette vom Scratch-Projekt bis zum geflashten Chip.
 | Variable | Standard | Bedeutung |
 |---|---|---|
 | `EXAMPLE` | `01-blink` | Welches Verzeichnis unter `src/` gebaut wird |
+| `PART` | `stc12c5a60s2` | Ziel-Chip — auch `stc15f2k60s2`. Bestimmt XRAM-Größe, stcgal-Protokoll und Bauverzeichnis |
 | `FOSC` | `11059200` | Takt in Hz — muss der Realität entsprechen, sonst stimmen die Zeiten nicht |
 | `PORT` | erstes passendes `/dev/cu.*` | Serielles Gerät |
 | `BAUD` | `115200` | Übertragungsrate. Bei zickigem Flashen auf `19200` senken |

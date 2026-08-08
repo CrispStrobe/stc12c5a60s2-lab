@@ -11,6 +11,16 @@
 
 #include <stc12.h>
 
+/*
+ * The STC15F2K60S2 borrows stc12.h deliberately: 74 SFRs share both name and
+ * address, and none keeps its name at a different address, so everything this
+ * board file touches (P1, P1M0/P1M1) is identical. stc15-extra.h adds what is
+ * genuinely new. See docs/STC15-PERIPHERAL-MODEL.md.
+ */
+#ifdef PART_STC15F2K60S2
+#include "stc15-extra.h"
+#endif
+
 /* ------------------------------------------------------------------ clock
  * FOSC_HZ must match whatever actually clocks the chip, because every
  * delay in this repo is derived from it.

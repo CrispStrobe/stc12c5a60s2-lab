@@ -14,6 +14,16 @@
 EXAMPLE   ?= 01-blink
 FOSC      ?= 11059200
 
+# Which chip. The two parts share a core, port modes and an ADC block, but not
+# their RAM size or their baud-rate source — see docs/STC15-PERIPHERAL-MODEL.md.
+#
+#   make PART=stc15f2k60s2 EXAMPLE=10-live-firmware
+#
+# On an STC15 the internal RC is trimmable to 0.3%, and 11.0592 MHz is one of
+# the values the datasheet names, so FOSC is a known quantity with no crystal
+# fitted:  stcgal -t 11059
+PART      ?= stc12c5a60s2
+
 # ------------------------------------------------------------------ toolchain
 SDCC      ?= sdcc
 PACKIHX   ?= packihx
@@ -21,12 +31,26 @@ STCGAL    ?= stcgal
 
 # --------------------------------------------------------------------- target
 # STC12C5A60S2: 60 KB flash, 256 B internal RAM + 1024 B auxiliary (XRAM).
+# STC15F2K60S2: 60 KB flash, 256 B internal RAM + 1792 B auxiliary (XRAM).
+ifeq ($(PART),stc15f2k60s2)
+  XRAM     := 1792
+  PARTDEF  := -DPART_STC15F2K60S2=1
+  PROTOCOL ?= stc15
+else ifeq ($(PART),stc12c5a60s2)
+  XRAM     := 1024
+  PARTDEF  := -DPART_STC12C5A60S2=1
+  PROTOCOL ?= stc12
+else
+  $(error unknown PART "$(PART)" - try stc12c5a60s2 or stc15f2k60s2)
+endif
+
 SDCCFLAGS ?= -mmcs51 --std-c99 \
-             --iram-size 256 --xram-size 1024 --code-size 61440 \
-             -I include -DFOSC_HZ=$(FOSC)UL
+             --iram-size 256 --xram-size $(XRAM) --code-size 61440 \
+             -I include -DFOSC_HZ=$(FOSC)UL $(PARTDEF)
 
 # ---------------------------------------------------------------------- flash
-PROTOCOL  ?= stc12
+# PROTOCOL already defaults per PART above (stc12 / stc15); override it here
+# only if stcgal's auto-detection disagrees with the part you actually have.
 BAUD      ?= 115200
 HANDSHAKE ?= 2400
 
@@ -41,7 +65,9 @@ PORT      ?= $(firstword $(wildcard \
 # ----------------------------------------------------------------------- paths
 SRC       := src/$(EXAMPLE)/main.c
 HEADERS   := $(wildcard include/*.h)
-BUILD     := build/$(EXAMPLE)
+# Build output is per-part: the same example compiled for two chips must not
+# share a .hex, or you eventually flash an STC12 image to an STC15.
+BUILD     := build/$(PART)/$(EXAMPLE)
 IHX       := $(BUILD)/main.ihx
 HEX       := $(BUILD)/$(EXAMPLE).hex
 

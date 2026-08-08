@@ -477,7 +477,7 @@ make flash FOSC=13000000
 ## 5. Build and flash
 
 ```bash
-make                    # compile -> build/01-blink/01-blink.hex
+make                    # compile -> build/stc12c5a60s2/01-blink/01-blink.hex
 make ports              # which /dev/cu.* looks like the adapter?
 make flash              # build + flash, then power-cycle when prompted
 ```
@@ -487,17 +487,17 @@ Expected output:
 ```
 $ make
 sdcc -mmcs51 --std-c99 --iram-size 256 --xram-size 1024 --code-size 61440 \
-     -I include -DFOSC_HZ=11059200UL -o build/01-blink/ src/01-blink/main.c
-packihx build/01-blink/main.ihx > build/01-blink/01-blink.hex
+     -I include -DFOSC_HZ=11059200UL -o build/stc12c5a60s2/01-blink/ src/01-blink/main.c
+packihx build/stc12c5a60s2/01-blink/main.ihx > build/stc12c5a60s2/01-blink/01-blink.hex
 packihx: read 19 lines, wrote 27: OK.
-built build/01-blink/01-blink.hex
+built build/stc12c5a60s2/01-blink/01-blink.hex
 ```
 
 308 bytes of code, out of 61440 available.
 
 ```
 $ make flash PORT=/dev/cu.usbserial-1420
-Flashing build/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
+Flashing build/stc12c5a60s2/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
 >>> Power-cycle the MCU now (unplug/replug its VCC) <<<
 Waiting for MCU, please cycle power: done
 Target model:
@@ -606,6 +606,7 @@ whole chain from a Scratch project to a flashed chip is already in place.
 | Variable | Default | Meaning |
 |---|---|---|
 | `EXAMPLE` | `01-blink` | Which directory under `src/` to build |
+| `PART` | `stc12c5a60s2` | Target chip — also `stc15f2k60s2`. Sets the XRAM size, the stcgal protocol, and the build directory |
 | `FOSC` | `11059200` | Clock in Hz — must match reality or delays are wrong |
 | `PORT` | first matching `/dev/cu.*` | Serial device |
 | `BAUD` | `115200` | Transfer rate. Drop to `19200` if flashing is flaky |

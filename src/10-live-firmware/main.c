@@ -65,11 +65,20 @@
 #ifndef LIVE_BAUD
 #define LIVE_BAUD      115200UL
 #endif
-#define BRT_DIV        (FOSC_HZ / (32UL * LIVE_BAUD))
-#define BRT_RELOAD     ((unsigned char)(256UL - BRT_DIV))
+#define BAUD_DIV       (FOSC_HZ / (32UL * LIVE_BAUD))
 
-#if (BRT_DIV < 1) || (BRT_DIV > 255)
+#ifdef PART_STC15F2K60S2
+/* Timer 2 is 16-bit, so the same divisor fits far more baud/FOSC combinations
+ * than the STC12's 8-bit BRT does. */
+#define T2_RELOAD      (65536UL - BAUD_DIV)
+#if (BAUD_DIV < 1) || (BAUD_DIV > 65535)
+#error "FOSC_HZ / LIVE_BAUD does not fit the Timer 2 reload - pick another baud"
+#endif
+#else
+#define BRT_RELOAD     ((unsigned char)(256UL - BAUD_DIV))
+#if (BAUD_DIV < 1) || (BAUD_DIV > 255)
 #error "FOSC_HZ / LIVE_BAUD does not fit the BRT reload - pick another baud"
+#endif
 #endif
 
 /* ------------------------------------------------------------ monitor size */
@@ -178,8 +187,22 @@ static __xdata unsigned int  bp_state[LIVE_MAX_BP];
 static void uart_init(void)
 {
     SCON = 0x50;                /* mode 1, 8-bit UART, receiver enabled      */
+
+#ifdef PART_STC15F2K60S2
+    /* The STC15 has no dedicated baud-rate timer: Timer 2 does that job, and
+     * takes a 16-bit reload rather than the BRT's 8-bit one. The AUXR bits
+     * below are bit-for-bit the same value as the STC12 case — the roles line
+     * up exactly (run, 1T, select-as-UART1-source) even though the bits have
+     * different names. Only the reload register differs.
+     * docs/STC15-PERIPHERAL-MODEL.md §2.2. */
+    T2L = (unsigned char)(T2_RELOAD & 0xFF);
+    T2H = (unsigned char)((T2_RELOAD >> 8) & 0xFF);
+    AUXR |= 0x15;               /* T2R=1 (run), T2x12=1 (1T), S1ST2=1        */
+#else
     BRT  = BRT_RELOAD;
     AUXR |= 0x15;               /* BRTR=1 (run), BRTx12=1 (1T), S1BRS=1      */
+#endif
+
     AUXR &= ~0xC0;              /* T0x12=0, T1x12=0 — both timers at FOSC/12 */
     TI = 0;
     RI = 0;
