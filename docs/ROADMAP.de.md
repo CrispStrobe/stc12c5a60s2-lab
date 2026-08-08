@@ -132,9 +132,27 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
 
 ## Offene Fragen
 
-* **Das Scheduling-Modell.** Kooperatives Round-Robin über ein `while(1)` ist am
-  einfachsten und kommt Scratchs eigener Semantik nahe genug. Eine Timer-ISR
-  gäbe echte Präemption, verlangt aber Sorgfalt beim Register-Banking von SDCC.
+* **Das Scheduling-Modell — ENTSCHIEDEN und prototypisch umgesetzt
+  (2026-08-08).** Kooperatives Round-Robin, mit einem Kniff aus Scratchs
+  eigenem Vertrag: Eine Timer-0-ISR zählt nur einen Millisekundenzähler hoch,
+  und jedes `WHEN`-Skript wird zu einem Zustandsautomaten (Duff's Device),
+  der bei jedem Warten **und an jeder Schleifen-Rückkante** abgibt — eine
+  beschäftigte `FOREVER`-Schleife kann die anderen Skripte also nicht
+  aushungern, genau wie in Scratch. Keine Präemption, keine Stacks pro Task,
+  kein Register-Banking; Fristen sind überlaufsichere 16-Bit-Vergleiche.
+  Implementiert im Pseudocode-Frontend von `stc-compiler`: mehrere
+  `WHEN started:`-Blöcke kompilieren und laufen nebenläufig. Eine
+  dokumentierte Grenze: Bei mehreren Skripten dürfen Prozeduren nicht warten
+  — dieselbe Form wie in Scratch, wo eigene Blöcke durchlaufen. `generateC()`
+  in sb3-creator übernimmt dieses Schema unverändert; `stc-compiler` ist
+  Referenz und Orakel.
+* **Chip-Familien — ebenfalls geklärt.** Derselbe Pseudocode erzeugt jetzt
+  zeitkorrekten Code für `STC12C5A60S2`, `STC89C52(RC)` und `STC15F2K60S2`:
+  Alles hängt an Timer 0 mit FOSC/12, den 12T- wie 1T-Kerne identisch zählen.
+  Der Sockel-Tausch (STC12 ins STC89-Board) ändert damit nichts. Software-
+  Warteschleifen liefen 6–12× zu schnell — genau deshalb erzeugt der
+  Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
+  Code.
 * **Die Board-Beschreibung.** Derzeit kodiert `include/board.h` genau einen
   Zwei-LED-Aufbau fest. Blöcke brauchen eine Board-Beschreibung, die der
   Generator liest — vermutlich JSON, vermutlich geteilt mit der Live-Firmware,

@@ -705,6 +705,27 @@ EV3 bytecode. The STC12 back-end is the same idea pointed at a bare 8051:
 The full design — block vocabulary, IR mapping, resource allocation, and how
 flashing gets driven from the browser — is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
+### 8.1 One family is not the other: the 1T/12T trap
+
+The STC12C5A60S2 drops **pin-for-pin into an STC89C52 socket** — power,
+ground and the standard I/O all line up, and the same is broadly true the
+other way around. The catch is time, not wiring: the STC12 (and the STC15)
+are **1T** cores, the STC89 and every classic 8051 are **12T**. Code that
+counts cycles — nested `for`-loop delays, `_nop_()`-timed bit-banging of
+I2C/SPI/1-wire — runs roughly **6–12× too fast** after the swap and simply
+stops working against real peripherals (a DS18B20 will not answer a 1-wire
+reset that is twelve times too short).
+
+Two consequences are baked into the tooling:
+
+- **Everything generated from pseudocode is timed off Timer 0 at FOSC/12**,
+  a mode that 12T and 1T parts count identically — so the same program is
+  timing-correct on an `STC12C5A60S2`, an `STC89C52RC` or an
+  `STC15F2K60S2` (all three are valid `DEVICE` choices, and the emitter
+  knows which of them have port-mode registers, the AUXR 1T bit, or an ADC).
+- **The Keil translator warns** when migrated code contains software
+  busy-wait loops or `_nop_()` runs, naming exactly this trap.
+
 ---
 
 ## References and prior art

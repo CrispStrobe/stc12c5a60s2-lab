@@ -125,9 +125,26 @@ Worth being honest about, because it shapes the order of work:
 
 ## Open questions
 
-* **Scheduling model.** Cooperative round-robin over a `while(1)` is simplest
-  and matches Scratch's own semantics closely enough. A timer ISR would give
-  real preemption but needs care around SDCC's register banking.
+* **Scheduling model — DECIDED and prototyped (2026-08-08).** Cooperative
+  round-robin, with one twist from Scratch's own contract: a Timer-0 ISR only
+  advances a millisecond counter, and every `WHEN` script compiles to a
+  Duff's-device state machine that yields at every wait **and at every loop
+  back-edge** — so a busy `FOREVER` loop cannot starve the others, exactly as
+  in Scratch. No preemption, no per-task stacks, no register-banking
+  subtleties; deadlines are wraparound-safe 16-bit compares. Implemented in
+  `stc-compiler`'s pseudocode front end: several `WHEN started:` blocks now
+  compile and run concurrently (single-`WHEN` programs keep the old
+  straight-line emission). One documented limit: with several scripts,
+  procedures may not contain waits — the same shape as Scratch, where custom
+  blocks run to completion. `generateC()` in sb3-creator should adopt this
+  scheme unchanged; `stc-compiler` is its reference and oracle.
+* **Chip families — also settled.** The same pseudocode now emits
+  timing-correct code for `STC12C5A60S2`, `STC89C52(RC)` and `STC15F2K60S2`:
+  everything is timed off Timer 0 at FOSC/12, which 12T and 1T parts count
+  identically, so the drop-in-socket upgrade (STC12 into an STC89 board)
+  changes nothing. Software delay loops would have run 6-12x fast — which is
+  why the generator never emits one, and why the Keil translator now warns
+  when it sees them in migrated code.
 * **Board definition.** Right now `include/board.h` hardcodes one two-LED rig.
   Blocks will need a board descriptor the generator reads — probably JSON,
   probably shared with the live firmware so both modes agree on pin names.

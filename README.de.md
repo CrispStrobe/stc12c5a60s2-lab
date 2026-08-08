@@ -728,6 +728,27 @@ Der vollständige Entwurf — Blockvokabular, IR-Abbildung, Ressourcenzuteilung
 und wie das Flashen aus dem Browser heraus angesteuert wird — steht in
 [docs/ROADMAP.de.md](docs/ROADMAP.de.md).
 
+### 8.1 Eine Familie ist nicht die andere: die 1T/12T-Falle
+
+Der STC12C5A60S2 passt **Pin für Pin in einen STC89C52-Sockel** — Versorgung,
+Masse und die Standard-I/O liegen gleich, und umgekehrt gilt dasselbe. Der
+Haken ist die Zeit, nicht die Verdrahtung: STC12 (und STC15) sind
+**1T**-Kerne, der STC89 und jeder klassische 8051 sind **12T**. Code, der
+Zyklen zählt — geschachtelte `for`-Warteschleifen, mit `_nop_()` getaktetes
+Bit-Banging von I2C/SPI/1-Wire — läuft nach dem Tausch grob **6–12× zu
+schnell** und scheitert an echter Peripherie (ein DS18B20 antwortet nicht
+auf einen 1-Wire-Reset, der zwölfmal zu kurz ist).
+
+Zwei Konsequenzen stecken im Werkzeug:
+
+- **Alles aus Pseudocode Erzeugte hängt an Timer 0 mit FOSC/12**, einem
+  Modus, den 12T- wie 1T-Kerne identisch zählen — dasselbe Programm ist
+  damit auf `STC12C5A60S2`, `STC89C52RC` und `STC15F2K60S2` zeitkorrekt
+  (alle drei sind gültige `DEVICE`-Angaben; der Emitter weiß, welche
+  Port-Modus-Register, das AUXR-1T-Bit oder einen ADC haben).
+- **Der Keil-Übersetzer warnt**, wenn migrierter Code Software-Warteschleifen
+  oder `_nop_()`-Ketten enthält — genau diese Falle.
+
 ---
 
 ## Quellen und Vorarbeiten
