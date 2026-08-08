@@ -286,7 +286,89 @@ the corpus — rather than for anything this toolchain emits.
    current integrated over ~20 ms — which is what makes `ledBrightness` in boundary B testable
    at last.
 
-## 6. Reset and pins — where generic 8051 lore is wrong
+## 5b. Making a tone — and why the obvious answer is wrong
+
+Datasheet §7.4 (p. 204–219). This section exists because the plan that looked obvious —
+"a buzzer is PWM, so clock the PCA from Timer 0 to get an adjustable frequency" — **does not
+work**, and the arithmetic that kills it is worth writing down before someone tries it again.
+
+### 5b.1 The three hardware clock outputs
+
+`WAKE_CLKO` (0x8F): `PCAWAKEUP RXD_PIN_IE T1_PIN_IE T0_PIN_IE LVD_WAKE BRTCLKO T1CLKO T0CLKO`.
+
+| bit | pin | source | output rate |
+|---|---|---|---|
+| 0 `T0CLKO` | **P3.4** | Timer 0 | overflow rate ÷ 2 |
+| 1 `T1CLKO` | **P3.5** | Timer 1 | overflow rate ÷ 2 |
+| 2 `BRTCLKO` | **P1.0** | the baud-rate timer | overflow rate ÷ 2 |
+
+This section also confirms `AUXR` = `T0x12 T1x12 UART_M0x6 BRTR S2SMOD BRTx12 EXTRAM S1BRS`,
+which is the layout `STC15-PERIPHERAL-MODEL.md` §2.2 diffs the STC15 against.
+
+### 5b.2 Why the PCA cannot do it
+
+`CMOD.CPS = 010` clocks the PCA from Timer 0 overflow, which the datasheet offers as the way to
+get "frequency-adjustable PWM output". But **Timer 0 is already the millisecond tick** — every
+delay and every scheduler yield in this toolchain is timed off it — so its overflow rate is
+1 kHz by construction, and the PWM period is 256 counts:
+
+```
+   1000 Hz / 256  =  3.9 Hz
+```
+
+A four-hertz carrier. The two uses of Timer 0 are mutually exclusive, and the scheduler wins.
+Every fixed PCA source gives a fixed carrier instead: 3.6 kHz at FOSC/12, 43.2 kHz at FOSC. Good
+enough to dim an LED (`06-dimmer` does exactly that), useless as a pitch.
+
+### 5b.3 Why the hardware clock output cannot do it either
+
+Timer 1 mode 2 is 8-bit auto-reload, so with `T1x12 = 0`:
+
+```
+   f_out = FOSC / (24 × (256 − TH1))
+```
+
+At 11.0592 MHz that is **1800 Hz with `TH1 = 0`, and nothing lower is reachable** — 256 is the
+largest divisor an 8-bit reload has. The same ceiling applies to `BRTCLKO`, which is also 8-bit.
+
+| note | wanted | divisor needed | result |
+|---|---|---|---|
+| A4 | 440 Hz | 1047 | ⚠ out of range — **would sound as 1800 Hz** |
+| C6 | 1047 Hz | 440 | ⚠ out of range |
+| A6 | 1760 Hz | 262 | ⚠ out of range, only just |
+| C7 | 2093 Hz | 220 | ok |
+
+The failure mode is the dangerous kind: a clamped divisor produces a *plausible* note rather
+than silence, so a wrong octave sounds like a tuning problem rather than a range error.
+
+**Verdict: the hardware clock outputs are a beeper, not a tone generator.** A piezo resonating
+at 2–4 kHz is well served; anything musical is not.
+
+### 5b.4 What does work
+
+**Timer 1 in mode 1 (16-bit), toggling the pin from its ISR.** The reload is 16-bit, so the
+range is the whole audible band and then some:
+
+```
+   f_tone = FOSC / 24 / (65536 − reload)      reload = 65536 − FOSC/24/f
+```
+
+A4 = 440 Hz needs reload 64489; the reachable range at 11.0592 MHz is roughly **7 Hz to
+460 kHz**. Any GPIO pin can be the buzzer, since software owns the toggle — which is *better*
+than the hardware route, not merely a fallback.
+
+The costs, all of which belong in the model rather than being discovered later:
+
+- **Timer 1**, entirely. That collides with `src/10-live-firmware`, which uses Timer 1 as the
+  wall clock that makes `skew_ms` honest (`DEBUG-CONTROL-MODEL.md` §3). **A program with a tone
+  and a program under the debug monitor cannot both have Timer 1**, and something has to give.
+  Not resolved here; recorded so it is not discovered on a bench.
+- An interrupt at **2 × f** — 880/s for A4. Cheap on a 1T core at 11 MHz, not free.
+- Interrupt jitter becomes audible as tone impurity if the ISR is ever delayed. The scheduler's
+  Timer 0 tick is the other interrupt in the system, so priority matters.
+
+⚠ None of this is verified on silicon — including whether the ISR latency at high frequencies is
+acceptable in practice.
 
 - **Reset is ACTIVE HIGH.** Below 12 MHz a plain 1 kΩ to GND is the entire circuit. The
   10 kΩ + 10 µF network from old 8051 schematics is for active-**low** parts; do not copy it.
