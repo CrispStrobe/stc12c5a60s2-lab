@@ -173,7 +173,8 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
   Code.
 * **Das Peripheriemodell steht jetzt einmal geschrieben, für alle**:
-  [`STC12-PERIPHERAL-MODEL.de.md`](STC12-PERIPHERAL-MODEL.de.md) (08.08.2026). Ein
+  [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md) (08.08.2026, nur Englisch —
+  interne Implementierungsvorgabe). Ein
   ucsim-Fork (GPL-2, nur CI-Orakel), ein emu8051-Fork (**MIT**, also im Browser
   mitlieferbar) und die Board-Schicht des Simulators müssen sich einig sein, was
   dieser Chip tut; drei eigene Modelle hießen drei verschiedene Antworten. Die

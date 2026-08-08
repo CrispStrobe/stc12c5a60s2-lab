@@ -1,7 +1,5 @@
 # The STC12C5A60S2 peripheral model — one contract, several implementations
 
-🇬🇧 English · [🇩🇪 Deutsch](STC12-PERIPHERAL-MODEL.de.md)
-
 **Why this file exists.** At least three things need to agree on what this chip does:
 
 | implementation | licence | where it may live |
