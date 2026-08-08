@@ -74,11 +74,40 @@ Through an emulator running faster than real time, it is a lot of `setPin`
 calls, and it is the first workload that will show whether boundary A's
 one-call-per-edge shape costs anything.
 
+## `07-buzzer`, and the fifth netlist row nobody had
+
+`buzzerTone` is the other boundary B transducer, and it is now exercised — but
+not by PWM. **A tone is not PWM on this chip**, and finding that out is most of
+what the example is worth: clocking the PCA from Timer 0 gives a 3.9 Hz carrier
+because Timer 0 is already the millisecond tick, and the hardware clock outputs
+divide an 8-bit reload and bottom out at 1800 Hz, which cannot play an A4.
+So a tone is Timer 1 in 16-bit mode toggling the pin from its ISR.
+`STC12-PERIPHERAL-MODEL.md` §5b has the arithmetic.
+
+The board again sees nothing new — `buzzerTone` is *derived*, the board measures
+the toggle period on the buzzer's net — but **`inferNetlist` does**: a buzzer is
+not an LED with a series resistor, and suggesting one would be wrong rather than
+merely unhelpful. `simulation-contract.md` boundary C has four rows and needs a
+fifth:
+
+| declared | suggested parts |
+|---|---|
+| `TONE` | **buzzer between the pin and GND** |
+
+The builder now checks coverage against all five and fails if one has no example
+behind it.
+
+Two costs are deliberate and worth repeating here, because they are the kind of
+thing that otherwise surfaces on a bench. A tone consumes **Timer 1 outright**,
+which the debug monitor also wants as the wall clock behind `skew_ms` — so a
+program with a tone cannot also run under the monitor. And the tone interrupt is
+given priority over the scheduler tick, because jitter there is *audible* rather
+than merely late.
+
 ## What the set still cannot cover
 
 | missing | blocked on | the example it would unlock |
 |---|---|---|
-| **buzzer tone** | `CMOD` is hardcoded to `CPS=000`; an audible *pitch* needs `CPS=010`, clocking the PCA from Timer 0 overflow (`STC12-PERIPHERAL-MODEL.md` §5.2) | `buzzerTone`, the other boundary B transducer. `06-dimmer` gives a fixed ~3.6 kHz carrier, so duty varies loudness, not pitch — which is not what a tone block should mean |
 | **UART output** | emitter support | a serial console part, and the tethered-mode link |
 | **Motor / H-bridge** | board parts | the case where `branchCurrent` forces a real solver rather than the closed-form fast path |
 

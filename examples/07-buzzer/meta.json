@@ -1,0 +1,20 @@
+{
+  "name": "07-buzzer",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 1648,
+  "netlistRows": [
+    "INPUT -> button to GND plus a pull-up",
+    "TONE -> buzzer between pin and GND  (NOT in the contract yet)"
+  ],
+  "artifacts": [
+    "07-buzzer.bw",
+    "07-buzzer.c",
+    "07-buzzer.cdb",
+    "07-buzzer.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

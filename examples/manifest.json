@@ -115,6 +115,27 @@
         "06-dimmer.c",
         "06-dimmer.cdb",
         "06-dimmer.hex",
+        "meta.json",
+        "pins.json"
+      ]
+    },
+    {
+      "name": "07-buzzer",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 1648,
+      "netlistRows": [
+        "INPUT -> button to GND plus a pull-up",
+        "TONE -> buzzer between pin and GND  (NOT in the contract yet)"
+      ],
+      "artifacts": [
+        "07-buzzer.bw",
+        "07-buzzer.c",
+        "07-buzzer.cdb",
+        "07-buzzer.hex",
+        "meta.json",
         "pins.json"
       ]
     }
@@ -123,6 +144,7 @@
     "ANALOG -> potentiometer across VCC/GND, wiper to pin",
     "INPUT -> button to GND plus a pull-up",
     "OUTPUT -> pin, 1k, LED, GND",
-    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin",
+    "TONE -> buzzer between pin and GND  (NOT in the contract yet)"
   ]
 }

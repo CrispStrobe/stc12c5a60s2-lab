@@ -1,0 +1,43 @@
+# A button plays notes on a buzzer — the example `buzzerTone` was specified
+# for and never had.
+#
+#   button  P3.2  to GND, 10k pull-up to +5V    ACTIVE LOW
+#   buzzer  P3.5  piezo between the pin and GND
+#
+# A tone is NOT PWM, and that is the whole point of this example. Every PWM
+# path on this chip has a fixed carrier: clocking the PCA from Timer 0 gives
+# 3.9 Hz, because Timer 0 is already the millisecond tick, and the hardware
+# clock outputs divide an 8-bit reload and bottom out at 1800 Hz. So a tone is
+# Timer 1 in 16-bit mode toggling the pin from its ISR, which reaches roughly
+# 7 Hz upward and can therefore play an A4 at 440 Hz.
+# See docs/STC12-PERIPHERAL-MODEL.md 5b.
+#
+# The board sees nothing new: the pin toggles, and `buzzerTone` in the board
+# contract is DERIVED — the board measures the period on the buzzer's net and
+# reports a frequency. Nothing in the MCU model knows about sound.
+#
+# Two things this costs, both deliberate. Timer 1 is consumed outright, so a
+# program with a tone cannot also run under the debug monitor, which uses
+# Timer 1 as the wall clock behind skew_ms. And the tone interrupt is given
+# priority over the scheduler tick, because jitter here is audible rather than
+# merely late.
+#
+# NOTE: unverified on silicon, like everything else here.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN button = P3.2 INPUT ACTIVE LOW     # PDIP-40 pin 12
+  PIN buzzer = P3.5 TONE                 # PDIP-40 pin 15
+
+  WHEN started:
+    FOREVER:
+      wait until button
+      set buzzer to 440 hz
+      wait 200 ms
+      set buzzer to 554 hz
+      wait 200 ms
+      set buzzer to 659 hz
+      wait 400 ms
+      turn off buzzer
+      wait until not button

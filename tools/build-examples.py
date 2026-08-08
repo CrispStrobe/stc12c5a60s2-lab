@@ -56,17 +56,24 @@ TARGETS = {
     "stc89c52rc":   ["--iram-size", "256", "--xram-size", "256",  "--code-size", "8192"],
 }
 
-# Which boundary C row each pin declaration exercises. The circuit designer
-# needs all four covered across the example set, or it has presets it cannot
-# demonstrate.
+# The rows inferNetlist must be able to suggest. The first four are the table
+# in simulation-contract.md boundary C; TONE is a fifth that the contract does
+# not yet have, and 07-buzzer is what exposed it -- a buzzer is not an LED with
+# a resistor, and suggesting one would be wrong rather than merely unhelpful.
+NETLIST_ROWS = {
+    "analog":     "ANALOG -> potentiometer across VCC/GND, wiper to pin",
+    "input":      "INPUT -> button to GND plus a pull-up",
+    "output-low": "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin",
+    "output":     "OUTPUT -> pin, 1k, LED, GND",
+    "tone":       "TONE -> buzzer between pin and GND  (NOT in the contract yet)",
+}
+
+
 def netlist_row(pin) -> str:
-    if pin.direction == "analog":
-        return "ANALOG -> potentiometer across VCC/GND, wiper to pin"
-    if pin.direction == "input":
-        return "INPUT -> button to GND plus a pull-up"
-    if pin.active_low:
-        return "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
-    return "OUTPUT -> pin, 1k, LED, GND"
+    if pin.direction in ("analog", "input", "tone"):
+        return NETLIST_ROWS[pin.direction]
+    # A PWM LED is wired exactly like a plain one; only the drive differs.
+    return NETLIST_ROWS["output-low" if pin.active_low else "output"]
 
 
 def find_sdcc() -> str:
@@ -166,11 +173,14 @@ def main() -> int:
     (outroot / "manifest.json").write_text(json.dumps(
         {"examples": metas, "netlistRowsCovered": covered}, indent=2) + "\n")
 
-    print(f"\nboundary C rows covered by the set ({len(covered)}/4):")
+    print(f"\nnetlist rows covered by the set ({len(covered)}/{len(NETLIST_ROWS)}):")
     for row in covered:
         print(f"  {row}")
-    if len(covered) < 4:
-        print("\n  WARNING: the circuit designer has a preset with no example behind it.")
+    missing = set(NETLIST_ROWS.values()) - set(covered)
+    if missing:
+        print("\n  WARNING: a preset with no example behind it is a preset nobody has run:")
+        for row in sorted(missing):
+            print(f"    {row}")
         return 1
     return 0
 
