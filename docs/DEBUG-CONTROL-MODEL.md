@@ -150,6 +150,14 @@ stopping the timer would itself break what is being debugged. The emulator answe
 `over` and `out` are defined **in terms of `SP`**, deliberately: it is the only definition both
 emulators can implement identically without agreeing on a call graph.
 
+**A tick is not a step.** `step('insn')` advances until a *new instruction begins executing* —
+an emulator whose core is driven by a tick function must call it repeatedly until any internal
+multi-cycle delay is exhausted, not once. Both readings are defensible from the words "step one
+instruction", which is exactly why they have to be written down: two implementations that split
+here would report different PCs for the same step count and both would be internally consistent.
+(Found by the emu8051-stc implementer, whose `tick()` may or may not retire an instruction
+depending on `mTickDelay`; the upstream TUI's `opt_step_instruction` already gets this right.)
+
 ### 4.1 Instruction stepping on real silicon
 
 Possible, via the classic level-triggered `INT0` technique: hold P3.2 low with `IT0 = 0`, and
@@ -188,10 +196,15 @@ type Breakpoint =
   among them; `program_eeprom_split` exists only on a later-series option class. **So the chip
   reports `code: false`, and this is settled rather than pending.** Reopen it only if someone
   produces an ISP path that is not `stcgal`.
-- **`yield` is the one kind every target supports.** On the chip it is a comparison in the tick
-  handler. On an emulator it resolves, through the symbol table, either to the code address of
-  that `case` label or to a write-watch on `<task>_state` — implementer's choice, but **both
-  emulators must halt at the same instruction**, so §8 pins it down.
+- **`yield` is the one kind every target supports.** On the chip it is a comparison in the
+  dispatch loop, evaluated before a task resumes. On an emulator it resolves through the symbol
+  table, and there were two defensible readings: the code address of the `case` label, or a
+  write-watch on `<task>_state`. They halt at *different instructions* — the write-watch stops
+  on the `MOV` that sets the state, one statement earlier.
+  **Settled 2026-08-08, by the two emulator implementers jointly: both use the code address**,
+  taken from the symbol table's `yields[].addr`, so they agree by construction rather than by
+  coincidence. Recorded here because a resolution that lives only in a coordination file is one
+  refactor away from being lost.
 - **`write` / `read` are emulator-only.** The chip can poll a variable between yields and report
   a change; that is sampling, not a watchpoint, and it must be labelled as such rather than
   presented as the same feature.
@@ -304,17 +317,44 @@ The ladder, in increasing order of value. Report honestly which rungs you have c
 
 1. `capabilities()` is answered, and `state()` tracks `run()` / `halt()`.
 2. Level 1 position (§2) is reported for every task in the symbol table.
-3. `step('insn')` × N from reset produces the **same PC sequence** on both emulators.
+3. `step('insn')` × N from reset produces the **same PC sequence** on both emulators, **with
+   interrupts masked** (or up to the first interrupt). See the scoping note below — it is load
+   bearing, and without it this rung tests something it cannot deliver.
 4. A `code` breakpoint halts **both emulators at the same PC**, with identical `A`, `B`, `DPTR`,
    `SP`, `PSW`, and the same digest of IRAM and XRAM.
 5. A `yield` breakpoint on `generateC()` output halts both at the same `(task, state)` **and the
-   same `bw_ms`** — this is where an address-based and a watch-based implementation would
-   otherwise diverge invisibly.
+   same `bw_ms`**.
 6. Write a variable while halted, resume: both produce the same subsequent trace.
-7. The on-chip monitor answers the same reads as the emulator, for the subset it supports, on the
+7. On an **interrupt-driven** image, where rung 3 does not apply, stepping produces the same
+   sequence of *observable peripheral events* — SFR writes and timer flags — on both emulators.
+8. The on-chip monitor answers the same reads as the emulator, for the subset it supports, on the
    same image.
 
-**Rungs 3–6 are an extension of `tests/trace.sh`, not a new harness.** Rung 7 needs the bench.
+**Rungs 3–7 are an extension of `tests/trace.sh`, not a new harness.** Rung 8 needs the bench.
+
+### Why rung 3 stays PC-based, and what it may not be replaced by
+
+It was proposed (emu8051-stc `spec-updates/002`, 2026-08-08) that rung 3 compare SFR and timer-
+flag events rather than PCs, on the grounds that PC agreement is a harness property while
+peripheral agreement is the product. **Rejected as a replacement, adopted as an addition —
+rung 7 above.**
+
+The reasoning: peripheral-event agreement under free-running execution is *already* established
+(blink 49/49, adc 54/54, scheduler 37/37, and 16/16 on the 1T timer image). If rung 3 also
+compares peripheral events, it re-measures that and this section tests nothing new — while the
+one question boundary D was written to answer, *do the two implementations agree about what
+`step` means*, goes unasked. PC is the only observable that answers it. Agreement being
+"expected and uninformative when it holds" is the property of a good regression test, not an
+argument against having one.
+
+**But the objection is not baseless, and rung 3 as originally written could not be met.** With
+interrupts live, *when* an ISR is entered depends on cycle counts, and the two cores agree on
+timing to 0.6%, not to 0%. Any accumulated cycle difference eventually lands an interrupt
+between different instructions and the PC streams part company — which measures cycle-exactness,
+not step semantics. Hence the mask, and hence rung 7 for the images the mask excludes.
+
+The second half of the objection — that the two emulators "sample PC at different moments in the
+tick cycle" — is answered by §4's tick-is-not-a-step rule rather than by weakening this rung.
 
 ### Where the on-chip target stands
 
