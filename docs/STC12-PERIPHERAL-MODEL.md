@@ -156,11 +156,18 @@ result = ((unsigned int)ADC_RES << 2) | (ADC_RESL & 0x03);   /* 10-bit */
 - **`ADC_FLAG` is cleared by software, never by hardware** — that is the trap.
 - **ADC channel *n* is physically P1.*n***. There is no mux to any other port; the pseudocode
   front end rejects `ANALOG` on anything but P1.
-- ⚠ `SPEED1:SPEED0` → conversion time in clocks: **read the table from the datasheet.** The
-  emitter uses `11`, which it calls "fastest".
-- ⚠ Result alignment: the code above assumes `ADC_RES` holds the high 8 bits and `ADC_RESL`
-  the low 2. Confirm whether an alignment control bit exists on this part and what its reset
-  value is.
+- `SPEED1:SPEED0` → conversion time in oscillator clocks (datasheet §10.5):
+  `00` = 420, `01` = 280, `10` = 140, `11` = 70. The emitter uses `11` (fastest).
+  ⚠ Implemented in emu8051-stc — which is *not* verification: a model written from this
+  datasheet cannot confirm this datasheet. Cross-check against an independent source (STC's
+  own example code, or a second datasheet revision) before relying on the absolute numbers.
+- Result alignment is controlled by `AUXR1.ADRJ` (bit 2 of 0xA2, reset value 0):
+  - **ADRJ = 0** (default): `ADC_RES` = high 8 bits, `ADC_RESL[1:0]` = low 2 bits.
+    `result = (ADC_RES << 2) | (ADC_RESL & 0x03)` — this is what the emitter generates.
+  - **ADRJ = 1**: `ADC_RESL` = low 8 bits, `ADC_RES[1:0]` = high 2 bits.
+    `result = (ADC_RES << 8) | ADC_RESL`.
+  Both modes implemented in emu8051-stc with unit tests (test_stc12.c, test_adc_edges).
+  Datasheet §10.3–10.4. **Not confirmed on silicon** — self-consistent with the datasheet only.
 - For the simulator: the conversion input is a **voltage 0…VCC**, mapped linearly to 0…1023.
   That is the whole coupling to the board layer.
 
