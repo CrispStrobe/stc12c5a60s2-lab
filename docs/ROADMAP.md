@@ -127,16 +127,17 @@ Worth being honest about, because it shapes the order of work:
    `POST /compile {"language":"c"}`. Write-up: `sb3-creator/reference/c-target.md`;
    vendored into `brickwright` `develop` and `brickwright-lite` `main`, each with
    a read-only **🔌 C (STC12)** tab.
-   *C is emit-only for now, but both directions are the intent* — and the
-   keystone is one piece of work: a **`cToPseudocode.js`** front end, exactly
-   parallel to `pythonToPseudocode.js` / `javascriptToPseudocode.js`, parsing
-   the subset `generateC` emits (plus a marker header for what the flat C form
-   loses: DEVICE/CLOCK/PIN and the script boundaries, the way
-   `scratch.defblock(...)` already works for Python/JS). `keil2sdcc` is C→C and
-   only widens that front end's input; `stc_disasm` is HEX→asm and is a
-   separate, harder track needing structure recovery. Full reasoning in
-   `sb3-creator/reference/c-target.md`.
-   Until that front end lands, C stays out of the two-way convergence invariant.
+   **C is now TWO-WAY** (`cToPseudocode.js`, 2026-08-08): it reads our own C
+   exactly, via an `@bw` marker header the emitter adds for what the flat form
+   loses, and reads **hand-written firmware** — including this repo's own
+   `src/01-blink/main.c` — by inference: pins from `#define LED1 P1_0` /
+   `sbit`, polarity from the `LED_ON 0` idiom, clock from `#define FOSC_HZ`,
+   with every inference reported rather than guessed. The register prologue
+   moved into `bw_setup()` so setup is distinguishable from program.
+   Not inverted: the cooperative-scheduler form (it warns). `keil2sdcc` (C→C)
+   now widens this front end's input, so a Keil project can reach blocks by
+   passing through both; `stc_disasm` (HEX→asm) remains its own harder track.
+   Full reasoning in `sb3-creator/reference/c-target.md`.
 6. **Stand up the compile endpoint** in `legacy-lego-compiler` next to the
    existing NBC/LMSASM ones: POST C, get back a `.hex`.
 7. **Ship `stc12`** (compiled mode), reusing the flasher from step 4.

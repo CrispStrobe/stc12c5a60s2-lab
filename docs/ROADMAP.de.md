@@ -133,17 +133,19 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
    Beschreibung: `sb3-creator/reference/c-target.md`; eingebunden in
    `brickwright` (`develop`) und `brickwright-lite` (`main`), jeweils mit einem
    nur lesbaren **🔌 C (STC12)**-Reiter.
-   *C wird vorerst nur erzeugt, aber beide Richtungen sind das Ziel* — und der
-   Schlussstein ist ein einziges Stück Arbeit: ein Frontend
-   **`cToPseudocode.js`**, genau parallel zu `pythonToPseudocode.js` /
-   `javascriptToPseudocode.js`, das die Teilmenge liest, die `generateC`
-   erzeugt (plus ein Marker-Kopf für das, was die flache C-Form verliert:
-   DEVICE/CLOCK/PIN und die Skriptgrenzen — so wie `scratch.defblock(...)` das
-   für Python/JS längst tut). `keil2sdcc` ist C→C und verbreitert nur die
-   Eingabe dieses Frontends; `stc_disasm` ist HEX→Assembler und eine eigene,
-   schwierigere Spur, die Strukturrekonstruktion braucht. Ausführlich in
-   `sb3-creator/reference/c-target.md`. Bis dieses Frontend steht, bleibt C von
-   der Invariante der beidseitigen Konvergenz ausgenommen.
+   **C ist jetzt ZWEISEITIG** (`cToPseudocode.js`, 08.08.2026): es liest
+   unseren eigenen C-Code exakt — über einen `@bw`-Markerkopf, den der
+   Generator für alles ergänzt, was die flache C-Form verliert — und liest
+   **handgeschriebene Firmware**, auch die `src/01-blink/main.c` dieses Repos,
+   durch Herleitung: Pins aus `#define LED1 P1_0` / `sbit`, die Polarität aus
+   dem Muster `LED_ON 0`, den Takt aus `#define FOSC_HZ` — und jede Herleitung
+   wird gemeldet statt geraten. Die Register-Initialisierung sitzt jetzt in
+   `bw_setup()`, damit Aufbau und Programm unterscheidbar bleiben.
+   Nicht rückgerechnet wird die Scheduler-Form (dafür gibt es eine Warnung).
+   `keil2sdcc` (C→C) verbreitert nun die Eingabe dieses Frontends, ein
+   Keil-Projekt kann also über beide Stufen zu Blöcken werden; `stc_disasm`
+   (HEX→Assembler) bleibt die eigene, schwierigere Spur. Ausführlich in
+   `sb3-creator/reference/c-target.md`.
 6. **Den Compile-Endpunkt aufsetzen** in `legacy-lego-compiler`, neben den
    bestehenden für NBC und LMSASM: C hinschicken, `.hex` zurückbekommen.
 7. **`stc12` veröffentlichen** (kompilierte Variante), mit dem Flasher aus
