@@ -1,0 +1,90 @@
+{
+  "fosc": 11059200,
+  "device": "stc12c5a60s2",
+  "scheduler": {
+    "bw_ms": {
+      "space": "iram",
+      "addr": 8,
+      "size": 2
+    },
+    "tasks": [
+      {
+        "name": "bw_task0",
+        "func_addr": 226,
+        "state": {
+          "space": "iram",
+          "addr": 12,
+          "size": 2
+        },
+        "until": {
+          "space": "iram",
+          "addr": 14,
+          "size": 2
+        },
+        "yields": [
+          {
+            "state": 0,
+            "label": "entry",
+            "addr": 261
+          },
+          {
+            "state": 1,
+            "label": "loop_top",
+            "addr": 267
+          },
+          {
+            "state": 2,
+            "label": "wait",
+            "addr": 293
+          },
+          {
+            "state": 3,
+            "label": "wait",
+            "addr": 337
+          }
+        ]
+      },
+      {
+        "name": "bw_task1",
+        "func_addr": 370,
+        "state": {
+          "space": "iram",
+          "addr": 16,
+          "size": 2
+        },
+        "until": {
+          "space": "iram",
+          "addr": 18,
+          "size": 2
+        },
+        "yields": [
+          {
+            "state": 0,
+            "label": "entry",
+            "addr": 408
+          },
+          {
+            "state": 1,
+            "label": "repeat_top",
+            "addr": 420
+          },
+          {
+            "state": 2,
+            "label": "wait",
+            "addr": 451
+          },
+          {
+            "state": 3,
+            "label": "loop_top",
+            "addr": 492
+          },
+          {
+            "state": 4,
+            "label": "wait",
+            "addr": 518
+          }
+        ]
+      }
+    ]
+  }
+}

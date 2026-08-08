@@ -1,0 +1,19 @@
+{
+  "name": "01-blink",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 998,
+  "netlistRows": [
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "01-blink.bw",
+    "01-blink.c",
+    "01-blink.cdb",
+    "01-blink.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

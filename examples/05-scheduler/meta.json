@@ -1,0 +1,20 @@
+{
+  "name": "05-scheduler",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 2,
+  "scheduler": true,
+  "hexBytes": 1728,
+  "netlistRows": [
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "05-scheduler.bw",
+    "05-scheduler.c",
+    "05-scheduler.cdb",
+    "05-scheduler.hex",
+    "meta.json",
+    "pins.json",
+    "symbols.json"
+  ]
+}

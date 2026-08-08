@@ -71,7 +71,7 @@ BUILD     := build/$(PART)/$(EXAMPLE)
 IHX       := $(BUILD)/main.ihx
 HEX       := $(BUILD)/$(EXAMPLE).hex
 
-.PHONY: all clean flash erase info ports size check-port test
+.PHONY: all clean flash erase info ports size check-port test examples
 
 all: $(HEX)
 
@@ -92,6 +92,14 @@ $(TESTBIN): tests/frame_test.c $(HEADERS)
 $(MONBIN): tests/monitor_test.c $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CC) -Wall -Wextra -O2 -I include -o $@ $<
+
+# ---------------------------------------------------------------- examples
+# One bundle per pseudocode program: source, generated C, .hex, pin
+# declarations for the circuit designer, and a symbol table for the debugger.
+# Committed rather than regenerated, so a consumer in another repo needs
+# neither SDCC nor a stc-compiler checkout. See examples/README.md.
+examples:
+	@python3 tools/build-examples.py
 
 test: $(TESTBIN) $(MONBIN)
 	@echo "== C codec (the one that runs on the chip) =="

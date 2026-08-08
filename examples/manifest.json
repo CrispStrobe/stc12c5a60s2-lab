@@ -1,0 +1,109 @@
+{
+  "examples": [
+    {
+      "name": "01-blink",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 998,
+      "netlistRows": [
+        "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+      ],
+      "artifacts": [
+        "01-blink.bw",
+        "01-blink.c",
+        "01-blink.cdb",
+        "01-blink.hex",
+        "meta.json",
+        "pins.json"
+      ]
+    },
+    {
+      "name": "02-button",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 810,
+      "netlistRows": [
+        "INPUT -> button to GND plus a pull-up",
+        "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+      ],
+      "artifacts": [
+        "02-button.bw",
+        "02-button.c",
+        "02-button.cdb",
+        "02-button.hex",
+        "meta.json",
+        "pins.json"
+      ]
+    },
+    {
+      "name": "03-potentiometer",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 1042,
+      "netlistRows": [
+        "ANALOG -> potentiometer across VCC/GND, wiper to pin",
+        "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+      ],
+      "artifacts": [
+        "03-potentiometer.bw",
+        "03-potentiometer.c",
+        "03-potentiometer.cdb",
+        "03-potentiometer.hex",
+        "meta.json",
+        "pins.json"
+      ]
+    },
+    {
+      "name": "04-brightness",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 784,
+      "netlistRows": [
+        "OUTPUT -> pin, 1k, LED, GND",
+        "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+      ],
+      "artifacts": [
+        "04-brightness.bw",
+        "04-brightness.c",
+        "04-brightness.cdb",
+        "04-brightness.hex",
+        "meta.json",
+        "pins.json"
+      ]
+    },
+    {
+      "name": "05-scheduler",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 2,
+      "scheduler": true,
+      "hexBytes": 1728,
+      "netlistRows": [
+        "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+      ],
+      "artifacts": [
+        "05-scheduler.bw",
+        "05-scheduler.c",
+        "05-scheduler.cdb",
+        "05-scheduler.hex",
+        "meta.json",
+        "pins.json",
+        "symbols.json"
+      ]
+    }
+  ],
+  "netlistRowsCovered": [
+    "ANALOG -> potentiometer across VCC/GND, wiper to pin",
+    "INPUT -> button to GND plus a pull-up",
+    "OUTPUT -> pin, 1k, LED, GND",
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ]
+}

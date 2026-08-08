@@ -1,0 +1,30 @@
+# Why the LEDs in this repo are wired active-LOW — shown, not asserted.
+#
+# Two LEDs, driven on and off together. They will not look the same.
+#
+#   low_side   +5V -> 1k -> LED -> P1.0     the pin SINKS the current
+#   high_side  P1.1 -> 1k -> LED -> GND     the pin SOURCES the current
+#
+# A quasi-bidirectional pin sinks 20 mA but sources only about 230 uA
+# (datasheet 4.6), so the second LED is roughly two orders of magnitude
+# dimmer. This is the one example where the "wrong" wiring is deliberate:
+# the circuit designer should be able to show the difference rather than
+# just telling you the rule.
+#
+# The generated code puts both pins in push-pull, which improves the
+# active-high case but does not rescue it — see docs/PINOUT.md.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN low_side  = P1.0 OUTPUT ACTIVE LOW   # PDIP-40 pin 1
+  PIN high_side = P1.1 OUTPUT              # PDIP-40 pin 2
+
+  WHEN started:
+    FOREVER:
+      turn on low_side
+      turn on high_side
+      wait 1000 ms
+      turn off low_side
+      turn off high_side
+      wait 1000 ms

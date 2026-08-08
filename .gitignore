@@ -19,6 +19,14 @@ vendor-reference/
 *.adb
 *.cdb
 
+# ...except under examples/, where the built artefacts ARE the deliverable.
+# The bundles are what the circuit designer, both emulators and the debug
+# monitor consume, so they are committed rather than regenerated: a consumer
+# in another repo must not need SDCC and a stc-compiler checkout to open an
+# example. Rebuild with `make examples`.
+!examples/**/*.hex
+!examples/**/*.cdb
+
 .DS_Store
 
 # Agent context: local paths and operational detail, not for the repo.

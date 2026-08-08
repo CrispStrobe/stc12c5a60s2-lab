@@ -1,0 +1,20 @@
+{
+  "name": "02-button",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 810,
+  "netlistRows": [
+    "INPUT -> button to GND plus a pull-up",
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "02-button.bw",
+    "02-button.c",
+    "02-button.cdb",
+    "02-button.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

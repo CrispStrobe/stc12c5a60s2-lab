@@ -1,0 +1,20 @@
+{
+  "name": "04-brightness",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 784,
+  "netlistRows": [
+    "OUTPUT -> pin, 1k, LED, GND",
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "04-brightness.bw",
+    "04-brightness.c",
+    "04-brightness.cdb",
+    "04-brightness.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

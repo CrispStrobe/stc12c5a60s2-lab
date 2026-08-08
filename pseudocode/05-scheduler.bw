@@ -1,0 +1,37 @@
+# Two scripts running at once — the cooperative scheduler, and the example
+# the debugger is aimed at.
+#
+# Several WHEN blocks compile to one state machine per script over a shared
+# Timer-0 millisecond tick, yielding at every wait and every loop back-edge.
+# That is Scratch's own scheduling contract, and it is what makes the two
+# LEDs blink at unrelated rates without either starving the other.
+#
+# It is also what makes the program debuggable. Each script keeps its
+# position in a named C static (<task>_state), so "where is the program" is
+# a variable read rather than anything needing instrumentation, and a
+# breakpoint is a comparison. See docs/DEBUG-CONTROL-MODEL.md 2.
+#
+# The two periods are deliberately not multiples of each other: if the
+# scheduler were broken in a way that coupled the tasks, 500/300 makes it
+# obvious within a couple of seconds.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN slow = P1.0 OUTPUT ACTIVE LOW   # PDIP-40 pin 1
+  PIN fast = P1.1 OUTPUT ACTIVE LOW   # PDIP-40 pin 2
+
+  WHEN started:
+    FOREVER:
+      turn on slow
+      wait 500 ms
+      turn off slow
+      wait 500 ms
+
+  WHEN started:
+    REPEAT 3:
+      toggle fast
+      wait 150 ms
+    FOREVER:
+      toggle fast
+      wait 300 ms

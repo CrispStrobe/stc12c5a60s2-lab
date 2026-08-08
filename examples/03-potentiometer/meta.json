@@ -1,0 +1,20 @@
+{
+  "name": "03-potentiometer",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 1042,
+  "netlistRows": [
+    "ANALOG -> potentiometer across VCC/GND, wiper to pin",
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "03-potentiometer.bw",
+    "03-potentiometer.c",
+    "03-potentiometer.cdb",
+    "03-potentiometer.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

@@ -1,0 +1,21 @@
+# A potentiometer on P1.2 (ADC channel 2, pin 3) sets the blink rate.
+# Wiper to P1.2, ends to +5V and GND.
+#
+# NOTE: the ADC path is written from the datasheet but has not yet been
+# confirmed on real hardware.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN led = P1.0 OUTPUT ACTIVE LOW
+  PIN pot = P1.2 ANALOG                  # PDIP-40 pin 3
+
+  WHEN started:
+    FOREVER:
+      set period to pot                  # 0 .. 1023
+      IF period < 20 THEN:
+        set period to 20                 # never busy-flash
+      turn on led
+      wait period ms
+      turn off led
+      wait period ms
