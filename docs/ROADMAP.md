@@ -187,6 +187,24 @@ Worth being honest about, because it shapes the order of work:
   third-party firmware images already pass differential execution, which is a
   *run-foreign-firmware* capability, and every peripheral added raises it. The
   emitter's own needs are a floor on the model, never a ceiling.
+* **The dialect was measured against somebody else's corpus (2026-08-09).**
+  [`DIALECT-COVERAGE.md`](DIALECT-COVERAGE.md) scores all sixteen
+  [treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos)
+  (Apache-2.0, cited not vendored) and the split is clean: **5 expressible
+  today, 5 blocked on exactly two features, 6 that should never be
+  expressible.** The two features are **whole-port I/O** (`P0 = pattern`, which
+  no number of single-pin statements substitutes for) and **indexed lookup
+  tables** (a seven-segment font is a table). Both are forced by the two things
+  people build after a blinking LED — a digit display and an LED matrix — so
+  10 of 16 are reachable for a small, non-speculative addition. The last six
+  bit-bang protocols against microsecond deadlines, with timing that depends on
+  how the compiler scheduled an increment; blocks that emitted that would be
+  blocks that sometimes work. They are the argument for a **parts library**
+  instead — a `read temperature from <pin>` block over a hand-written,
+  timing-audited driver — and those six demos are a good specification for its
+  first entries. Where we already come out ahead: the corpus's own delays are
+  cycle-counted busy loops, which is the construct that breaks 6-12x on a 1T
+  part, and everything we emit is Timer 0 at FOSC/12 instead.
 * **Example bundles are the integration test (2026-08-08).** `make examples`
   builds one bundle per pseudocode program — source, generated C, `.hex`,
   `pins.json` for boundary C, `symbols.json` for boundary D — committed so
