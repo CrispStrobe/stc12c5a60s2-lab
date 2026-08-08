@@ -83,14 +83,22 @@ all: $(HEX)
 # way to find out whether it is written down clearly enough.
 CC        ?= cc
 TESTBIN   := build/tests/frame_test
+MONBIN    := build/tests/monitor_test
 
 $(TESTBIN): tests/frame_test.c $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CC) -Wall -Wextra -O2 -I include -o $@ $<
 
-test: $(TESTBIN)
+$(MONBIN): tests/monitor_test.c $(HEADERS)
+	@mkdir -p $(dir $@)
+	$(CC) -Wall -Wextra -O2 -I include -o $@ $<
+
+test: $(TESTBIN) $(MONBIN)
 	@echo "== C codec (the one that runs on the chip) =="
 	@./$(TESTBIN)
+	@echo
+	@echo "== monitor command layer (also the one that runs on the chip) =="
+	@./$(MONBIN)
 	@echo
 	@echo "== host codec, and C-vs-Python agreement =="
 	@./tools/live-monitor.py --selftest --vectors-from ./$(TESTBIN)

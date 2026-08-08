@@ -85,6 +85,7 @@
 #define LIVE_NTASKS    2      /* the demo scheduler below                    */
 #define LIVE_MAX_TASKS 4      /* what the symbol table can hold              */
 #define LIVE_MAX_BP    4
+#define LIVE_MEM       __xdata
 
 /* ============================================================== the program
  * Two tasks in emitter shape. Deliberately not factored or tidied: the point
@@ -161,27 +162,16 @@ static void task1(void)
 #define LIVE_IDLE_MS 5
 
 static volatile unsigned int wall_ms;         /* never frozen                */
-static unsigned int skew_ms;                  /* cumulative, §7 skewNs       */
 static unsigned int last_rx_ms;
 
-static unsigned char run_state = LIVE_ST_RUNNING;
-static unsigned char halt_request;
-static unsigned char step_left;
+/*
+ * The command layer. It has no hardware in it, which is what lets
+ * tests/monitor_test.c drive the whole command set on a host with a fake
+ * memory. Everything below this line is the part that cannot be faked: the
+ * SFR accesses, the UART, the timers and the halt loop.
+ */
+#include "live-monitor.h"
 
-static __xdata live_rx_t rx;
-static __xdata unsigned char txbuf[LIVE_MAX_PAYLOAD + 4];
-static __xdata unsigned char pay[LIVE_MAX_PAYLOAD];
-
-/* The symbol table: where this firmware's position lives. Index 0 is the
- * millisecond clock; task i has its state at 1+2i and its deadline at 2+2i.
- * Loaded with defaults at reset, replaced by SYMS for foreign firmware. */
-static __xdata unsigned char sym_space[1 + 2 * LIVE_MAX_TASKS];
-static __xdata unsigned int  sym_addr[1 + 2 * LIVE_MAX_TASKS];
-static unsigned char sym_ntasks;
-
-static __xdata unsigned char bp_used[LIVE_MAX_BP];
-static __xdata unsigned char bp_task[LIVE_MAX_BP];
-static __xdata unsigned int  bp_state[LIVE_MAX_BP];
 
 /* --------------------------------------------------------------- UART I/O */
 static void uart_init(void)
@@ -216,7 +206,7 @@ static void uart_putc(unsigned char c)
     TI = 0;
 }
 
-static void uart_send(unsigned char *p, unsigned char n)
+static void live_uart_send(unsigned char *p, unsigned char n)
 {
     unsigned char i;
     for (i = 0; i < n; i++)
@@ -224,7 +214,7 @@ static void uart_send(unsigned char *p, unsigned char n)
 }
 
 /* ------------------------------------------------------ memory, by space */
-static unsigned char mem_read(unsigned char space, unsigned int addr,
+static unsigned char live_mem_read(unsigned char space, unsigned int addr,
                               unsigned char *out)
 {
     __code unsigned char *cp;
@@ -278,7 +268,7 @@ static unsigned char mem_read(unsigned char space, unsigned int addr,
     }
 }
 
-static unsigned char mem_write(unsigned char space, unsigned int addr,
+static unsigned char live_mem_write(unsigned char space, unsigned int addr,
                                unsigned char val)
 {
     __idata unsigned char *ip;
@@ -338,13 +328,6 @@ static unsigned char mem_write(unsigned char space, unsigned int addr,
  * scalars little-endian in data memory; the wire, by contrast, is big-endian
  * throughout (see live-proto.h). Keeping the two straight is exactly the
  * kind of thing two implementations get differently. */
-static unsigned int sym_read16(unsigned char idx)
-{
-    unsigned char lo = 0, hi = 0;
-    mem_read(sym_space[idx], sym_addr[idx], &lo);
-    mem_read(sym_space[idx], (unsigned int)(sym_addr[idx] + 1), &hi);
-    return (unsigned int)(((unsigned int)hi << 8) | lo);
-}
 
 static void sym_defaults(void)
 {
@@ -357,46 +340,6 @@ static void sym_defaults(void)
     sym_space[4] = LIVE_SP_IRAM;  sym_addr[4] = (unsigned int)&task1_until;
 }
 
-/* ------------------------------------------------------- position (§2 L1) */
-static unsigned char pos_blob(unsigned char *p)
-{
-    unsigned char i, n = 0;
-    unsigned int v;
-
-    p[n++] = run_state;
-    p[n++] = sym_ntasks;
-
-    v = sym_read16(0);                          /* bw_ms */
-    p[n++] = (unsigned char)(v >> 8);
-    p[n++] = (unsigned char)(v & 0xFF);
-
-    p[n++] = (unsigned char)(skew_ms >> 8);
-    p[n++] = (unsigned char)(skew_ms & 0xFF);
-
-    for (i = 0; i < sym_ntasks; i++) {
-        v = sym_read16((unsigned char)(1 + 2 * i));
-        p[n++] = (unsigned char)(v >> 8);
-        p[n++] = (unsigned char)(v & 0xFF);
-        v = sym_read16((unsigned char)(2 + 2 * i));
-        p[n++] = (unsigned char)(v >> 8);
-        p[n++] = (unsigned char)(v & 0xFF);
-    }
-    return n;
-}
-
-static void send(unsigned char cmd, unsigned char *p, unsigned char n)
-{
-    uart_send(txbuf, live_tx_build(txbuf, cmd, p, n));
-}
-
-static void send_nak(unsigned char cmd, unsigned char err)
-{
-    pay[0] = cmd;
-    pay[1] = err;
-    send(LIVE_NAK, pay, 2);
-}
-
-/* ------------------------------------------------------------ the commands */
 static void live_dispatch(void);
 
 static unsigned int wall_now(void)
@@ -447,184 +390,30 @@ static void live_halt(unsigned char cause)
     TR0 = 1;
 }
 
-static void live_soft_reset(void)
+/*
+ * The register blob. No PC: the only return address reachable from here is the
+ * monitor's own, and the meaningful position at a yield point is (task, state),
+ * not an address. HELLO says so with PC_VALID = 0.
+ */
+static unsigned char live_regs_blob(unsigned char *p)
+{
+    unsigned char i;
+
+    p[0] = ACC;  p[1] = B;    p[2] = DPL;  p[3] = DPH;
+    p[4] = SP;   p[5] = PSW;  p[6] = (unsigned char)((PSW >> 3) & 3);
+    for (i = 0; i < 8; i++) {
+        __idata unsigned char *r =
+            (__idata unsigned char *)(unsigned char)((p[6] << 3) + i);
+        p[7 + i] = *r;
+    }
+    return 15;
+}
+
+static void live_reset_target(void)
 {
     void (*entry)(void) = (void (*)(void))0;
     entry();                        /* NOT an ISP entry — §9. Cold power    */
 }                                   /* cycle is still the only way in.      */
-
-static void live_dispatch(void)
-{
-    unsigned char cmd = rx.cmd;
-    unsigned char n, i, err, space;
-    unsigned int addr;
-
-    switch (cmd) {
-    case LIVE_CMD_HELLO:
-        pay[0] = LIVE_PROTO_VERSION;
-        pay[1] = LIVE_MAX_PAYLOAD;
-        pay[2] = LIVE_SPMASK(LIVE_STEP_BLOCK);
-        pay[3] = LIVE_SPMASK(LIVE_BP_YIELD);
-        pay[4] = (unsigned char)(LIVE_SPMASK(LIVE_SP_CODE) |
-                                 LIVE_SPMASK(LIVE_SP_IRAM) |
-                                 LIVE_SPMASK(LIVE_SP_SFR)  |
-                                 LIVE_SPMASK(LIVE_SP_XRAM) |
-                                 LIVE_SPMASK(LIVE_SP_BIT));
-        pay[5] = (unsigned char)(pay[4] & ~LIVE_SPMASK(LIVE_SP_CODE));
-        pay[6] = LIVE_FLAG_TIME_FREEZES;    /* no PC, no full SFR set       */
-        pay[7] = LIVE_MAX_TASKS;
-        send(LIVE_REPLY(cmd), pay, 8);
-        return;
-
-    case LIVE_CMD_READ:
-        if (rx.len != 4) { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        space = rx.buf[0];
-        addr  = (unsigned int)(((unsigned int)rx.buf[1] << 8) | rx.buf[2]);
-        n     = rx.buf[3];
-        if (n > LIVE_MAX_PAYLOAD) { send_nak(cmd, LIVE_ERR_RANGE); return; }
-        for (i = 0; i < n; i++) {
-            err = mem_read(space, (unsigned int)(addr + i), &pay[i]);
-            if (err) { send_nak(cmd, err); return; }
-        }
-        send(LIVE_REPLY(cmd), pay, n);
-        return;
-
-    case LIVE_CMD_WRITE:
-        if (rx.len < 4) { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        space = rx.buf[0];
-        addr  = (unsigned int)(((unsigned int)rx.buf[1] << 8) | rx.buf[2]);
-        for (i = 3; i < rx.len; i++) {
-            err = mem_write(space, (unsigned int)(addr + i - 3), rx.buf[i]);
-            if (err) { send_nak(cmd, err); return; }
-        }
-        pay[0] = (unsigned char)(rx.len - 3);
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_REGS:
-        /* No PC: the only return address reachable from here is the
-         * monitor's own, and the meaningful position at a yield point is
-         * (task, state), not an address. HELLO says so with PC_VALID = 0. */
-        pay[0] = ACC;  pay[1] = B;    pay[2] = DPL;  pay[3] = DPH;
-        pay[4] = SP;   pay[5] = PSW;  pay[6] = (unsigned char)((PSW >> 3) & 3);
-        for (i = 0; i < 8; i++) {
-            __idata unsigned char *r =
-                (__idata unsigned char *)(unsigned char)((pay[6] << 3) + i);
-            pay[7 + i] = *r;
-        }
-        send(LIVE_REPLY(cmd), pay, 15);
-        return;
-
-    case LIVE_CMD_RUN:
-        run_state = LIVE_ST_RUNNING;
-        step_left = 0;
-        pay[0] = run_state;
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_HALT:
-        halt_request = 1;           /* takes effect at the next yield point */
-        pay[0] = run_state;
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_STEP:
-        if (rx.len != 2) { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        if (rx.buf[0] != LIVE_STEP_BLOCK) {
-            send_nak(cmd, LIVE_ERR_UNSUP);
-            return;
-        }
-        step_left = rx.buf[1] ? rx.buf[1] : 1;
-        run_state = LIVE_ST_RUNNING;
-        pay[0] = step_left;
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_BPSET:
-        if (rx.len != 4) { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        if (rx.buf[0] != LIVE_BP_YIELD) { send_nak(cmd, LIVE_ERR_UNSUP); return; }
-        if (rx.buf[1] >= sym_ntasks)    { send_nak(cmd, LIVE_ERR_RANGE); return; }
-        for (i = 0; i < LIVE_MAX_BP; i++) {
-            if (!bp_used[i]) {
-                bp_used[i]  = 1;
-                bp_task[i]  = rx.buf[1];
-                bp_state[i] = (unsigned int)(((unsigned int)rx.buf[2] << 8) |
-                                             rx.buf[3]);
-                pay[0] = i;
-                send(LIVE_REPLY(cmd), pay, 1);
-                return;
-            }
-        }
-        send_nak(cmd, LIVE_ERR_RANGE);
-        return;
-
-    case LIVE_CMD_BPCLR:
-        if (rx.len != 1)             { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        if (rx.buf[0] >= LIVE_MAX_BP) { send_nak(cmd, LIVE_ERR_RANGE); return; }
-        bp_used[rx.buf[0]] = 0;
-        pay[0] = rx.buf[0];
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_POS:
-        n = pos_blob(pay);
-        send(LIVE_REPLY(cmd), pay, n);
-        return;
-
-    case LIVE_CMD_SYMS:
-        /* ntasks, then (space, addr_hi, addr_lo) for bw_ms and for each
-         * task's state and until — 1 + 2*ntasks entries. */
-        if (rx.len < 1) { send_nak(cmd, LIVE_ERR_BADLEN); return; }
-        n = rx.buf[0];
-        if (n > LIVE_MAX_TASKS) { send_nak(cmd, LIVE_ERR_RANGE); return; }
-        if (rx.len != (unsigned char)(1 + 3 * (1 + 2 * n))) {
-            send_nak(cmd, LIVE_ERR_BADLEN);
-            return;
-        }
-        sym_ntasks = n;
-        for (i = 0; i < (unsigned char)(1 + 2 * n); i++) {
-            sym_space[i] = rx.buf[1 + 3 * i];
-            sym_addr[i]  = (unsigned int)(((unsigned int)rx.buf[2 + 3 * i] << 8) |
-                                          rx.buf[3 + 3 * i]);
-        }
-        pay[0] = sym_ntasks;
-        send(LIVE_REPLY(cmd), pay, 1);
-        return;
-
-    case LIVE_CMD_RESET:
-        pay[0] = LIVE_HALT_RESET;
-        send(LIVE_REPLY(cmd), pay, 1);
-        live_soft_reset();
-        return;
-
-    default:
-        send_nak(cmd, LIVE_ERR_BADCMD);
-        return;
-    }
-}
-
-/* Why the program should stop before dispatching task `t`, or 0 to keep
- * going. This is the whole of run control on this target: no trap opcodes,
- * no flash writes, one comparison per task per pass. */
-static unsigned char stop_reason(unsigned char t)
-{
-    unsigned char i;
-    unsigned int st;
-
-    if (halt_request)
-        return LIVE_HALT_USER;
-
-    st = sym_read16((unsigned char)(1 + 2 * t));
-    for (i = 0; i < LIVE_MAX_BP; i++)
-        if (bp_used[i] && bp_task[i] == t && bp_state[i] == st)
-            return LIVE_HALT_BREAKPOINT;
-
-    if (step_left && --step_left == 0)
-        return LIVE_HALT_STEP;
-
-    return 0;
-}
-
 /* ------------------------------------------------------------------- ISRs */
 static void t0_isr(void) __interrupt(1)
 {
