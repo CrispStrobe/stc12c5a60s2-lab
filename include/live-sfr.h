@@ -92,6 +92,10 @@ static unsigned char live_sfr_read(unsigned char addr, unsigned char *out)
     case 0xDA: *out = CCAPM0;     return 1;
     case 0xDB: *out = CCAPM1;     return 1;
     case 0xE9: *out = CL;         return 1;
+    /* CCAPnL carry the LIVE PWM duty (CCAPnH is the pending one, loaded on CL
+     * wrap). Without these a debugger cannot read the duty cycle at all. */
+    case 0xEA: *out = CCAP0L;     return 1;
+    case 0xEB: *out = CCAP1L;     return 1;
     case 0xF2: *out = PCA_PWM0;   return 1;
     case 0xF3: *out = PCA_PWM1;   return 1;
     case 0xF9: *out = CH;         return 1;
@@ -212,6 +216,8 @@ static unsigned char live_sfr_write(unsigned char addr, unsigned char val)
     case 0xDA: CCAPM0    = val; return 0;
     case 0xDB: CCAPM1    = val; return 0;
     case 0xE9: CL        = val; return 0;
+    case 0xEA: CCAP0L    = val; return 0;
+    case 0xEB: CCAP1L    = val; return 0;
     case 0xF2: PCA_PWM0  = val; return 0;
     case 0xF3: PCA_PWM1  = val; return 0;
     case 0xF9: CH        = val; return 0;

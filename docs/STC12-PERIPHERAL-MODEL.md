@@ -161,7 +161,11 @@ result = ((unsigned int)ADC_RES << 2) | (ADC_RESL & 0x03);   /* 10-bit */
   ⚠ Implemented in emu8051-stc — which is *not* verification: a model written from this
   datasheet cannot confirm this datasheet. Cross-check against an independent source (STC's
   own example code, or a second datasheet revision) before relying on the absolute numbers.
-- Result alignment is controlled by `AUXR1.ADRJ` (bit 2 of 0xA2, reset value 0):
+- Result alignment is controlled by `AUXR1.ADRJ` (bit 2 of 0xA2, reset value 0). **The bit
+  position is now confirmed by a second source**: datasheet §10.2 (p. 290) prints the full
+  `AUXR1` layout as `– PCA_P4 SPI_P4 S2_P4 GF2 ADRJ – DPS` while documenting the PCA. The
+  *position* is therefore a fact; the *behaviour* below is still datasheet-only.
+  ⚠ Note it moves on the STC15 — see `STC15-PERIPHERAL-MODEL.md` §2.1.
   - **ADRJ = 0** (default): `ADC_RES` = high 8 bits, `ADC_RESL[1:0]` = low 2 bits.
     `result = (ADC_RES << 2) | (ADC_RESL & 0x03)` — this is what the emitter generates.
   - **ADRJ = 1**: `ADC_RESL` = low 8 bits, `ADC_RES[1:0]` = high 2 bits.
@@ -171,20 +175,116 @@ result = ((unsigned int)ADC_RES << 2) | (ADC_RESL & 0x03);   /* 10-bit */
 - For the simulator: the conversion input is a **voltage 0…VCC**, mapped linearly to 0…1023.
   That is the whole coupling to the board layer.
 
-## 5. The PCA / PWM block — ⚠ skeleton only
+## 5. The PCA / PWM block
 
-Addresses are cross-checked; the bit layouts are not. Fill them in from the datasheet with
-section citations. Registers involved: `CCON` 0xD8, `CMOD` 0xD9, `CCAPM0` 0xDA, `CCAPM1` 0xDB,
-`CL` 0xE9, `CH` 0xF9, `CCAP0H` 0xFA, `CCAP1H` 0xFB, `PCA_PWM0` 0xF2, `PCA_PWM1` 0xF3.
+Filled in from datasheet §10 (p. 290–301). Bit layouts below are the datasheet's, not
+inferred. **Two modules on this part** — the datasheet opens §10 with "a special 16-bit Timer
+that has **two** 16-bit capture/compare modules". The STC15 has three (`STC15-PERIPHERAL-MODEL.md`
+§3), so a model shared between them must gate the third.
 
-Structurally: a free-running 16-bit counter (`CH`/`CL`) with a selectable clock source
-(`CMOD`), plus capture/compare modules whose mode is set per module (`CCAPM0/1`) and whose
-8-bit PWM duty comes from `CCAPnH` with the extra bits in `PCA_PWM0/1`.
+### 5.1 Registers, with bit layouts
 
-Nothing in the toolchain emits PCA code yet — PWM is an open item on both the chip side and in
-`generateC` — so this block is needed for *foreign* images and for the future PWM blocks, not
-to run anything we currently produce. For the simulator, a PWM output is a pin toggling at a
-duty cycle; LED brightness is the average current, integrated over ~20 ms.
+| reg | addr | b7 | b6 | b5 | b4 | b3 | b2 | b1 | b0 | reset |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `CCON` | 0xD8 | `CF` | `CR` | – | – | – | – | `CCF1` | `CCF0` | `00xx,xx00` |
+| `CMOD` | 0xD9 | `CIDL` | – | – | – | `CPS2` | `CPS1` | `CPS0` | `ECF` | `0xxx,0000` |
+| `CCAPM0` | 0xDA | – | `ECOM0` | `CAPP0` | `CAPN0` | `MAT0` | `TOG0` | `PWM0` | `ECCF0` | `x000,0000` |
+| `CCAPM1` | 0xDB | – | `ECOM1` | `CAPP1` | `CAPN1` | `MAT1` | `TOG1` | `PWM1` | `ECCF1` | `x000,0000` |
+| `PCA_PWM0` | 0xF2 | – | – | – | – | – | – | `EPC0H` | `EPC0L` | `xxxx,xx00` |
+| `PCA_PWM1` | 0xF3 | – | – | – | – | – | – | `EPC1H` | `EPC1L` | `xxxx,xx00` |
+
+Counter and compare registers, all plain 8-bit: `CL` 0xE9, `CH` 0xF9 (the shared timer);
+`CCAP0L` **0xEA**, `CCAP0H` 0xFA; `CCAP1L` **0xEB**, `CCAP1H` 0xFB.
+
+> The two `CCAPnL` registers were **missing from this document's earlier register list**, and
+> therefore from `include/live-sfr.h`'s curated window. They are the ones that carry the live PWM
+> duty, so a debugger without them could not read the duty cycle at all.
+
+`CF` is set by hardware on counter overflow and **cleared only by software** — the same trap as
+`ADC_FLAG` in §4. `CR` runs the counter. `CCFn` are the per-module match/capture flags, also
+software-cleared.
+
+**`AUXR1` (0xA2) is confirmed by this chapter**: `– PCA_P4 SPI_P4 S2_P4 GF2 ADRJ – DPS`. That
+is a second, authoritative source for **`ADRJ` at bit 2**, which §4 previously carried on one
+source. `PCA_P4` at bit 6 moves the PCA pins — see §5.4.
+
+### 5.2 Clock source — `CMOD.CPS2:CPS1:CPS0`
+
+| CPS2:1:0 | source |
+|---|---|
+| `000` | SYSclk/12 |
+| `001` | SYSclk/2 |
+| `010` | **Timer 0 overflow** — the only way to get an adjustable PWM frequency |
+| `011` | external clock on `ECI`/P1.2 (max SYSclk/2) |
+| `100` | SYSclk |
+| `101` | SYSclk/4 |
+| `110` | SYSclk/6 |
+| `111` | SYSclk/8 |
+
+`CIDL` gates the counter in idle mode. `ECF` enables the overflow interrupt.
+
+**The PWM period is 256 PCA clocks**, because the comparator runs against the 8-bit `CL`. So at
+FOSC = 11.0592 MHz: `100` gives 43.2 kHz, `000` gives 3.6 kHz. Both are far above flicker, so
+either is fine for LED dimming — but **a buzzer needs a chosen audible frequency, and the only
+route to one is `010`, clocking the PCA from Timer 0 overflow.** That is the difference between
+`ledBrightness` and `buzzerTone` in the board contract, and it is a codegen decision, not a
+board one.
+
+### 5.3 PWM mode — the mechanism, and its polarity trap
+
+Enabled by setting `ECOMn` and `PWMn` in `CCAPMn` (`0x42`; the datasheet's own diagram shows
+exactly that bit pattern). **All modules share one frequency** — there is one PCA timer — and
+each has an independent duty.
+
+The comparator is **9-bit**: `{EPCnL, CCAPnL}` against `(0, CL)`.
+
+```
+   (0,CL) <  {EPCnL,CCAPnL}   ->  output LOW
+   (0,CL) >= {EPCnL,CCAPnL}   ->  output HIGH
+```
+
+⚠ **Read that again before implementing it: a LARGER compare value means a LONGER low time.**
+The duty cycle as a fraction *high* is `(256 − {EPCnL,CCAPnL}) / 256`. A naive model that treats
+`CCAPnL` as "duty" gets every brightness inverted, and it will look plausible.
+
+The 9th bit is what buys the endpoints: `{0,0x00}` is permanently high, and `{1,0x00}` = 256 is
+permanently low, which an 8-bit compare could not express.
+
+**Double buffering:** when `CL` overflows `0xFF → 0x00`, `{EPCnH, CCAPnH}` is reloaded into
+`{EPCnL, CCAPnL}`. So software writes the *next* duty to `CCAPnH`/`EPCnH` and it takes effect at
+the next period boundary — "that allows updating the PWM without glitches". **A model that
+applies `CCAPnH` immediately will not glitch where real hardware does not, but it will also let
+a test pass that should have caught a mid-period write.** Model the reload.
+
+### 5.4 Pins, and a conflict the circuit designer must know about
+
+On the STC12C5A60S2: module 0 is `CCP0/PCA0/PWM0` on **P1.3**, module 1 is `CCP1/PCA1/PWM1` on
+**P1.4**, and `ECI` is on **P1.2**. Setting `AUXR1.PCA_P4` moves them to **P4.2**, **P4.3** and
+**P4.1**. (Other STC12 variants differ — the STC12C5201AD puts module 0 on P3.7 and module 1 on
+P3.5 — so a model must not hardcode this across the family.)
+
+**P1.2, P1.3 and P1.4 are also ADC channels 2, 3 and 4.** So on the default pin mapping you
+cannot have PWM on module 0 and analog input on ADC3 at once. `03-potentiometer` already uses
+P1.2 for the pot, which is `ECI`. The front end should reject the overlap rather than emit code
+that silently loses one of the two.
+
+### 5.5 The other three modes, in brief
+
+`CAPPn`/`CAPNn` enable positive/negative edge capture (both set = either edge); `MATn` makes a
+match set `CCFn`; `TOGn` makes a match toggle the pin (high-speed output). 16-bit software timer
+is `ECOMn`+`MATn` with software reloading `CCAPnH:CCAPnL`. These matter for *foreign* firmware —
+the corpus — rather than for anything this toolchain emits.
+
+### 5.6 What a conforming model must reproduce
+
+1. The counter counts at the selected source and `CF` sets on overflow, software-cleared.
+2. PWM output follows the 9-bit compare **in the direction above**, and `{EPCnH,CCAPnH}` reloads
+   into `{EPCnL,CCAPnL}` on `CL` wrap, not immediately.
+3. `{EPCnL,CCAPnL}` = 0 gives a permanently high pin; = 0x100 gives a permanently low one.
+4. Both modules share a frequency and vary independently in duty.
+5. For the board layer: a PWM pin is a pin toggling at that duty, and LED brightness is average
+   current integrated over ~20 ms — which is what makes `ledBrightness` in boundary B testable
+   at last.
 
 ## 6. Reset and pins — where generic 8051 lore is wrong
 
