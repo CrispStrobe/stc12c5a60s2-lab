@@ -174,6 +174,26 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Warteschleifen liefen 6–12× zu schnell — genau deshalb erzeugt der
   Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
   Code.
+* **Der STC15 ist ein Delta, der STC8H ein eigenes Projekt (entschieden am
+  08.08.2026).** [`STC15-PERIPHERAL-MODEL.md`](STC15-PERIPHERAL-MODEL.md) (nur
+  Englisch — interne Implementierungsvorgabe) beschreibt nur die Unterschiede zum
+  STC12: 74 SFRs identisch, **kein Register behält seinen Namen an einer anderen
+  Adresse**, und drei Fallen — `ADRJ` wandert von `AUXR1.2` nach `CLK_DIV.5`, die
+  Baudraten-Bits in `AUXR` werden zu Timer-2-Bits, und aus `WAKE_CLKO` wird
+  `INT_CLKO`. Für den STC15 ist Silizium vorhanden, also ist das die Familie, die
+  am ehesten die **erste auf Hardware geprüfte** Peripherie-Aussage des Projekts
+  liefert: die ADC-Kernregister sind identisch, eine Bestätigung der Sequenz auf
+  einem STC15 ist damit auch ein echter Beleg für den STC12.
+  **Der STC8H wird bewusst nicht begonnen.** Er ist keine Variante: 12-Bit-ADC mit
+  anderen Steuerregistern, PWMA/PWMB statt einer bloßen PCA, anderer Taktbaum,
+  Hardware-I²C, mehr Ports. Er braucht ein eigenes Handbuch, ein eigenes Modell,
+  einen eigenen Header — SDCC liefert weder `stc15.h` noch `stc8h.h`. Zwei Fragen
+  vorab: ob `stcgal` 1.10 mit `stc8`/`stc8d`/`stc8g` den STC8H überhaupt abdeckt
+  (ein eigener Handler fehlt, `stc8prog` wäre die Alternative), und ob
+  `program_eeprom_split` in `Stc8Option` — ein Bit ohne STC12-Entsprechung — dem
+  IAP erlaubt, den Programmbereich zu beschreiben. Falls ja, sind **echte
+  Code-Haltepunkte auf dem STC8 möglich**, die `DEBUG-CONTROL-MODEL.md` §5 für den
+  STC12 als unmöglich abschließt — der STC8H wäre dann das bessere Debug-Ziel.
 * **Das Peripheriemodell steht jetzt einmal geschrieben, für alle**:
   [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md) (08.08.2026, nur Englisch —
   interne Implementierungsvorgabe). Ein

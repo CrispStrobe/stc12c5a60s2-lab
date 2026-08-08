@@ -164,6 +164,26 @@ Worth being honest about, because it shapes the order of work:
   changes nothing. Software delay loops would have run 6-12x fast — which is
   why the generator never emits one, and why the Keil translator now warns
   when it sees them in migrated code.
+* **STC15 is a delta; STC8H is a separate project (decided 2026-08-08).**
+  [`STC15-PERIPHERAL-MODEL.md`](STC15-PERIPHERAL-MODEL.md) says only what differs
+  from the STC12: 74 SFRs identical, **no register keeps its name at a different
+  address**, and three traps — `ADRJ` moves from `AUXR1.2` to `CLK_DIV.5`, the
+  `AUXR` baud bits become Timer 2 bits, and `WAKE_CLKO` becomes `INT_CLKO`. There
+  is STC15 silicon on the bench, so this is the family most likely to produce the
+  project's **first verified-on-hardware** peripheral claim — the ADC core
+  registers are identical, so confirming that sequence on an STC15 is real
+  evidence for the STC12 too.
+  **STC8H is deliberately not started.** It is not a variant: 12-bit ADC with
+  different control registers, PWMA/PWMB advanced timers instead of a bare PCA, a
+  different clock tree, hardware I²C, more ports. It needs its own reference
+  manual read, its own model document, its own header — SDCC ships neither
+  `stc15.h` nor `stc8h.h`. Two open questions worth answering first: whether
+  `stcgal` 1.10's `stc8`/`stc8d`/`stc8g` protocols actually cover STC8H (no
+  handler is named for it, and `stc8prog` exists as the alternative), and whether
+  `Stc8Option`'s `program_eeprom_split` — a bit with no STC12 equivalent — would
+  let IAP write the program area. If it does, **real code breakpoints are possible
+  on STC8 where `DEBUG-CONTROL-MODEL.md` §5 closes them as impossible on STC12**,
+  which would make STC8H the better debug target.
 * **The peripheral model is now written down once, for everyone**:
   [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md) (2026-08-08). A ucsim
   fork (GPL-2, CI oracle only), an emu8051 fork (**MIT**, so bundleable in the
