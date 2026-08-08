@@ -32,6 +32,12 @@ The SRAM difference is why `stc-compiler`'s target table already passes `--xram-
 this part rather than the STC12's 1024. The supply difference matters on a bench: **an STC15F
 wants 4.2 V minimum**, so it is less tolerant of a sagging USB rail than the STC12.
 
+> [!CAUTION]
+> **The two parts are not pin-compatible, and the supply pin is one of the ones that moves** —
+> VCC is pin 40 on an STC12C5A60S2 and **pin 18** on an STC15F2K60S2 in the same PDIP-40
+> package. This document is about registers; before wiring anything, read
+> [`PINOUT-STC15.md`](PINOUT-STC15.md).
+
 ## How this was derived, and why that matters
 
 Two independent sources, because the parent document's rule is that **an address is a fact only

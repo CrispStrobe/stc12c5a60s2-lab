@@ -40,8 +40,13 @@
 #endif
 
 /* -------------------------------------------------------------------- LEDs
- * LED1 -> P1.0, PDIP-40 pin 1
- * LED2 -> P1.1, PDIP-40 pin 2
+ * LED1 -> P1.0    STC12 PDIP-40 pin 1  |  STC15 PDIP-40 pin 9
+ * LED2 -> P1.1    STC12 PDIP-40 pin 2  |  STC15 PDIP-40 pin 10
+ *
+ * The port bits are the same on both parts, so this file needs no #if — but
+ * the PHYSICAL pins are not, and neither is VCC (pin 40 on the STC12, pin 18
+ * on the STC15). The two are not pin-compatible in any package; see
+ * docs/PINOUT-STC15.md before moving a board between them.
  *
  * Both are wired active-LOW (the MCU sinks the current):
  *
