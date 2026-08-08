@@ -172,6 +172,15 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Warteschleifen liefen 6–12× zu schnell — genau deshalb erzeugt der
   Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
   Code.
+* **Das Peripheriemodell steht jetzt einmal geschrieben, für alle**:
+  [`STC12-PERIPHERAL-MODEL.de.md`](STC12-PERIPHERAL-MODEL.de.md) (08.08.2026). Ein
+  ucsim-Fork (GPL-2, nur CI-Orakel), ein emu8051-Fork (**MIT**, also im Browser
+  mitlieferbar) und die Board-Schicht des Simulators müssen sich einig sein, was
+  dieser Chip tut; drei eigene Modelle hießen drei verschiedene Antworten. Die
+  Registeradressen darin sind gegengeprüfte Tatsachen; noch aus dem Datenblatt zu
+  lesende Bit-Belegungen sind markiert. **Der ADC-Abschnitt trägt den Hinweis, dass
+  er auf Silizium unbestätigt ist** — ein aus dem Datenblatt geschriebener Emulator
+  kann die Stimmigkeit der Folge zeigen, nicht ihre Richtigkeit.
 * **Zwei Oberflächen, die noch fehlen (aufgeworfen 08.08.2026).** Beide gibt es
   noch nicht; beide ergänzen Scratchs Bühne und brauchen keine Änderung am
   Codegenerator.
@@ -193,8 +202,12 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
      Git-Stand 0.9.9) — die eigentliche Arbeit ist also, eines zu schreiben:
      der SFR-Satz, der ADC, die PCA, das 1T-Timing. Dieses Modell wäre auch der
      billigste Weg, die ADC-Frage unten ohne Bank-Sitzung zu klären. Für den
-     Browser: ucsim oder emu8051 nach WASM übersetzt — vorher die Lizenzen
-     gegen die durchgängig permissive Regel von brickwright-lite prüfen.
+     Browser: ucsim oder emu8051 nach WASM übersetzt. **Lizenzen am 08.08.2026
+     geprüft: emu8051 ist MIT, ebenso Wokwis avr8js und wokwi-elements — der
+     Browserweg ist also wirklich offen; ucsim/QEMU/unicorn sind alle GPL-2 und
+     bleiben CI-only.** Die vollständige Architektur, samt Schaltungssimulation und
+     der Frage nach dem virtuellen Multimeter, steht in
+     `sb3-creator/reference/simulation.md`.
 * **Die Board-Beschreibung.** Derzeit kodiert `include/board.h` genau einen
   Zwei-LED-Aufbau fest. Blöcke brauchen eine Board-Beschreibung, die der
   Generator liest — vermutlich JSON, vermutlich geteilt mit der Live-Firmware,

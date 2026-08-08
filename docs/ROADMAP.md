@@ -163,6 +163,15 @@ Worth being honest about, because it shapes the order of work:
   changes nothing. Software delay loops would have run 6-12x fast — which is
   why the generator never emits one, and why the Keil translator now warns
   when it sees them in migrated code.
+* **The peripheral model is now written down once, for everyone**:
+  [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md) (2026-08-08). A ucsim
+  fork (GPL-2, CI oracle only), an emu8051 fork (**MIT**, so bundleable in the
+  browser) and the simulator's board layer all need to agree on what this chip
+  does; three independent models would mean three different answers. Register
+  addresses in it are cross-checked facts; bit layouts still to be read from the
+  datasheet are marked. **The ADC section carries the unverified-on-silicon
+  warning** — an emulator written from the datasheet can show the sequence is
+  self-consistent but cannot confirm it is right.
 * **Two surfaces the hardware story still needs (raised 2026-08-08).** Neither
   exists; both are additive to Scratch's stage and need no emitter changes.
   1. **A hardware interaction / visualisation panel** — what
@@ -182,8 +191,11 @@ Worth being honest about, because it shapes the order of work:
      the actual work is writing one — the SFR set, the ADC, the PCA, the 1T
      timing. That model would also be the cheapest way to close out the ADC
      question below without a bench session. For the browser, ucsim or emu8051
-     compiled to WASM; check their licences against brickwright-lite's
-     fully-permissive rule first.
+     compiled to WASM. **Licences checked 2026-08-08: emu8051 is MIT, and so are
+     Wokwi's avr8js and wokwi-elements — so the browser path is genuinely open;
+     ucsim/QEMU/unicorn are all GPL-2 and stay CI-only.** Full architecture,
+     including the circuit-simulation and virtual-multimeter question, in
+     `sb3-creator/reference/simulation.md`.
 * **Board definition.** Right now `include/board.h` hardcodes one two-LED rig.
   Blocks will need a board descriptor the generator reads — probably JSON,
   probably shared with the live firmware so both modes agree on pin names.
