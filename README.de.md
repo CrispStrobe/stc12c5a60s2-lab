@@ -699,7 +699,6 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 │   ├── setup-macos.sh       installiert sdcc + stcgal
 │   ├── find-port.sh         findet das serielle Gerät
 │   ├── compile-remote.sh    baut über den gehosteten Compiler, ohne SDCC
-│   └── fetch-vendor-reference.sh   holt das ICStation-Paket 4681 (gitignored)
 └── docs/
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)
     └── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (de: ROADMAP.de.md)
@@ -759,42 +758,6 @@ Zwei Konsequenzen stecken im Werkzeug:
 * [rgm3/ledcube444](https://github.com/rgm3/ledcube444) — 4×4×4-LED-Würfel auf genau diesem Chip, und Ursprung des DTR-Autoreset-Tricks (MIT)
 * [tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8) — 8×8×8-Würfel, größere SDCC-Codebasis (MIT)
 * [kabirz/c51_sdcc](https://github.com/kabirz/c51_sdcc) — CMake-Gerüst für SDCC + STC12 (MIT)
-
-### Das ICStation-Paket zum 4×4×4-Würfel
-
-Das vollständigste herstellerseitige Beispiel zu diesem Chip ist ICStations
-Bausatz 4681: ein Keil-µVision-Projekt (1773 Zeilen C51), STCs eigener
-Register-Header, die Aufbauanleitung und der Schaltplan. Als Gegenprobe
-nützlich.
-
-Die URL, die überall verlinkt wird — `icstation.com/ebay/IC/All data modules/4681.zip`,
-unter anderem aus der README von `rgm3/ledcube444` — **ist seit mindestens
-Januar 2018 tot**, und die Wayback Machine hat davon ausschließlich den
-404 archiviert. Verschwunden ist die Datei deshalb aber nicht; ICStation hat sie
-verschoben:
-
-```
-https://www.icstation.com/product_document/Download/4681.zip
-```
-
-Diese Adresse ist weiterhin erreichbar (1 451 397 Byte), und für den Notfall hat
-Wayback vom neuen Pfad eine brauchbare Aufnahme von 2018. Herunterladen und
-entpacken mit:
-
-```bash
-./tools/fetch-vendor-reference.sh
-```
-
-Das landet in `vendor-reference/`, was **bewusst gitignored** ist — das Paket
-steht unter keiner Lizenz, darf also gelesen, aber nicht weiterverbreitet
-werden. Das Skript dekodiert außerdem die GBK-kodierten chinesischen
-Dateinamen, an denen `unzip` unter macOS scheitert.
-
-Zwei Vorbehalte, bevor man daraus etwas übernimmt: das enthaltene
-`stc12c5a60s2.h` ist Keil-Syntax (`sfr P0 = 0x80;`, `sbit`) und **lässt sich mit
-SDCC nicht übersetzen** — dafür SDCCs eigenes `<stc12.h>` nehmen, dessen
-Adressen damit übereinstimmen — und nichts aus dem Paket darf in dieses
-Repository kopiert werden.
 
 > **Zur Lizenzlage von fremdem STC-Code.** Der allermeiste STC12C5A60S2-Code auf
 > GitHub steht **unter gar keiner Lizenz** — darunter

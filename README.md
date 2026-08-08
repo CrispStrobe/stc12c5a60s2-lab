@@ -676,7 +676,6 @@ your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
 │   ├── setup-macos.sh       installs sdcc + stcgal
 │   ├── find-port.sh         guesses the serial device
 │   ├── compile-remote.sh    builds via the hosted compiler, no SDCC needed
-│   └── fetch-vendor-reference.sh   pulls the ICStation 4681 package (gitignored)
 └── docs/
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
     └── ROADMAP.md  ROADMAP.de.md   the BrickWright extension plan
@@ -736,37 +735,6 @@ Two consequences are baked into the tooling:
 * [rgm3/ledcube444](https://github.com/rgm3/ledcube444) — 4×4×4 LED cube on this exact chip, and where the DTR auto-reset trick comes from (MIT)
 * [tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8) — 8×8×8 cube, larger SDCC codebase (MIT)
 * [kabirz/c51_sdcc](https://github.com/kabirz/c51_sdcc) — CMake scaffolding for SDCC + STC12 (MIT)
-
-### The ICStation 4×4×4 cube package
-
-The most complete first-party example of this chip in circulation is ICStation's
-kit 4681: a Keil µVision project (1773 lines of C51), STC's own register header,
-the assembly guide, and the schematic. Handy as a cross-check.
-
-The URL everyone links to — `icstation.com/ebay/IC/All data modules/4681.zip`,
-including from `rgm3/ledcube444`'s README — **has been dead since at least
-January 2018**, and the Wayback Machine only ever captured the 404. The file did
-not disappear, though; ICStation moved it:
-
-```
-https://www.icstation.com/product_document/Download/4681.zip
-```
-
-That is still live (1 451 397 bytes), and Wayback *does* have a good 2018 capture
-of the new path as a fallback. Fetch and unpack it with:
-
-```bash
-./tools/fetch-vendor-reference.sh
-```
-
-It lands in `vendor-reference/`, which is **gitignored on purpose** — the package
-carries no licence, so it can be read but not redistributed. The script also
-decodes the GBK-encoded Chinese filenames, which `unzip` mangles on macOS.
-
-Two caveats before borrowing anything from it: the bundled `stc12c5a60s2.h` is
-Keil syntax (`sfr P0 = 0x80;`, `sbit`) and **will not compile under SDCC** — use
-SDCC's own `<stc12.h>`, whose addresses agree with it — and nothing in the
-package may be copied into this repo.
 
 > **A note on licensing of third-party STC code.** Most STC12C5A60S2 code on
 > GitHub carries **no licence at all** — including
