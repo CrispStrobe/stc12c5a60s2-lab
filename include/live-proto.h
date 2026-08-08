@@ -112,10 +112,34 @@
  *   5  writable spaces bitmap
  *   6  flags, below
  *   7  max tasks the symbol table holds
+ *   8  peripherals the monitor has taken, below
  */
 #define LIVE_FLAG_TIME_FREEZES  0x01   /* halting stops *program* time       */
 #define LIVE_FLAG_PC_VALID      0x02   /* regs() reports a meaningful PC     */
 #define LIVE_FLAG_SFRS_ALL      0x04   /* all 256 SFRs, not a curated set    */
+
+/* ------------------------------------------------ what the monitor consumed
+ * A debugger is not free on a part this size: it takes real peripherals, and
+ * a program that wanted one of them will not work under it. Reporting the set
+ * lets a front end say WHY rather than leaving a feature silently dead.
+ *
+ * The case that forced this: a TONE pin is Timer 1 toggling a GPIO, because
+ * no PWM path on this chip can make a pitch (STC12-PERIPHERAL-MODEL.md §5b).
+ * The monitor also wants Timer 1, as the wall clock behind skewNs. So a
+ * program with a buzzer cannot run under the monitor, and without this byte
+ * the only symptom would be a buzzer that does not sound.
+ *
+ * The set differs by part, which is itself worth reporting: the STC12 takes
+ * the dedicated BRT for its baud rate, the STC15 has no usable BRT and takes
+ * Timer 2 instead (STC15-PERIPHERAL-MODEL.md §2.2).
+ */
+#define LIVE_RES_TIMER0         0x01   /* the millisecond tick               */
+#define LIVE_RES_TIMER1         0x02   /* wall clock behind skewNs -> TONE   */
+#define LIVE_RES_TIMER2         0x04   /* STC15 baud source                  */
+#define LIVE_RES_BRT            0x08   /* STC12 baud source                  */
+#define LIVE_RES_UART1          0x10   /* the link itself, and the ISP pins  */
+#define LIVE_RES_PCA            0x20   /* not taken today; here so a future
+                                        * monitor can say if it starts to be */
 
 /* --------------------------------------------------- POS / EVT_HALT blob
  *   0     run state

@@ -35,6 +35,14 @@
 #define LIVE_MAX_BP    4
 #endif
 
+/* Which peripherals this build of the monitor consumes. The includer sets it,
+ * because it differs by part: the baud rate comes from the BRT on an STC12
+ * and from Timer 2 on an STC15. Reported verbatim in the HELLO blob so a
+ * front end can explain a dead feature instead of just showing one. */
+#ifndef LIVE_RESOURCES
+#define LIVE_RESOURCES (LIVE_RES_TIMER0 | LIVE_RES_TIMER1 | LIVE_RES_UART1)
+#endif
+
 /* ---------------------------------------------------- the five hardware seams
  * Declared here, defined by whoever includes this. `static`, because there is
  * exactly one target per build; a struct of function pointers would cost code
@@ -152,7 +160,8 @@ static void live_dispatch(void)
         pay[5] = (unsigned char)(pay[4] & ~LIVE_SPMASK(LIVE_SP_CODE));
         pay[6] = LIVE_FLAG_TIME_FREEZES;    /* no PC, no full SFR set       */
         pay[7] = LIVE_MAX_TASKS;
-        send(LIVE_REPLY(cmd), pay, 8);
+        pay[8] = LIVE_RESOURCES;            /* what a program cannot also use */
+        send(LIVE_REPLY(cmd), pay, 9);
         return;
 
     case LIVE_CMD_READ:

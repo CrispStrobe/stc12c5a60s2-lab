@@ -150,7 +150,7 @@ static void test_hello(void)
     printf("HELLO reports the on-chip row of the capability matrix, honestly\n");
     request(LIVE_CMD_HELLO, NULL, 0);
     ok(replied(LIVE_CMD_HELLO), "HELLO is answered");
-    ok(out_len == 8, "blob is 8 bytes");
+    ok(out_len == 9, "blob is 9 bytes");
     ok(out_buf[0] == LIVE_PROTO_VERSION, "protocol version");
     ok(out_buf[2] == (1u << LIVE_STEP_BLOCK), "block stepping ONLY - no insn, no line");
     ok(out_buf[3] == (1u << LIVE_BP_YIELD), "yield breakpoints ONLY - no code, no watch");
@@ -159,6 +159,17 @@ static void test_hello(void)
     ok((out_buf[6] & LIVE_FLAG_TIME_FREEZES) != 0, "halting freezes program time");
     ok((out_buf[6] & LIVE_FLAG_PC_VALID) == 0, "no PC is claimed");
     ok((out_buf[6] & LIVE_FLAG_SFRS_ALL) == 0, "SFR window is curated, not all 256");
+
+    /* A debugger is not free on a part this size. Saying what it took lets a
+     * front end explain a dead feature instead of just showing one -- the
+     * case that forced it being TONE, which is Timer 1, which is also the
+     * wall clock behind skewNs. */
+    ok(out_len == 9, "the blob carries the consumed-peripherals byte");
+    ok((out_buf[8] & LIVE_RES_TIMER1) != 0,
+       "Timer 1 is declared taken, which is why a TONE pin cannot work here");
+    ok((out_buf[8] & LIVE_RES_UART1) != 0, "and UART1, which is also the ISP pins");
+    ok((out_buf[8] & LIVE_RES_PCA) == 0,
+       "but NOT the PCA -- so PWM still works under the monitor");
 }
 
 static void test_read_write(void)

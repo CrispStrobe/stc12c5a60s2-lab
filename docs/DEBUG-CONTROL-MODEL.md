@@ -283,7 +283,16 @@ interface Capabilities {
     sfrs:        number[] | 'all';            // the curated set, or everything
     haltPolicy:  'freeze-timers' | 'free-running';
     timeFreezes: boolean;                     // does halting stop program time?
+
+    /**
+     * Peripherals the debugger itself consumes, so a front end can explain a
+     * dead feature rather than merely showing one. Empty on an emulator.
+     * `null` means the target predates the field and is not saying.
+     */
+    consumes:    Resource[] | null;
 }
+
+type Resource = 'timer0' | 'timer1' | 'timer2' | 'brt' | 'uart1' | 'pca';
 
 interface HaltReason {
     cause:   'breakpoint' | 'step' | 'user' | 'reset' | 'fault' | 'link-lost';
@@ -331,6 +340,14 @@ Four decisions, each of which matters:
    as at boundary A, so there is no re-entrancy and no scheduler to agree on.
 4. **`skewNs` is mandatory, not optional.** It is zero on an emulator and non-zero on the chip,
    which is exactly the difference the front end must be able to show.
+5. **A debugger declares what it costs.** On a 60 KB part the monitor is not free: it takes
+   Timer 0, Timer 1, UART1 and a baud source, and a program that wanted one of those does not
+   work under it. The case that forced this into the interface: a `TONE` pin is Timer 1 toggling
+   a GPIO — no PWM path on this chip can make a pitch
+   ([peripheral model §5b](STC12-PERIPHERAL-MODEL.md)) — and the monitor wants Timer 1 as the
+   wall clock behind `skewNs`. Without `consumes`, the only symptom would be a buzzer that does
+   not sound. The set is part-specific and that is itself worth reporting: an STC12 monitor takes
+   the BRT for baud, an STC15 one takes Timer 2.
 
 ---
 

@@ -87,6 +87,22 @@
 #define LIVE_MAX_BP    4
 #define LIVE_MEM       __xdata
 
+/* What this build takes away from the program under test. Timer 0 is the
+ * millisecond tick, Timer 1 is the wall clock that makes skew_ms honest, and
+ * UART1 is the link -- which is also the ISP pin pair. The baud source is the
+ * part-specific one: the STC12's dedicated BRT, or Timer 2 on an STC15, where
+ * the BRT is at best deprecated (STC15-PERIPHERAL-MODEL.md 2.2).
+ *
+ * The consequence a user will actually meet: a TONE pin is Timer 1, so a
+ * program with a buzzer cannot run under this monitor. */
+#ifdef PART_STC15F2K60S2
+#define LIVE_RESOURCES (LIVE_RES_TIMER0 | LIVE_RES_TIMER1 | \
+                        LIVE_RES_TIMER2 | LIVE_RES_UART1)
+#else
+#define LIVE_RESOURCES (LIVE_RES_TIMER0 | LIVE_RES_TIMER1 | \
+                        LIVE_RES_BRT    | LIVE_RES_UART1)
+#endif
+
 /* ============================================================== the program
  * Two tasks in emitter shape. Deliberately not factored or tidied: the point
  * is that this is what generateC() produces, so the monitor is being tested

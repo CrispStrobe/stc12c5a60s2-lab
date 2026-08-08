@@ -209,6 +209,16 @@ class Position:
         )
 
 
+RESOURCES = {
+    "LIVE_RES_TIMER0": "Timer 0 (the millisecond tick)",
+    "LIVE_RES_TIMER1": "Timer 1 (wall clock behind skew) \u2014 so a TONE pin cannot work",
+    "LIVE_RES_TIMER2": "Timer 2 (baud rate on the STC15)",
+    "LIVE_RES_BRT": "the baud-rate timer (baud rate on the STC12)",
+    "LIVE_RES_UART1": "UART1 on P3.0/P3.1 \u2014 also the ISP pins",
+    "LIVE_RES_PCA": "the PCA",
+}
+
+
 class Capabilities:
     def __init__(self, blob):
         if len(blob) < 8:
@@ -223,6 +233,12 @@ class Capabilities:
         self.pc_valid = bool(blob[6] & C["LIVE_FLAG_PC_VALID"])
         self.sfrs_all = bool(blob[6] & C["LIVE_FLAG_SFRS_ALL"])
         self.max_tasks = blob[7]
+        # Byte 8 is newer than the first firmware; treat its absence as "the
+        # monitor does not say", not as "the monitor takes nothing".
+        self.resources = None if len(blob) < 9 else [
+            text for name, text in RESOURCES.items()
+            if blob[8] & C.get(name, 0)
+        ]
 
     def report(self):
         return "\n".join(
@@ -238,6 +254,10 @@ class Capabilities:
                 f"SFR window         {'all 256' if self.sfrs_all else 'curated set'}",
                 f"max tasks          {self.max_tasks}",
             ]
+            + (["peripherals taken  (not reported by this firmware)"]
+               if self.resources is None else
+               [f"peripherals taken  {self.resources[0] if self.resources else '(none)'}"]
+               + [f"                   {r}" for r in self.resources[1:]])
         )
 
 
