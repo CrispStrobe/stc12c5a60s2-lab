@@ -191,7 +191,11 @@ Worth being honest about, because it shapes the order of work:
      gap: no ucsim build ships an STC model** (verified at git head 0.9.9), so
      the actual work is writing one — the SFR set, the ADC, the PCA, the 1T
      timing. That model would also be the cheapest way to close out the ADC
-     question below without a bench session. For the browser, ucsim or emu8051
+     question below without a bench session. **The run-control surface itself is
+     now specified once, as boundary D:**
+     [`DEBUG-CONTROL-MODEL.md`](DEBUG-CONTROL-MODEL.md) (2026-08-08) — both
+     emulator forks and the future on-chip monitor implement that, not their own
+     reading of what `step` means. For the browser, ucsim or emu8051
      compiled to WASM. **Licences checked 2026-08-08: emu8051 is MIT, and so are
      Wokwi's avr8js and wokwi-elements — so the browser path is genuinely open;
      ucsim/QEMU/unicorn are all GPL-2 and stay CI-only.** Full architecture,

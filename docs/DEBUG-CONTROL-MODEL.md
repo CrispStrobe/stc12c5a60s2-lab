@@ -1,0 +1,320 @@
+# The debug control model — boundary D, one contract, three implementations
+
+**Why this file exists.** [`simulation-contract.md`](../../sb3-creator/reference/simulation-contract.md)
+fixes three boundaries: A the pin bus, B parts and probes, C inference from the project. Run
+control is orthogonal to all three. It is the surface between a front end and *whatever is
+executing* — and three different things will execute:
+
+| implementation | licence | where it may live | repo |
+|---|---|---|---|
+| emu8051 fork with an STC12 model | **MIT** | bundleable — WASM in the browser | `CrispStrobe/emu8051-stc` |
+| ucsim fork with an STC12 model | **GPL-2** (part of SDCC) | CI / developer oracle only. **Never bundled.** | `CrispStrobe/ucsim-stc` |
+| an on-chip monitor over UART | ours, MIT | `src/10-live-firmware` (does not exist yet) | this repo |
+
+This document lives here, not beside A/B/C, because one of the three implementers is firmware
+in this repo and because it depends on [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md),
+which is also here.
+
+**The reason to write it before any of it is built** is that `step` is a word three people will
+implement three different ways — one instruction, one C line, one Scratch block — and all three
+will pass their own tests. Two models that agree while *running* (which `ucsim-stc` and
+`emu8051-stc` now demonstrably do) prove nothing about whether they agree while *stepping*.
+
+## 0. What this is not
+
+**Not a wire format.** Each target is reached over whatever transport suits it: in-process
+calls into WASM, ucsim's own socket, a framed UART link to the chip. Boundary D is the
+*semantics* those transports carry. `sdcdb`'s protocol and gdb's remote serial protocol sit
+*below* this line, not at it.
+
+**Not a source mapper.** Turning a `.cdb` into C lines, and C lines into pseudocode blocks,
+belongs to `stc-compiler` / `sb3-creator`. Boundary D consumes the result; it does not produce it.
+
+---
+
+## 1. The capability matrix — read this before designing anything against it
+
+The single most consequential fact here is that **the three targets are not equally capable, and
+the differences are not incidental — they are forced by the silicon.** An interface that hides
+this produces a front end that lies to the user the moment it is pointed at real hardware.
+
+| capability | emu8051-stc | ucsim-stc | on-chip monitor |
+|---|---|---|---|
+| halt / resume | exact, any time | exact, any time | **only at a yield point** (or in single-step mode, §4) |
+| step one instruction | free | free | intrusive — costs P3.2 and real time, §4 |
+| step one C line | yes (needs the line table) | yes | **no** |
+| step one block (yield to yield) | yes | yes | **yes — the native granularity** |
+| breakpoint at an arbitrary code address | free, unlimited | free, unlimited | **expensive and possibly impossible**, §5 |
+| breakpoint at a yield point | free | free | free |
+| data watchpoint (write / read) | yes | yes | **no** — polled sampling only |
+| read registers, IRAM, XRAM, SFR while halted | all | all | most, §6 |
+| write the same | all | all | most, with hazards, §6 |
+| reset | to a defined state | to a defined state | resets into user code, **not** into ISP |
+| **program time freezes while halted** | inherently | inherently | **only if the monitor freezes Timer 0**, §3 |
+| **the physical world freezes while halted** | n/a | n/a | **never** |
+
+`capabilities()` is part of the interface (§7) and every front end must branch on it. A target
+refuses by returning a *reason*, never by silently doing something else — the same idiom
+boundary B uses for `resistance(): number | 'requires-power-off'`.
+
+---
+
+## 2. Position: where the program is
+
+A debugger's first question is "where am I". On this toolchain there are two fidelity levels,
+and the cheap one is nearly free on **all three targets**.
+
+`stc_pseudocode.py` compiles each `WHEN` block to a cooperative state machine, and that state
+machine keeps its position in named C statics:
+
+```c
+static volatile unsigned int bw_ms;        /* the millisecond tick        */
+static unsigned int <task>_state;          /* which yield this task is at */
+static unsigned int <task>_until;          /* wait deadline, if waiting   */
+```
+
+`<task>_state` is a `switch` selector; every wait and every loop back-edge is a numbered `case`.
+`0xFFFF` means the task ran to the end or was stopped.
+
+**Level 1 — yield fidelity. Free, no codegen change, works on every target.**
+Position is the tuple `(task, state)`, obtained by *reading three variables out of RAM*. No
+instrumentation, no hooks, no breakpoints. `bw_ms` gives the clock, `<task>_state` the position,
+`<task>_until` why a task is waiting and until when. On the emulator these are addresses from the
+SDCC map file; on the chip they are the same addresses read over the link.
+
+Granularity is therefore **yield-to-yield**, not per-block: a run of straight-line statements
+between two yields does not move `<task>_state`. Say so in the UI rather than implying otherwise.
+
+**Level 2 — block fidelity. Needs a codegen change; costs flash and time on the chip.**
+The emitter emits a `BW_TRACE(<block-id>)` hook at each block in debug builds and nothing in
+release builds. Exact Scratch-style block highlighting, at a price that is negligible on an
+emulator and real on a 60 KB part.
+
+**Ship Level 1 first.** It answers the question the Scratch-shaped front end actually asks, on
+hardware, for free.
+
+### The dependency this creates
+
+Level 1 needs the **addresses** of `bw_ms`, `<task>_state` and `<task>_until`, and a stable
+`(task, state) → source block` mapping. Both come from the emitter and the SDCC map/`.cdb`.
+**That is work for `stc-compiler` / `sb3-creator`, not for either emulator.** Neither emulator
+agent should implement a symbol resolver; both should take a symbol table as input.
+
+---
+
+## 3. Execution state, and what happens to time
+
+```
+     ┌── reset ──> halted <──── breakpoint / step-complete / halt() ────┐
+     │               │                                                  │
+     │             run()                                                │
+     │               v                                                  │
+     └───────────  running  ──────────────────────────────────────────> ┘
+                     │
+                  link-lost ──> detached          (on-chip target only)
+```
+
+`stepping` is transient and need not be observable. `detached` exists only for the chip: a
+serial link can die, and a front end that models this as `halted` will lie.
+
+**Time while halted is the hardest thing in this document.** On an emulator, halting stops
+time — trivially, because time is a counter the emulator owns. On silicon it does not:
+
+- Timer 0 keeps counting, `TF0` keeps setting, and on resume the scheduler sees a huge jump and
+  fires every overdue task at once. A `WAIT 1 SECOND` that was halted across for two minutes
+  completes instantly and every other task starves in a burst.
+- The physical world keeps going regardless: capacitors discharge, motors coast, the user keeps
+  turning the pot.
+
+**The rule: the monitor freezes program time while halted.** Clear `TR0` on halt, restore it on
+resume, and report the wall duration as `skewNs` in the halt reason. Rationale: the *program's*
+view of time then matches the emulator's, which is the only thing that makes the two targets
+comparable at all — while `skewNs` keeps the front end honest that the *world* did not freeze.
+
+`haltPolicy` is switchable — `'freeze-timers'` (default) or `'free-running'` for cases where
+stopping the timer would itself break what is being debugged. The emulator answers
+`'freeze-timers'` and ignores the other.
+
+---
+
+## 4. Stepping — three operations, not one word
+
+| kind | meaning | emulator | chip |
+|---|---|---|---|
+| `insn` | one instruction | yes | §4.1 |
+| `line` | one C source line, per the line table | yes | no |
+| `block` | run to the next yield point | yes | **yes** |
+| `over` | as `line`, but do not descend into a call: run until `SP` ≤ the entry value | yes | no |
+| `out` | run until `SP` < the entry value | yes | no |
+
+`over` and `out` are defined **in terms of `SP`**, deliberately: it is the only definition both
+emulators can implement identically without agreeing on a call graph.
+
+### 4.1 Instruction stepping on real silicon
+
+Possible, via the classic level-triggered `INT0` technique: hold P3.2 low with `IT0 = 0`, and
+the core's guarantee that one instruction of the interrupted program executes after `RETI`
+before the still-asserted interrupt is taken again yields exactly one instruction per round trip.
+
+The price is not small: it consumes P3.2, it needs the ISR to be the highest priority, it
+perturbs anything with real-time behaviour, and each step is a UART round trip. **It is a mode
+the user opts into, not the default.** A monitor that does not implement it at all is still
+conforming — it reports `insn: false` and the front end greys out the button.
+
+---
+
+## 5. Breakpoints
+
+```ts
+type Breakpoint =
+  | {kind: 'code',  addr: number}                         // code space address
+  | {kind: 'yield', task: string, state: number}          // §2 Level 1
+  | {kind: 'write', space: Space, addr: number, len: number}
+  | {kind: 'read',  space: Space, addr: number, len: number};
+```
+
+- **`code` on an emulator** is a comparison in the fetch path: free, unlimited.
+- **`code` on the chip is the thing MON51 does and we cannot.** Keil's Monitor-51 needs ~5 KB of
+  external code memory plus von-Neumann RAM dual-mapped as code *and* xdata, so it can write a
+  trap opcode into code space. **The STC12C5A60S2 has no PSEN pin** — it can address external
+  XDATA via `MOVX`, but it can never fetch an instruction from anything but internal flash
+  ([peripheral model §6](STC12-PERIPHERAL-MODEL.md)). The dual map is unbuildable. The only
+  remaining route is patching flash through IAP, which is **512-byte sector granularity, slow,
+  endurance-limited, and ⚠ gated behind a download-time option bit whose availability through
+  `stcgal` is unverified.** Until that is settled, the chip reports `code: false`.
+- **`yield` is the one kind every target supports.** On the chip it is a comparison in the tick
+  handler. On an emulator it resolves, through the symbol table, either to the code address of
+  that `case` label or to a write-watch on `<task>_state` — implementer's choice, but **both
+  emulators must halt at the same instruction**, so §8 pins it down.
+- **`write` / `read` are emulator-only.** The chip can poll a variable between yields and report
+  a change; that is sampling, not a watchpoint, and it must be labelled as such rather than
+  presented as the same feature.
+
+---
+
+## 6. Address spaces and registers
+
+8051 spaces share numeric addresses, so they must be named. This is a classic source of two
+implementations being confidently different.
+
+| space | range | notes |
+|---|---|---|
+| `code` | 0x0000–0xEFFF | 60 KB flash. Read-only on the chip except through IAP. |
+| `iram` | 0x00–0xFF | 0x80–0xFF reachable only indirectly |
+| `sfr` | 0x80–0xFF | **numerically overlaps `iram` and is a different space** |
+| `xram` | 0x0000–0x03FF | 1024 B on-chip auxiliary RAM; more if `AUXR.EXTRAM` selects external |
+| `bit` | 0x00–0xFF | bit-addressable space |
+
+Registers: `PC`, `A`, `B`, `DPTR` (and `DPTR1` — this part has two), `SP`, `PSW`, and `R0`–`R7`
+of the bank currently selected by `PSW.RS1:RS0`. A conforming target reports the bank explicitly
+rather than making the front end derive it.
+
+**The SFR access trap on real silicon:** the 8051 has no indirect SFR addressing. `MOV A,direct`
+needs a *literal* operand, so a monitor cannot read "SFR number *n*" from a variable. The
+workarounds are a ~1 KB table of `MOV A,<sfr>` / `RET` stubs in flash, or a curated set.
+**The monitor exposes the curated set — the SFRs in [peripheral model §2](STC12-PERIPHERAL-MODEL.md) —
+and reports the rest as unavailable.** Emulators expose all 256 and must not assume the chip does.
+
+**Write hazards on the chip:** writing `SCON`, `SBUF`, `PCON` or the Timer 1 / BRT baud registers
+breaks the link the monitor is speaking over. Those are refused with a reason, not attempted.
+
+---
+
+## 7. The interface
+
+Same house style as boundary A: one direction of control, refusals in the type.
+
+```ts
+type Space    = 'code' | 'iram' | 'sfr' | 'xram' | 'bit';
+type RunState = 'running' | 'halted' | 'detached';
+type StepKind = 'insn' | 'line' | 'block' | 'over' | 'out';
+
+interface Capabilities {
+    steps:       StepKind[];                  // which of §4 this target implements
+    breakpoints: Array<Breakpoint['kind']>;   // which of §5
+    spaces:      Space[];                     // which of §6 are readable
+    writable:    Space[];                     // which are writable
+    sfrs:        number[] | 'all';            // the curated set, or everything
+    haltPolicy:  'freeze-timers' | 'free-running';
+    timeFreezes: boolean;                     // does halting stop program time?
+}
+
+interface HaltReason {
+    cause:   'breakpoint' | 'step' | 'user' | 'reset' | 'fault' | 'link-lost';
+    pc:      number;
+    bp?:     BpHandle;
+    /** §2 Level 1 position, for every task the symbol table knows about. */
+    tasks?:  Array<{task: string; state: number; until?: number}>;
+    /** Program-time nanoseconds since reset. */
+    tNs:     bigint;
+    /** Wall-clock nanoseconds that passed while halted but not counted. 0 on an emulator. */
+    skewNs:  bigint;
+}
+
+interface DebugTarget {
+    capabilities(): Capabilities;
+    state(): RunState;
+
+    run(): void;
+    /** On the chip this may not take effect until the next yield point. */
+    halt(): void;
+    step(kind: StepKind, count?: number): void | {unsupported: string};
+    reset(): void;
+
+    setBreakpoint(bp: Breakpoint): BpHandle | {unsupported: string};
+    clearBreakpoint(h: BpHandle): void;
+
+    readMem(space: Space, addr: number, len: number): Uint8Array | {unsupported: string};
+    writeMem(space: Space, addr: number, data: Uint8Array): void | {refused: string};
+    regs(): Regs;
+    setReg(name: string, value: number): void | {refused: string};
+
+    /** The ONLY call from target to front end. */
+    onHalt(cb: (why: HaltReason) => void): void;
+}
+```
+
+Four decisions, each of which matters:
+
+1. **Refusal is a return value, never an exception and never a silent no-op.** A front end that
+   forgets to check gets an object where it expected data, and fails loudly at the point of the
+   mistake.
+2. **`capabilities()` is queried, not assumed.** There is no "lowest common denominator" mode —
+   the emulator would lose most of its value and the chip would still not fit.
+3. **The target never calls the front end except through `onHalt`.** One direction of control,
+   as at boundary A, so there is no re-entrancy and no scheduler to agree on.
+4. **`skewNs` is mandatory, not optional.** It is zero on an emulator and non-zero on the chip,
+   which is exactly the difference the front end must be able to show.
+
+---
+
+## 8. Acceptance — and the differential test that does not exist yet
+
+`ucsim-stc` and `emu8051-stc` currently agree on free-running traces: blink 49/49, adc 54/54,
+scheduler 37/37 identical, timing within 0.6%. **None of that covers run control.** Two models
+can agree perfectly while running and halt at different instructions.
+
+The ladder, in increasing order of value. Report honestly which rungs you have climbed.
+
+1. `capabilities()` is answered, and `state()` tracks `run()` / `halt()`.
+2. Level 1 position (§2) is reported for every task in the symbol table.
+3. `step('insn')` × N from reset produces the **same PC sequence** on both emulators.
+4. A `code` breakpoint halts **both emulators at the same PC**, with identical `A`, `B`, `DPTR`,
+   `SP`, `PSW`, and the same digest of IRAM and XRAM.
+5. A `yield` breakpoint on `generateC()` output halts both at the same `(task, state)` **and the
+   same `bw_ms`** — this is where an address-based and a watch-based implementation would
+   otherwise diverge invisibly.
+6. Write a variable while halted, resume: both produce the same subsequent trace.
+7. The on-chip monitor answers the same reads as the emulator, for the subset it supports, on the
+   same image.
+
+**Rungs 3–6 are an extension of `tests/trace.sh`, not a new harness.** Rung 7 needs the bench.
+
+## 9. Deliberately out of scope
+
+The gdb remote serial protocol wire format; `sdcdb` integration; flash-patch breakpoints on the
+chip until the IAP program-area question in §5 is answered; profiling and coverage; anything
+about the ISP bootloader beyond noting that the monitor and ISP contend for the same UART on
+P3.0/P3.1 and only a cold power-on enters ISP.
+
+Add them when something needs them, and extend this document **first**.

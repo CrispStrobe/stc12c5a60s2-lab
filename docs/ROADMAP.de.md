@@ -204,8 +204,12 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
      bekannte Lücke: kein ucsim-Build bringt ein STC-Modell mit** (geprüft am
      Git-Stand 0.9.9) — die eigentliche Arbeit ist also, eines zu schreiben:
      der SFR-Satz, der ADC, die PCA, das 1T-Timing. Dieses Modell wäre auch der
-     billigste Weg, die ADC-Frage unten ohne Bank-Sitzung zu klären. Für den
-     Browser: ucsim oder emu8051 nach WASM übersetzt. **Lizenzen am 08.08.2026
+     billigste Weg, die ADC-Frage unten ohne Bank-Sitzung zu klären. **Die
+     Ablaufsteuerung selbst ist jetzt einmal festgeschrieben, als Schnittstelle D:**
+     [`DEBUG-CONTROL-MODEL.md`](DEBUG-CONTROL-MODEL.md) (08.08.2026, wie das
+     Peripheriemodell nur auf Englisch) — beide Emulator-Forks und der künftige
+     On-Chip-Monitor implementieren das, nicht ihre eigene Lesart von
+     „Einzelschritt". Für den Browser: ucsim oder emu8051 nach WASM übersetzt. **Lizenzen am 08.08.2026
      geprüft: emu8051 ist MIT, ebenso Wokwis avr8js und wokwi-elements — der
      Browserweg ist also wirklich offen; ucsim/QEMU/unicorn sind alle GPL-2 und
      bleiben CI-only.** Die vollständige Architektur, samt Schaltungssimulation und
