@@ -45,9 +45,29 @@ BUILD     := build/$(EXAMPLE)
 IHX       := $(BUILD)/main.ihx
 HEX       := $(BUILD)/$(EXAMPLE).hex
 
-.PHONY: all clean flash erase info ports size check-port
+.PHONY: all clean flash erase info ports size check-port test
 
 all: $(HEX)
+
+# ------------------------------------------------------------------- tests
+# The framing codec in include/live-frame.h is plain C on purpose, so the
+# parser that runs on the chip is the one tested here. tools/live-monitor.py
+# implements the same wire format independently, and the two are diffed
+# against each other — one format, two implementations, which is the only
+# way to find out whether it is written down clearly enough.
+CC        ?= cc
+TESTBIN   := build/tests/frame_test
+
+$(TESTBIN): tests/frame_test.c $(HEADERS)
+	@mkdir -p $(dir $@)
+	$(CC) -Wall -Wextra -O2 -I include -o $@ $<
+
+test: $(TESTBIN)
+	@echo "== C codec (the one that runs on the chip) =="
+	@./$(TESTBIN)
+	@echo
+	@echo "== host codec, and C-vs-Python agreement =="
+	@./tools/live-monitor.py --selftest --vectors-from ./$(TESTBIN)
 
 $(IHX): $(SRC) $(HEADERS)
 	@mkdir -p $(BUILD)

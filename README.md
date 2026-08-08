@@ -667,19 +667,44 @@ your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
 ├── README.md   README.de.md this file, English and German
 ├── include/
 │   ├── board.h              pin map, LED polarity, port-mode setup
-│   └── delay.h              Timer-0 millisecond delay
+│   ├── delay.h              Timer-0 millisecond delay
+│   ├── live-proto.h         the debug link's wire format
+│   ├── live-frame.h         its codec — plain C, so the host can test it
+│   └── live-sfr.h           the curated SFR window (see below)
 ├── src/
-│   └── 01-blink/main.c      the C example
+│   ├── 01-blink/main.c      the C example
+│   ├── 02-adc/main.c        ADC check — UNVERIFIED on silicon
+│   └── 10-live-firmware/    on-chip debug monitor — UNVERIFIED on silicon
 ├── pseudocode/
 │   └── *.bw                 the same, as BrickWright pseudocode
+├── tests/
+│   └── frame_test.c         the codec, tested on the host: make test
 ├── tools/
 │   ├── setup-macos.sh       installs sdcc + stcgal
 │   ├── find-port.sh         guesses the serial device
 │   ├── compile-remote.sh    builds via the hosted compiler, no SDCC needed
+│   └── live-monitor.py      the host end of the debug link
 └── docs/
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
-    └── ROADMAP.md  ROADMAP.de.md   the BrickWright extension plan
+    ├── ROADMAP.md  ROADMAP.de.md   the BrickWright extension plan
+    ├── STC12-PERIPHERAL-MODEL.md   what this chip does — the shared contract
+    └── DEBUG-CONTROL-MODEL.md      run control, for emulators and for silicon
 ```
+
+### Debugging on real silicon
+
+There is no on-chip debug unit on this part, and no `PSEN` pin, so the Keil
+Monitor-51 approach — patch a trap opcode into code memory — is not merely
+inconvenient here, it is unbuildable. `src/10-live-firmware` does what the
+silicon *does* allow: it halts and steps at the cooperative scheduler's own
+yield points, sets breakpoints there, and reads memory, registers and
+position over UART1. `docs/DEBUG-CONTROL-MODEL.md` says exactly which
+debugger features survive that and which do not.
+
+The framing codec is plain C with no SFRs in it, so `make test` exercises the
+same parser that runs on the chip, and diffs it against an independent Python
+implementation in `tools/live-monitor.py`. **The firmware itself has not been
+run on hardware.**
 
 Every document exists in English and German. Source comments and identifiers
 stay English, since they track the datasheet's own naming.

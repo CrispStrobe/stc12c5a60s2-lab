@@ -9,7 +9,7 @@ executing* — and three different things will execute:
 |---|---|---|---|
 | emu8051 fork with an STC12 model | **MIT** | bundleable — WASM in the browser | `CrispStrobe/emu8051-stc` |
 | ucsim fork with an STC12 model | **GPL-2** (part of SDCC) | CI / developer oracle only. **Never bundled.** | `CrispStrobe/ucsim-stc` |
-| an on-chip monitor over UART | ours, MIT | `src/10-live-firmware` (does not exist yet) | this repo |
+| an on-chip monitor over UART | ours, MIT | `src/10-live-firmware` — **built, never run on silicon** | this repo |
 
 This document lives here, not beside A/B/C, because one of the three implementers is firmware
 in this repo and because it depends on [`STC12-PERIPHERAL-MODEL.md`](STC12-PERIPHERAL-MODEL.md),
@@ -315,6 +315,22 @@ The ladder, in increasing order of value. Report honestly which rungs you have c
    same image.
 
 **Rungs 3–6 are an extension of `tests/trace.sh`, not a new harness.** Rung 7 needs the bench.
+
+### Where the on-chip target stands
+
+`src/10-live-firmware` implements this document's §2 Level 1 position, §3 time freezing, §4
+`block` stepping, §5 `yield` breakpoints and §6 memory access, and answers `capabilities()` with
+exactly the on-chip row of §1. It compiles to about 6.6 KB of the 60 KB flash.
+
+What is actually *verified* is the framing layer and the host protocol: `include/live-frame.h`
+is deliberately free of SFRs, so `make test` runs the same parser the chip runs, and
+`tools/live-monitor.py` implements the wire format independently so the two can be diffed
+against each other. That found one real defect — an unescaped framing scheme loses a *second*
+frame after any truncation, which is why `live_rx_idle()` exists.
+
+**Nothing above the framing layer has been run on silicon**, and no bench session has happened.
+An emulator cannot stand in for one here: what is unverified is the UART bring-up, the BRT baud
+divisor, and whether halting at a yield point behaves as designed on a real 1T core.
 
 ## 9. Deliberately out of scope
 

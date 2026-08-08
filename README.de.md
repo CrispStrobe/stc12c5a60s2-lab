@@ -690,19 +690,45 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 ├── Makefile                 bauen / flashen / löschen / auslesen
 ├── include/
 │   ├── board.h              Pinbelegung, LED-Polarität, Portmodus-Setup
-│   └── delay.h              Millisekunden-Verzögerung über Timer 0
+│   ├── delay.h              Millisekunden-Verzögerung über Timer 0
+│   ├── live-proto.h         das Wireformat der Debug-Verbindung
+│   ├── live-frame.h         dessen Codec — reines C, damit der Host ihn testen kann
+│   └── live-sfr.h           das kuratierte SFR-Fenster (siehe unten)
 ├── src/
-│   └── 01-blink/main.c      das C-Beispiel
+│   ├── 01-blink/main.c      das C-Beispiel
+│   ├── 02-adc/main.c        ADC-Prüfung — auf Silizium UNGEPRÜFT
+│   └── 10-live-firmware/    On-Chip-Debug-Monitor — auf Silizium UNGEPRÜFT
 ├── pseudocode/
 │   └── *.bw                 dasselbe als BrickWright-Pseudocode
+├── tests/
+│   └── frame_test.c         der Codec, auf dem Host getestet: make test
 ├── tools/
 │   ├── setup-macos.sh       installiert sdcc + stcgal
 │   ├── find-port.sh         findet das serielle Gerät
 │   ├── compile-remote.sh    baut über den gehosteten Compiler, ohne SDCC
+│   └── live-monitor.py      das Host-Ende der Debug-Verbindung
 └── docs/
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)
-    └── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (de: ROADMAP.de.md)
+    ├── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (de: ROADMAP.de.md)
+    ├── STC12-PERIPHERAL-MODEL.md   was dieser Chip tut — der gemeinsame Vertrag
+    └── DEBUG-CONTROL-MODEL.md      Ablaufsteuerung, für Emulatoren und für Silizium
 ```
+
+### Debuggen auf echtem Silizium
+
+Dieser Baustein hat keine On-Chip-Debug-Einheit und keinen `PSEN`-Pin. Der Weg
+von Keils Monitor-51 — einen Trap-Opcode in den Programmspeicher schreiben —
+ist hier also nicht bloß unbequem, sondern gar nicht baubar.
+`src/10-live-firmware` tut das, was das Silizium zulässt: Es hält an den
+Yield-Punkten des kooperativen Schedulers an, geht dort schrittweise weiter,
+setzt dort Haltepunkte und liest Speicher, Register und Position über UART1.
+`docs/DEBUG-CONTROL-MODEL.md` sagt genau, welche Debugger-Funktionen das
+überleben und welche nicht (nur auf Englisch — interne Spezifikation).
+
+Der Framing-Codec ist reines C ohne SFR-Zugriffe. `make test` prüft damit
+genau den Parser, der auch auf dem Chip läuft, und vergleicht ihn mit einer
+unabhängigen Python-Implementierung in `tools/live-monitor.py`. **Die Firmware
+selbst lief noch nie auf Hardware.**
 
 ---
 
