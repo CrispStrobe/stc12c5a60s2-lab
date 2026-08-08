@@ -44,7 +44,7 @@ this produces a front end that lies to the user the moment it is pointed at real
 | step one instruction | free | free | intrusive — costs P3.2 and real time, §4 |
 | step one C line | yes (needs the line table) | yes | **no** |
 | step one block (yield to yield) | yes | yes | **yes — the native granularity** |
-| breakpoint at an arbitrary code address | free, unlimited | free, unlimited | **expensive and possibly impossible**, §5 |
+| breakpoint at an arbitrary code address | free, unlimited | free, unlimited | **no — not through our toolchain**, §5 |
 | breakpoint at a yield point | free | free | free |
 | data watchpoint (write / read) | yes | yes | **no** — polled sampling only |
 | read registers, IRAM, XRAM, SFR while halted | all | all | most, §6 |
@@ -179,9 +179,15 @@ type Breakpoint =
   trap opcode into code space. **The STC12C5A60S2 has no PSEN pin** — it can address external
   XDATA via `MOVX`, but it can never fetch an instruction from anything but internal flash
   ([peripheral model §6](STC12-PERIPHERAL-MODEL.md)). The dual map is unbuildable. The only
-  remaining route is patching flash through IAP, which is **512-byte sector granularity, slow,
-  endurance-limited, and ⚠ gated behind a download-time option bit whose availability through
-  `stcgal` is unverified.** Until that is settled, the chip reports `code: false`.
+  remaining route would be patching flash through IAP — 512-byte sector granularity, slow and
+  endurance-limited even if it worked. **It does not work through our toolchain.** `stcgal` 1.10
+  is the only ISP path we have, and its `Stc12Option` class (STC10/11/12) exposes exactly eleven
+  option bits: reset pin, low-voltage reset, oscillator stable delay, POR delay, clock gain,
+  clock source, four watchdog fields, `eeprom_erase_enabled` (erase-on-download — a different
+  thing entirely) and `bsl_pindetect_enabled`. There is no "allow IAP to write the program area"
+  among them; `program_eeprom_split` exists only on a later-series option class. **So the chip
+  reports `code: false`, and this is settled rather than pending.** Reopen it only if someone
+  produces an ISP path that is not `stcgal`.
 - **`yield` is the one kind every target supports.** On the chip it is a comparison in the tick
   handler. On an emulator it resolves, through the symbol table, either to the code address of
   that `case` label or to a write-watch on `<task>_state` — implementer's choice, but **both
@@ -313,7 +319,7 @@ The ladder, in increasing order of value. Report honestly which rungs you have c
 ## 9. Deliberately out of scope
 
 The gdb remote serial protocol wire format; `sdcdb` integration; flash-patch breakpoints on the
-chip until the IAP program-area question in §5 is answered; profiling and coverage; anything
+chip, which §5 closes rather than defers; profiling and coverage; anything
 about the ISP bootloader beyond noting that the monitor and ISP contend for the same UART on
 P3.0/P3.1 and only a cold power-on enters ISP.
 
