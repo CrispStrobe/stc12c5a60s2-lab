@@ -115,10 +115,22 @@ Worth being honest about, because it shapes the order of work:
    `stcgal/protocols.py` (MIT). Validate it against a known-good `.hex` built
    here — the round-trip is easy to test because `make info` gives you the same
    handshake to compare against.
-5. **Add `generateC()`** to `sb3Creator.js`, alongside `generatePython` /
-   `generateJavaScript`, with the same round-trip and execution tests the other
-   generators have. C is emit-only (no C → pseudocode front-end), so it does not
-   have to satisfy the two-way convergence invariant.
+5. ~~**Add `generateC()`** to `sb3Creator.js`~~ — **DONE 2026-08-08.** It sits
+   beside `generatePython` / `generateJavaScript` with `cRep`/`cCond`/
+   `cStackBlock` (ports `stmts_c`) and `cTaskBlock` (ports `stmts_task`), and
+   ported the scheduling / FOSC-12 / active-low decisions from
+   `stc-compiler/stc_pseudocode.py` unchanged. A new block surface carries the
+   hardware: `DEVICE` / `CLOCK` / `PIN` declarations plus `turn on/off`,
+   `set high/low`, `toggle`, `read` — spelled exactly as this repo's
+   `pseudocode/*.bw`, so a `.bw` file *is* a Brickwright program. 37 offline
+   checks plus 4 live ones that build every fixture through
+   `POST /compile {"language":"c"}`. Write-up: `sb3-creator/reference/c-target.md`;
+   vendored into `brickwright` `develop` and `brickwright-lite` `main`, each with
+   a read-only **🔌 C (STC12)** tab.
+   *C is emit-only for now, but both directions are the intent* — the way back
+   is being grown from `stc-compiler`'s Keil translator (`/translate`, 546/597)
+   and disassembler (`/disassemble`, 380/380 byte-exact). Until that lands, C
+   stays out of the two-way convergence invariant.
 6. **Stand up the compile endpoint** in `legacy-lego-compiler` next to the
    existing NBC/LMSASM ones: POST C, get back a `.hex`.
 7. **Ship `stc12`** (compiled mode), reusing the flasher from step 4.
@@ -145,6 +157,27 @@ Worth being honest about, because it shapes the order of work:
   changes nothing. Software delay loops would have run 6-12x fast — which is
   why the generator never emits one, and why the Keil translator now warns
   when it sees them in migrated code.
+* **Two surfaces the hardware story still needs (raised 2026-08-08).** Neither
+  exists; both are additive to Scratch's stage and need no emitter changes.
+  1. **A hardware interaction / visualisation panel** — what
+     [S4A](https://s4a.cat/index_en.html) does with its board picture, but
+     modern and multi-device: LED states, pin levels, pot readings, motor
+     speeds, live beside the stage. One panel, two sources: *simulated* (from
+     the emulator or the neutral driver shim) and *live* (mirroring real
+     hardware over the tethered link). It rides on sb3-creator's existing
+     `RUNTIME_EXTENSIONS` driver contract. Order: LEGO hubs, this board, later
+     Arduino.
+  2. **A simulator / emulator / debugger view** — run a `.hex` with nothing
+     plugged in: step, breakpoints, SFR + register view, memory, pin state.
+     `emu8051` is the UX reference (its TUI shows the right panes —
+     <https://reidemeister.com/blog/2022.07.03>); `ucsim`/`s51` is the engine
+     `stc-compiler` already runs differential execution against. **The known
+     gap: no ucsim build ships an STC model** (verified at git head 0.9.9), so
+     the actual work is writing one — the SFR set, the ADC, the PCA, the 1T
+     timing. That model would also be the cheapest way to close out the ADC
+     question below without a bench session. For the browser, ucsim or emu8051
+     compiled to WASM; check their licences against brickwright-lite's
+     fully-permissive rule first.
 * **Board definition.** Right now `include/board.h` hardcodes one two-LED rig.
   Blocks will need a board descriptor the generator reads — probably JSON,
   probably shared with the live firmware so both modes agree on pin names.

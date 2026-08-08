@@ -120,11 +120,23 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
    `stcgal/protocols.py` (MIT). Gegen eine hier gebaute, bekannt gute `.hex`
    verifizieren — der Abgleich ist einfach zu testen, weil `make info` denselben
    Handshake zum Vergleich liefert.
-5. **`generateC()` ergänzen** in `sb3Creator.js`, neben `generatePython` /
-   `generateJavaScript`, mit denselben Round-Trip- und Ausführungstests wie die
-   anderen Generatoren. C wird nur erzeugt, nicht gelesen (kein C-→-Pseudocode-
-   Frontend) — die Invariante der beidseitigen Konvergenz muss es also nicht
-   erfüllen.
+5. ~~**`generateC()` ergänzen** in `sb3Creator.js`~~ — **ERLEDIGT, 08.08.2026.**
+   Es steht neben `generatePython` / `generateJavaScript` und bringt
+   `cRep`/`cCond`/`cStackBlock` (portiert `stmts_c`) sowie `cTaskBlock`
+   (portiert `stmts_task`) mit; Scheduling, FOSC/12-Timing und Active-Low
+   wurden unverändert aus `stc-compiler/stc_pseudocode.py` übernommen. Eine
+   neue Blocksprache trägt die Hardware: `DEVICE` / `CLOCK` / `PIN` plus
+   `turn on/off`, `set high/low`, `toggle`, `read` — exakt so geschrieben wie
+   die `pseudocode/*.bw` dieses Repos, eine `.bw`-Datei *ist* also ein
+   Brickwright-Programm. 37 Prüfungen ohne Netz, dazu 4 Live-Prüfungen, die
+   jedes Beispiel über `POST /compile {"language":"c"}` wirklich bauen.
+   Beschreibung: `sb3-creator/reference/c-target.md`; eingebunden in
+   `brickwright` (`develop`) und `brickwright-lite` (`main`), jeweils mit einem
+   nur lesbaren **🔌 C (STC12)**-Reiter.
+   *C wird vorerst nur erzeugt, aber beide Richtungen sind das Ziel* — der Weg
+   zurück wächst aus dem Keil-Übersetzer (`/translate`, 546/597) und dem
+   Disassembler (`/disassemble`, 380/380 bytegenau) von `stc-compiler`. Bis
+   dahin bleibt C von der Invariante der beidseitigen Konvergenz ausgenommen.
 6. **Den Compile-Endpunkt aufsetzen** in `legacy-lego-compiler`, neben den
    bestehenden für NBC und LMSASM: C hinschicken, `.hex` zurückbekommen.
 7. **`stc12` veröffentlichen** (kompilierte Variante), mit dem Flasher aus
@@ -153,6 +165,29 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Warteschleifen liefen 6–12× zu schnell — genau deshalb erzeugt der
   Generator keine, und genau davor warnt der Keil-Übersetzer bei migriertem
   Code.
+* **Zwei Oberflächen, die noch fehlen (aufgeworfen 08.08.2026).** Beide gibt es
+  noch nicht; beide ergänzen Scratchs Bühne und brauchen keine Änderung am
+  Codegenerator.
+  1. **Eine Hardware-Anzeige zum Mitschauen und Eingreifen** — das, was
+     [S4A](https://s4a.cat/index_en.html) mit seinem Platinenbild macht, nur
+     modern und für mehrere Geräte: LED-Zustände, Pin-Pegel, Poti-Werte,
+     Motordrehzahlen, live neben der Bühne. Eine Anzeige, zwei Quellen:
+     *simuliert* (aus dem Emulator oder dem neutralen Treiber-Shim) und *live*
+     (spiegelt echte Hardware über die Tether-Verbindung). Sie setzt auf der
+     vorhandenen `RUNTIME_EXTENSIONS`-Treiberkonvention von sb3-creator auf.
+     Reihenfolge: LEGO-Hubs, dieses Board, später Arduino.
+  2. **Eine Simulator-/Emulator-/Debugger-Ansicht** — ein `.hex` ohne
+     angeschlossene Hardware laufen lassen: Einzelschritt, Haltepunkte, SFR-
+     und Registeransicht, Speicher, Pin-Zustände. `emu8051` ist das Vorbild für
+     die Bedienung (sein TUI zeigt genau die richtigen Bereiche —
+     <https://reidemeister.com/blog/2022.07.03>); `ucsim`/`s51` ist die
+     Maschine, gegen die `stc-compiler` schon differenziell ausführt. **Die
+     bekannte Lücke: kein ucsim-Build bringt ein STC-Modell mit** (geprüft am
+     Git-Stand 0.9.9) — die eigentliche Arbeit ist also, eines zu schreiben:
+     der SFR-Satz, der ADC, die PCA, das 1T-Timing. Dieses Modell wäre auch der
+     billigste Weg, die ADC-Frage unten ohne Bank-Sitzung zu klären. Für den
+     Browser: ucsim oder emu8051 nach WASM übersetzt — vorher die Lizenzen
+     gegen die durchgängig permissive Regel von brickwright-lite prüfen.
 * **Die Board-Beschreibung.** Derzeit kodiert `include/board.h` genau einen
   Zwei-LED-Aufbau fest. Blöcke brauchen eine Board-Beschreibung, die der
   Generator liest — vermutlich JSON, vermutlich geteilt mit der Live-Firmware,
