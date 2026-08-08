@@ -1,0 +1,19 @@
+{
+  "name": "06-dimmer",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 1578,
+  "netlistRows": [
+    "ANALOG -> potentiometer across VCC/GND, wiper to pin",
+    "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin"
+  ],
+  "artifacts": [
+    "06-dimmer.bw",
+    "06-dimmer.c",
+    "06-dimmer.cdb",
+    "06-dimmer.hex",
+    "pins.json"
+  ]
+}

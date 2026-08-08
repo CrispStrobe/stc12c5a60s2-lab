@@ -1,0 +1,32 @@
+# A potentiometer dims an LED — the first program here that produces a duty
+# cycle rather than an on/off level.
+#
+# This is the example `ledBrightness` in the board contract was specified for
+# and never had: brightness is current through the LED multiplied by PWM duty,
+# integrated over about 20 ms, which is what the eye does. Nothing in the
+# earlier examples produces a duty at all, so half of that contract had never
+# been exercised on either side.
+#
+#   pot   P1.2  wiper, ends to +5V and GND     (ADC channel 2)
+#   lamp  P1.3  +5V -> 1k -> LED -> pin        (PCA module 0, active LOW)
+#
+# Those two pins are adjacent for a reason worth knowing: P1.2/P1.3/P1.4 are
+# ECI/CCP0/CCP1 *and* ADC channels 2/3/4. The PWM output and the analog input
+# have to be different pins, and the front end refuses it if they are not.
+#
+# The PWM frequency is FOSC/12/256 — about 3.6 kHz at 11.0592 MHz — which is
+# far above flicker, so the eye sees a steady brightness rather than a blink.
+#
+# NOTE: the ADC path is written from the datasheet and has not been confirmed
+# on hardware, and neither has the PCA. Both are unverified on silicon.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  PIN pot  = P1.2 ANALOG                 # PDIP-40 pin 3
+  PIN lamp = P1.3 PWM ACTIVE LOW         # PDIP-40 pin 4
+
+  WHEN started:
+    FOREVER:
+      set lamp to pot * 100 / 1023 percent
+      wait 20 ms

@@ -53,22 +53,34 @@ is visible within seconds. Its `symbols.json` is what lets a debugger answer
 "where is the program" by reading three variables, and what a yield breakpoint
 resolves through.
 
-## What the set cannot cover yet, and why that matters
+## What `06-dimmer` means for the board layer — probably nothing, and that is the good news
 
-Everything here is GPIO and the ADC, because that is everything the emitter
-emits. The circuit designer needs more than that, and the gaps are specific:
+`ledBrightness` is specified in boundary B as *current × PWM duty integrated
+over ~20 ms*. Until `06-dimmer` nothing produced a duty cycle at all, so half
+that contract had never been exercised on either side.
+
+The pleasant surprise is that **it needs no interface change.** A PWM pin
+reaches the board the way every other pin does — as `setPin` calls on boundary
+A — just a lot faster. The board integrates, exactly as specified, and never
+needs to know the PCA exists. `pins.json` does carry a new `direction: "pwm"`,
+but that is advisory: the *netlist* for a PWM LED is the same VCC → 1 kΩ → LED
+→ pin that an active-low output gets, which is why `meta.json` still reports
+the `OUTPUT ACTIVE LOW` row for it.
+
+One thing that is **not** free, and is worth knowing before it is measured:
+at `CMOD = 0x00` the PCA runs at FOSC/12 and the PWM period is 256 counts, so
+the pin toggles about **7 200 times a second**. In real time that is nothing.
+Through an emulator running faster than real time, it is a lot of `setPin`
+calls, and it is the first workload that will show whether boundary A's
+one-call-per-edge shape costs anything.
+
+## What the set still cannot cover
 
 | missing | blocked on | the example it would unlock |
 |---|---|---|
-| **PWM** | PCA blocks in `stc_pseudocode.py`; `STC12-PERIPHERAL-MODEL.md` §5 is a skeleton | LED dimming and a buzzer tone — the two transducers `simulation-contract.md` boundary B already specifies (`ledBrightness`, `buzzerTone`) and nothing exercises |
+| **buzzer tone** | `CMOD` is hardcoded to `CPS=000`; an audible *pitch* needs `CPS=010`, clocking the PCA from Timer 0 overflow (`STC12-PERIPHERAL-MODEL.md` §5.2) | `buzzerTone`, the other boundary B transducer. `06-dimmer` gives a fixed ~3.6 kHz carrier, so duty varies loudness, not pitch — which is not what a tone block should mean |
 | **UART output** | emitter support | a serial console part, and the tethered-mode link |
-| **Motor / H-bridge** | PWM, plus board parts | the case where `branchCurrent` forces a real solver rather than the closed-form fast path |
-
-That last column is the point. `ledBrightness` is specified as *current × PWM
-duty integrated over ~20 ms*, and no example currently produces a duty cycle at
-all — so half of that contract has never been exercised by anything. **The next
-slices should be peripheral-driven rather than wiring-driven**: the four
-`inferNetlist` rows are covered, the transducers are not.
+| **Motor / H-bridge** | board parts | the case where `branchCurrent` forces a real solver rather than the closed-form fast path |
 
 ## Regenerating
 
