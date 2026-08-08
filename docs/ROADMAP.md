@@ -127,10 +127,16 @@ Worth being honest about, because it shapes the order of work:
    `POST /compile {"language":"c"}`. Write-up: `sb3-creator/reference/c-target.md`;
    vendored into `brickwright` `develop` and `brickwright-lite` `main`, each with
    a read-only **🔌 C (STC12)** tab.
-   *C is emit-only for now, but both directions are the intent* — the way back
-   is being grown from `stc-compiler`'s Keil translator (`/translate`, 546/597)
-   and disassembler (`/disassemble`, 380/380 byte-exact). Until that lands, C
-   stays out of the two-way convergence invariant.
+   *C is emit-only for now, but both directions are the intent* — and the
+   keystone is one piece of work: a **`cToPseudocode.js`** front end, exactly
+   parallel to `pythonToPseudocode.js` / `javascriptToPseudocode.js`, parsing
+   the subset `generateC` emits (plus a marker header for what the flat C form
+   loses: DEVICE/CLOCK/PIN and the script boundaries, the way
+   `scratch.defblock(...)` already works for Python/JS). `keil2sdcc` is C→C and
+   only widens that front end's input; `stc_disasm` is HEX→asm and is a
+   separate, harder track needing structure recovery. Full reasoning in
+   `sb3-creator/reference/c-target.md`.
+   Until that front end lands, C stays out of the two-way convergence invariant.
 6. **Stand up the compile endpoint** in `legacy-lego-compiler` next to the
    existing NBC/LMSASM ones: POST C, get back a `.hex`.
 7. **Ship `stc12`** (compiled mode), reusing the flasher from step 4.

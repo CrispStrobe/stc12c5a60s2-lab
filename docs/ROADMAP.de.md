@@ -133,10 +133,17 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
    Beschreibung: `sb3-creator/reference/c-target.md`; eingebunden in
    `brickwright` (`develop`) und `brickwright-lite` (`main`), jeweils mit einem
    nur lesbaren **🔌 C (STC12)**-Reiter.
-   *C wird vorerst nur erzeugt, aber beide Richtungen sind das Ziel* — der Weg
-   zurück wächst aus dem Keil-Übersetzer (`/translate`, 546/597) und dem
-   Disassembler (`/disassemble`, 380/380 bytegenau) von `stc-compiler`. Bis
-   dahin bleibt C von der Invariante der beidseitigen Konvergenz ausgenommen.
+   *C wird vorerst nur erzeugt, aber beide Richtungen sind das Ziel* — und der
+   Schlussstein ist ein einziges Stück Arbeit: ein Frontend
+   **`cToPseudocode.js`**, genau parallel zu `pythonToPseudocode.js` /
+   `javascriptToPseudocode.js`, das die Teilmenge liest, die `generateC`
+   erzeugt (plus ein Marker-Kopf für das, was die flache C-Form verliert:
+   DEVICE/CLOCK/PIN und die Skriptgrenzen — so wie `scratch.defblock(...)` das
+   für Python/JS längst tut). `keil2sdcc` ist C→C und verbreitert nur die
+   Eingabe dieses Frontends; `stc_disasm` ist HEX→Assembler und eine eigene,
+   schwierigere Spur, die Strukturrekonstruktion braucht. Ausführlich in
+   `sb3-creator/reference/c-target.md`. Bis dieses Frontend steht, bleibt C von
+   der Invariante der beidseitigen Konvergenz ausgenommen.
 6. **Den Compile-Endpunkt aufsetzen** in `legacy-lego-compiler`, neben den
    bestehenden für NBC und LMSASM: C hinschicken, `.hex` zurückbekommen.
 7. **`stc12` veröffentlichen** (kompilierte Variante), mit dem Flasher aus
