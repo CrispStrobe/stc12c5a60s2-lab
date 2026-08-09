@@ -128,8 +128,9 @@ Register addresses: `P0M1`=0x93 `P0M0`=0x94, `P1M1`=0x91 `P1M0`=0x92,
 > **This asymmetry is the single most common beginner trap.** Out of reset a
 > pin can *sink* 20 mA but can only *source* about a quarter of a milliamp.
 > That is why the LEDs in this repo are wired **active-low** (see §3) — it is
-> the arrangement that works in every mode. The whole chip should stay under
-> ~120 mA total.
+> the arrangement that works in every mode. Aggregate limits (§4.6): **80 mA
+> per 8-bit port**, **150 mA per chip**. You cannot drive 8 LEDs at 20 mA each
+> on one port — the port limit is 80 mA, so 10 mA each or multiplex.
 
 ### Speed gotcha inherited from being 1T
 

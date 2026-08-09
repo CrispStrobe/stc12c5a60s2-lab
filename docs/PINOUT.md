@@ -66,8 +66,16 @@ Two registers per port, one bit per pin:
 | 1 | 0 | Input-only | High impedance, Schmitt-triggered. |
 | 1 | 1 | Open-drain | All pull-ups off. Needs an external pull-up. |
 
-Every pin has a Schmitt-triggered input. **Total chip current should stay under
-~120 mA** even though any single pin can sink 20 mA.
+Every pin has a Schmitt-triggered input.
+
+**Current limits (§4.6):**
+- Per pin: 20 mA sink max
+- Per 8-bit port: **80 mA** total sink (not 8 × 20 = 160!)
+- Per chip: **150 mA** total sink (all ports combined)
+
+The per-port limit is why you cannot drive 8 LEDs at 20 mA each on one port —
+the aggregate is 80 mA, so each LED gets at most 10 mA, or you multiplex.
+Source current in quasi-bidirectional mode is only ~230 µA per pin.
 
 ### Driving an LED (§4.6)
 

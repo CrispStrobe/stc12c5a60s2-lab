@@ -68,8 +68,17 @@ Zwei Register pro Port, ein Bit pro Pin:
 | 1 | 0 | Nur Eingang | Hochohmig, mit Schmitt-Trigger. |
 | 1 | 1 | Open Drain | Alle Pull-ups aus. Braucht einen externen Pull-up. |
 
-Jeder Pin hat einen Schmitt-Trigger am Eingang. **Der Gesamtstrom des Chips
-sollte unter ~120 mA bleiben**, auch wenn ein einzelner Pin 20 mA senken kann.
+Jeder Pin hat einen Schmitt-Trigger am Eingang.
+
+**Stromgrenzen (§4.6):**
+- Pro Pin: max. 20 mA Senkstrom
+- Pro 8-Bit-Port: **80 mA** Gesamtsenkstrom (nicht 8 × 20 = 160!)
+- Pro Chip: **150 mA** Gesamtsenkstrom (alle Ports zusammen)
+
+Die Port-Grenze ist der Grund, warum man nicht 8 LEDs mit je 20 mA an einem
+Port betreiben kann — das Aggregat ist 80 mA, also max. 10 mA pro LED, oder
+man multiplext. Der Quellstrom im quasi-bidirektionalen Modus beträgt nur
+~230 µA pro Pin.
 
 ### Eine LED treiben (§4.6)
 
