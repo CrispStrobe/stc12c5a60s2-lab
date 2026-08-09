@@ -82,6 +82,48 @@ cube would refresh at about 12 Hz and flicker visibly. This is the drop-in trap
 `README.md` §8.1 describes, in the wild. `probe.c` uses Timer 0 at FOSC/12
 instead, which a 12T and a 1T part count identically.
 
+## Clean-room firmware: measured under emu8051-stc
+
+`main.c` in this directory is the clean-room implementation. Built with
+`sdcc -mmcs51 --model-small`, run under `emu8051-stc` at FOSC = 11,059,200 Hz.
+
+| | vendor (SDCC build, scan phase) | **clean-room** |
+|---|---|---|
+| per-line dwell | 0.824 ms (software loop) | **1.006 ms** (Timer 0 polled) |
+| frame period | 6.595 ms | **8.061 ms** |
+| refresh rate | 151.6 Hz | **124.1 Hz** |
+| dwell variation | not measured | **0.018%** (uniform) |
+| 1T/12T portable | no (~12x too fast on 1T) | **yes** (Timer 0 at FOSC/12) |
+| scan order | FE FD FB F7 EF DF BF 7F | same |
+| anti-ghost | blank P0, then select | blank P2 across P0 write |
+| ghosting violations | 0 / 4192 selects | 0 / 243 P0 writes |
+
+**Build:** `sdcc -mmcs51 --model-small -o /tmp/cr.ihx stc/src/20-ledcube/main.c`
+
+The key difference is the delay mechanism. The vendor firmware uses a software
+busy-wait loop that runs ~8x too fast on the 1T STC12 (the delays were sized
+for a 12T part). The clean-room version uses Timer 0 in mode 1 at FOSC/12,
+which is portable: a 12T and a 1T part count this timer identically. The 1 ms
+dwell comes from `reload = 65536 − 922 = 0xFC66`, not from instruction timing.
+
+Dwell uniformity: all 8 scan lines are within 1,005,484–1,005,665 ns (0.018%
+spread). No layer is lit longer than any other. The 181 ns variation is one
+timer tick at FOSC/12 (1,085 ns period) — the reload value lands at slightly
+different phases depending on when the previous overflow occurred.
+
+**Ghosting invariant:** A layer must never be enabled while `P0` holds
+another line's data. Blank the data before selecting, or hold every select
+off across the data write — either is sufficient; doing neither lights
+the previous line's pattern on the new line for the settle time.
+
+The vendor blanks `P0` first (`P0=0; P2=select; P0=data`), so the layer
+sees blank→correct. The clean-room driver holds `P2=0xFF` across the data
+write (`P0=data; P2=select; delay; P2=0xFF`), so no layer is on while
+`P0` changes. Both satisfy the invariant.
+
+**Measured (clean-room, 4 seconds):** 243 P0 writes, **zero** instances
+of a layer being enabled while P0 holds stale data. No ghosting possible.
+
 ## What is still unknown: the voxel map
 
 Sixty-four bits and sixty-four positions in a 4x4x4 — but the kit is sold as
@@ -115,6 +157,61 @@ the cube, fill in the table below. Under the simulator it already behaves:
 Until that table is filled in from a real cube, any renderer we draw is a guess
 with a plausible shape, and every layer above it — the simulated cube, the
 blocks that author animations — is wrong in exactly the same way.
+
+## What `probe.c` and `main.c` agree and disagree about
+
+Both programs were written from the same hardware understanding by different
+agents — `probe.c` by the measurement agent, `main.c` from
+`008-ledcube-hardware-spec.md` by a cleanroom agent that did not read the
+vendor firmware. A disagreement between them is a spec ambiguity; agreement
+is evidence the spec is unambiguous, not evidence it is right about the
+hardware. Only the physical probe on a real cube settles the second question.
+
+**Scan table — agree.** Both use `{FE,FD,FB,F7,EF,DF,BF,7F}`, same values,
+same order, active-low on P2.
+
+**Timer 0 — agree.** Both use Timer 0 at FOSC/12, polled, mode 1. Reload
+values differ by 1 tick (`probe.c`: 0xFC67, `main.c`: 0xFC66 — the two
+valid roundings of 921.6; the difference is < 1 µs per ms).
+
+**Anti-ghost — agree on outcome, differ in method.** `main.c` holds
+`P2 = 0xFF` across the data write, so no layer is on while P0 changes.
+`probe.c` blanks P0 first (`P0 = 0; P2 = select; P0 = data`), so the
+layer sees blank→correct. Both satisfy the invariant: a layer is never
+enabled while P0 holds another line's data.
+
+**Colour mapping — no disagreement, but no confirmation either.** `main.c`
+assigns `P0[3:0]` = red, `P0[7:4]` = blue (from the spec). `probe.c` is
+deliberately agnostic — it walks all 64 `(select, bit)` pairs and lets the
+observer record what lights up. It is the instrument that will confirm or
+refute what `main.c` assumes.
+
+**Select-to-layer mapping — same asymmetry.** `main.c` assigns scan lines
+0–3 to layers 0–3 first-colour and 4–7 to layers 0–3 second-colour (from
+the spec). `probe.c` does not assign meaning to select indices — again, it
+measures rather than assumes.
+
+**P0 data polarity — DISAGREE.** This is the one real conflict.
+
+The spec says active-low: a LOW bit lights the LED (`P0 = 0x00` = all on,
+`P0 = 0xFF` = all off). `main.c` follows this: `fb_clear()` sets every byte
+to `0xFF`, and `fb_set_red` *clears* bits to turn LEDs on.
+
+`probe.c` treats P0 as active-high: its "blank" frame is `{0,0,0,0,…}`,
+which under active-low would light every LED rather than blank the display.
+Its probe step is `frame[sel] = (1 << bit)` — under active-low, that turns
+OFF one LED and turns ON seven, which is backwards for identifying a single
+voxel. Both behaviours only make sense if `1 = LED on, 0 = LED off`.
+
+The vendor firmware's own blanking sequence (`P0 = 0; P2 = select;
+P0 = data`) has the same implication: `P0 = 0` is called "blank" in the
+README's measurement notes, which is only true under active-high.
+
+If P0 is actually active-high, then `main.c`'s framebuffer helpers are
+inverted: `fb_clear()` should set `0x00` (all off), and the set functions
+should set bits rather than clear them. This cannot be resolved from source
+— it requires watching the probe on a real cube and seeing whether
+`(FE, 01)` lights one LED (active-high) or darkens one (active-low).
 
 ## Where this is going
 
