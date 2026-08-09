@@ -1,6 +1,6 @@
 # 4x4x4 bi-colour LED cube — measured, not assumed
 
-The kit is the ICStation 4682 / HackerBox 005 cube: an STC12C5A60S2 driving 64
+The kit is the ICStation 4682 / HackerBox 005 cube (the vendor archive is `4681.zip` — product SKU and file id are two numbering systems for the same kit): an STC12C5A60S2 driving 64
 LEDs. This directory is the start of turning it into something you can author
 animations for from blocks, and it begins where it has to — with what the
 hardware actually does, measured under the simulator rather than read off a
@@ -40,9 +40,21 @@ hand immediately:
 |---|---|
 | select lines | `P2`, **active low**, cycling `FE FD FB F7 EF DF BF 7F` |
 | data | `P0`, 8 bits, written *after* the select |
-| step | **1.235 ms** |
-| frame | 8 steps = **9.88 ms**, so the cube refreshes at **101 Hz** |
+| per-line dwell | **1.235 ms** — but see below |
+| frame | 8 lines = **9.88 ms**, so the cube refreshes at **101 Hz** |
 | frame format | 8 bytes: one `P0` byte per select |
+
+**The refresh rate is a property of the build, not of the cube.** The dwell is a software delay
+loop, so it moves with the compiler. `ucsim-stc`'s `RESULTS.md` measures the same firmware at
+**1.110 ms/line (113 Hz)** from a different SDCC build, and **1.527 ms/line (82 Hz)** built with
+Keil — a 27% spread from the toolchain alone, on identical sources. The 1.235 ms above is one
+more SDCC build; all three are correct measurements of different binaries.
+
+So do not treat any of these as a hardware constant. What is fixed is the *constraint*: the full
+scan has to stay above ~100 Hz or the cube visibly flickers, and each line needs roughly a
+millisecond to be bright enough. That is how
+`ucsim-stc/spec-updates/008-ledcube-hardware-spec.md` states it, and it is the right way — an
+implementation that hits 113 Hz is not wrong for missing 101.
 
 The blank-then-select-then-drive order matters and the firmware honours it:
 `P0 = 0; P2 = select; P0 = data;`. Skip the blanking and the previous step's
