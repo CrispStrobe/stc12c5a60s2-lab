@@ -39,6 +39,7 @@ hand immediately:
 | | |
 |---|---|
 | select lines | `P2`, **active low**, cycling `FE FD FB F7 EF DF BF 7F` |
+| data polarity | `P0` **active high** — `1` lights an LED (measured, see below) |
 | data | `P0`, 8 bits, written *after* the select |
 | per-line dwell | **1.235 ms** — but see below |
 | frame | 8 lines = **9.88 ms**, so the cube refreshes at **101 Hz** |
@@ -67,12 +68,27 @@ millisecond to be bright enough. That is how
 `ucsim-stc/spec-updates/008-ledcube-hardware-spec.md` states it, and it is the right way — an
 implementation that hits 124 Hz is not wrong for missing 101.
 
-⚠ **The table above says `P0` is active-low, and the paragraph below calls `P0 = 0` "blank".
-Those cannot both be true**, and the `probe.c` / `main.c` cross-check further down reaches the
-same contradiction from a third direction. Under active-low, `P0 = 0` with a layer selected
-lights every LED in that layer — the opposite of blanking. Treat the polarity as **unresolved**
-until someone watches `probe.c` on a real cube; every statement here that depends on it is
-conditional, including the framebuffer helpers in `main.c`.
+⚠ **The `P0` row above said active-low, and it was wrong.** The paragraph below calls `P0 = 0`
+"blank", which under active-low would light every LED in the selected layer rather than blank it;
+the `probe.c` / `main.c` cross-check reached the same contradiction independently. It is now
+settled by measurement rather than by argument — `emu8051-stc` Finding #14, a `P0` value
+histogram over 5 seconds of the vendor firmware:
+
+| role | value | count |
+|---|---|---|
+| blank, always *before* a select | `0x00` | 1560 |
+| data, always *after* a select | `0xFF` (all on) | 414 |
+| data, red columns | `0x0F` | 540 |
+| data, blue columns | `0xF0` | 460 |
+
+**Zero exceptions in 3,930+ writes**: `0x00` is never used as data, `0xFF` never as blank. The
+semantic cross-check agrees — under active-high `0x0F` means red-on/blue-off, which matches the
+red-only layer sweep; under active-low it would mean the opposite of what that animation shows.
+
+**`P0` is active-HIGH: `1` lights an LED.** All four codebases now default
+`BW_CUBE_ACTIVE_HIGH = 1`. What remains open is not the firmware's intent but whether the
+*hardware* matches it, and only `probe.c` on a real cube answers that — so treat this as measured
+and strong, not as confirmed on silicon.
 
 The blank-then-select-then-drive order matters and the firmware honours it:
 `P0 = 0; P2 = select; P0 = data;`. Skip the blanking and the previous step's
