@@ -45,16 +45,34 @@ hand immediately:
 | frame format | 8 bytes: one `P0` byte per select |
 
 **The refresh rate is a property of the build, not of the cube.** The dwell is a software delay
-loop, so it moves with the compiler. `ucsim-stc`'s `RESULTS.md` measures the same firmware at
-**1.110 ms/line (113 Hz)** from a different SDCC build, and **1.527 ms/line (82 Hz)** built with
-Keil — a 27% spread from the toolchain alone, on identical sources. The 1.235 ms above is one
-more SDCC build; all three are correct measurements of different binaries.
+loop, so it moves with the compiler. `ucsim-stc`'s `RESULTS.md` (`9c0ef85`, 5-second windows over
+the scan phase) measures the same sources at:
+
+| build | per line | frame | refresh |
+|---|---|---|---|
+| SDCC | 1.237 ms | 9.895 ms | **101 Hz** |
+| Keil | 0.824 ms | 6.594 ms | **152 Hz** |
+
+The SDCC figure agrees with the 1.235 ms above to 0.16%, from two independent measurements — so
+that number is solid. The Keil build is **half again faster**, on identical sources.
+
+*(An earlier round reported 1.110 ms/113 Hz for SDCC and 1.527 ms/82 Hz for Keil, and a "27%
+spread with Keil slower". All four figures were artifacts of a 50 ms sampling window that
+overlapped the firmware's all-on phase, where `P2 = 0x00` and the scan stops. They are retracted
+at the source; the direction was wrong, not just the magnitude.)*
 
 So do not treat any of these as a hardware constant. What is fixed is the *constraint*: the full
 scan has to stay above ~100 Hz or the cube visibly flickers, and each line needs roughly a
 millisecond to be bright enough. That is how
 `ucsim-stc/spec-updates/008-ledcube-hardware-spec.md` states it, and it is the right way — an
-implementation that hits 113 Hz is not wrong for missing 101.
+implementation that hits 124 Hz is not wrong for missing 101.
+
+⚠ **The table above says `P0` is active-low, and the paragraph below calls `P0 = 0` "blank".
+Those cannot both be true**, and the `probe.c` / `main.c` cross-check further down reaches the
+same contradiction from a third direction. Under active-low, `P0 = 0` with a layer selected
+lights every LED in that layer — the opposite of blanking. Treat the polarity as **unresolved**
+until someone watches `probe.c` on a real cube; every statement here that depends on it is
+conditional, including the framebuffer helpers in `main.c`.
 
 The blank-then-select-then-drive order matters and the firmware honours it:
 `P0 = 0; P2 = select; P0 = data;`. Skip the blanking and the previous step's
