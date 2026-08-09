@@ -69,9 +69,11 @@ with an external adapter.
   Confirm the board works at all with `avrdude -c arduino -p m328p -P <port>`;
   if avrdude succeeds where this fails, the fault is the pulse and not the
   protocol.
-- *A Nano with the old bootloader* runs at **57600**, not 115200. That is a
-  parameter this page does not yet expose, and it is the second thing to
-  suspect if avrdude only works with `-b 57600`.
+- *A Nano with the old bootloader* runs at **57600**, not 115200. The flasher
+  now probes: 115200 first, then 57600, and the log says which answered. So
+  "nothing at 115200 baud" followed by success is a normal line for an older
+  Nano, not a fault. If avrdude needs `-b 57600` and this still fails, the
+  fault is the pulse rather than the rate.
 - *"verify failed at 0x…"* — the write went out and did not stick. Genuinely
   bad news: a wiring or power problem rather than a protocol one.
 
