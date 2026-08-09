@@ -113,6 +113,33 @@ ohms with the power off, and a block that cheerfully reports a number on a live 
 the wrong physics. The contract already encodes that as a return type rather than a comment
 (`number | 'requires-power-off'`); as a block it should say so out loud.
 
+### Meter blocks must sample at display rate, not per edge
+
+**Measured, not assumed** (`bw-board` `88ac0d6`). The numbers:
+
+| path | rate |
+|---|---|
+| `setPin` alone — closed-form solver | 116 K ops/sec |
+| `branchCurrent` / `resistance` — the MNA solver | 11 K ops/sec |
+| a PWM pin at `CMOD=0x00` | **7.2 K edges/sec** |
+
+So a PWM pin on its own costs nothing: `setPin` never reaches the MNA solver, and a second of
+PWM simulates in 129 ms — 7.8× real time, with the brightness correct at 0.0725 for 50% duty.
+
+**But `(current through <led>)` on a PWM'd LED calls `branchCurrent` per edge**, and that is
+`setPin` + MNA together at 7.0 K ops/sec against 7.2 K edges/sec: **1.0× headroom at real time,
+0.1× at ten times real time.** Two blocks a user would naturally combine, and the simulation
+falls behind.
+
+The fix is in the block, not in the interface: **a meter reporter samples at display rate
+(~60 Hz), not once per edge.** That is also what a real instrument does — a multimeter does not
+report 7 200 readings a second, it integrates and shows you one. The block should be honest
+about that: it reports a *measurement*, not an instantaneous value.
+
+Do not solve this by batching in boundary A. The board is passive and the MCU owns time
+(`simulation-contract.md` boundary A decision 4); making the board coalesce edges would put
+scheduling on the wrong side of the line, and the only caller that needs it is the meter.
+
 ### The asymmetry that has to be stated
 
 The `circuit` extension is **mostly simulation-only**, and that is not a defect to be hidden:
