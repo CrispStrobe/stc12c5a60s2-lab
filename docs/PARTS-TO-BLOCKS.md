@@ -115,7 +115,7 @@ the wrong physics. The contract already encodes that as a return type rather tha
 
 ### Meter blocks must sample at display rate, not per edge
 
-**Measured, not assumed** (`bw-board` `c4d8031`, measured on commit `fac6e2e`; supersedes the
+**Measured, not assumed** (`bw-board` `f2d8f15`, measured on commit `c4d8031`; supersedes the
 earlier `88ac0d6` round, which predates a 68× `advanceTo` optimisation). The numbers:
 
 | path | rate |
@@ -131,9 +131,10 @@ PWM simulates in 75 ms — 13.4× real time, with the brightness correct at 0.07
 
 **But `(current through <led>)` on a PWM'd LED calls `branchCurrent` per edge**, and the number
 that decides the design is the *whole* per-edge path, not the MNA solver in isolation. Measured
-end to end — `advanceTo` + `setPin` + `branchCurrent` — it sustains **6.6 K edges/sec against
-7.2 K: 0.92× real time.** Two blocks a user would naturally combine, and the simulation falls
-behind at 1×, never mind faster.
+end to end — `advanceTo` + `setPin` + `branchCurrent` — it sustains **8.0 K edges/sec against
+7.2 K: 1.1× real time** (`bw-board` `f2d8f15`; an earlier run said 6.6 K / 0.92×, which was JIT
+pessimism from too short a warmup). Two blocks a user would naturally combine, and 1.1× is not
+headroom — any emulator speedup erases it, and running faster than real time is gone already.
 
 Quote that figure and not `12 K / 7.2 K = 1.6×`: dividing an isolated operation by a combined
 workload flatters it, and the loop has to do the `setPin` and the `advanceTo` that produced the
