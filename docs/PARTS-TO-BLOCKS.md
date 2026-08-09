@@ -115,26 +115,35 @@ the wrong physics. The contract already encodes that as a return type rather tha
 
 ### Meter blocks must sample at display rate, not per edge
 
-**Measured, not assumed** (`bw-board` `88ac0d6`). The numbers:
+**Measured, not assumed** (`bw-board` `c4d8031`, measured on commit `fac6e2e`; supersedes the
+earlier `88ac0d6` round, which predates a 68× `advanceTo` optimisation). The numbers:
 
 | path | rate |
 |---|---|
-| `setPin` alone — closed-form solver | 116 K ops/sec |
-| `branchCurrent` / `resistance` — the MNA solver | 11 K ops/sec |
+| `advanceTo` alone — steady state, nothing changed | 233 K ops/sec |
+| `advanceTo` + `setPin` — the PWM loop | 194 K calls/sec |
+| `setPin` alone — closed-form solver | 184 K ops/sec |
+| `branchCurrent` / `resistance` — the MNA solver | 12 K ops/sec |
 | a PWM pin at `CMOD=0x00` | **7.2 K edges/sec** |
 
 So a PWM pin on its own costs nothing: `setPin` never reaches the MNA solver, and a second of
-PWM simulates in 129 ms — 7.8× real time, with the brightness correct at 0.0725 for 50% duty.
+PWM simulates in 75 ms — 13.4× real time, with the brightness correct at 0.0725 for 50% duty.
 
-**But `(current through <led>)` on a PWM'd LED calls `branchCurrent` per edge**, and that is
-`setPin` + MNA together at 7.0 K ops/sec against 7.2 K edges/sec: **1.0× headroom at real time,
-0.1× at ten times real time.** Two blocks a user would naturally combine, and the simulation
-falls behind.
+**But `(current through <led>)` on a PWM'd LED calls `branchCurrent` per edge**, and the number
+that decides the design is the *whole* per-edge path, not the MNA solver in isolation. Measured
+end to end — `advanceTo` + `setPin` + `branchCurrent` — it sustains **6.6 K edges/sec against
+7.2 K: 0.92× real time.** Two blocks a user would naturally combine, and the simulation falls
+behind at 1×, never mind faster.
+
+Quote that figure and not `12 K / 7.2 K = 1.6×`: dividing an isolated operation by a combined
+workload flatters it, and the loop has to do the `setPin` and the `advanceTo` that produced the
+edge as well.
 
 The fix is in the block, not in the interface: **a meter reporter samples at display rate
-(~60 Hz), not once per edge.** That is also what a real instrument does — a multimeter does not
-report 7 200 readings a second, it integrates and shows you one. The block should be honest
-about that: it reports a *measurement*, not an instantaneous value.
+(~60 Hz), not once per edge — and that cache is load-bearing, not an optimisation.** It is also
+what a real instrument does: a multimeter does not report 7 200 readings a second, it integrates
+and shows you one. The block should be honest about that: it reports a *measurement*, not an
+instantaneous value.
 
 Do not solve this by batching in boundary A. The board is passive and the MCU owns time
 (`simulation-contract.md` boundary A decision 4); making the board coalesce edges would put
