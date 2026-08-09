@@ -41,6 +41,7 @@ three, and inventing ones it cannot have is worse than leaving the row short.
 | `PORT p OUTPUT` | — | `set p to <n>` | — |
 | `PORT p INPUT` | `(p)` — 0…255 | — | — |
 | `PART s = 74HC595` | — | `set s to <n>` | — |
+| `LEDCUBE 4` | `(voxel x y z)` | `set voxel x y z to <colour>` · `clear voxel x y z` · `fill layer n with <colour>` · `clear cube` · `shift cube <dir>` · `hold frame for <n> ms` | — |
 | *(program-wide)* | — | `print "…"` · `print <n>` | — |
 
 Existing blocks keep their opcodes. The new rows need new ones, and the naming should follow the
@@ -172,3 +173,22 @@ this project keeps refusing to ship.
   name-parameterised menus.
 - **The lowering already exists** — `stc-compiler`, except the event hat, which needs the polled
   task described above.
+
+## What of this now exists (2026-08-09)
+
+Written down because the table above was a plan and most of it has since been built, and a plan
+that is silently half-true is worse than either state.
+
+| piece | where | state |
+|---|---|---|
+| `when x pressed` event hat | `stc-compiler`, `sb3-creator` | built — polled task, edge-triggered |
+| `stc12` blocks incl. `whenpin` | `extensions`, bundled in `brickwright-lite` | 12 opcodes, both copies conformance-checked against what `sb3Creator` emits |
+| `circuit` meter blocks | `extensions/CrispStrobe/circuit.js` | built; reads the Board from `vm.runtime.circuitBoard`, refuses with a reason when absent |
+| `LEDCUBE 4` + 7 blocks | `sb3-creator` `26e0ff4` | built — parse, decompile, round-trip, and `generateC()` emits frame buffer + scan kernel |
+| cube as a drawable part | `bw-circuit-ui` `35b3ca5` | built, rendering the unknown map honestly |
+
+**The one thing still genuinely unknown is the voxel map.** `src/20-ledcube/README.md` carries an
+empty `(select, bit) → (x, y, z)` table that only a real cube can fill, and `probe.c` is the
+program that fills it. Everything above is designed against a *named* mapping table rather than a
+guessed one, so filling it in later is data rather than a rewrite — but until someone flashes
+`probe.c`, `set voxel 0 0 0` lights a voxel nobody can name.
