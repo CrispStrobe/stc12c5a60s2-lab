@@ -119,8 +119,22 @@ pins as the ISP bootloader. `README.md` §2.3 explains why that matters: ISP
 entry needs a **cold power-on**, so the adapter that talks to the monitor is the
 adapter that programs the board, and both cannot own the line at once. Expect to
 unplug and replug rather than reset. If the STC15 is on the desk instead, its
-UART1 can remap off those pins (`docs/PINOUT-STC15.md`) — which is why that part
-is the likelier first success.
+UART1 can remap off those pins (`docs/PINOUT-STC15.md`, `P_SW1` 0xA2 → P3.6/P3.7
+or P1.6/P1.7) — which is why that part is the likelier first success.
+
+**The remap is a bench question and cannot be answered before you get there.**
+`emu8051-stc` Finding #15 verified the STC15 monitor's Timer 2 baud path and
+reports its resources correctly as T2 rather than BRT — so the firmware side is
+ready. But the emulator's instant-TX model does not route UART pins at all, so
+setting `P_SW1` changes nothing observable under emulation. Nobody can tell you
+in advance whether a remapped UART1 actually frees P3.0/P3.1 on silicon.
+
+So test it explicitly rather than assuming: set the remap, confirm the monitor
+still answers on the new pins, and then try to enter ISP on P3.0/P3.1 **without
+unplugging the monitor**. If that works, the STC12's most annoying constraint is
+gone on the STC15 and the tethered story changes — a board that stays
+programmable while a debug link is live. If it does not, say so; it is the sort
+of thing a datasheet implies and silicon decides.
 
 **Suspect first:** baud. `FOSC` on an untrimmed internal RC is 11–17 MHz and
 drifts with temperature (README §4 "Tuning `FOSC`"), so a monitor built for
