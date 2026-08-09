@@ -186,10 +186,11 @@ active-high: its blank frame is `{0,…}`, its probe step is `1 << bit`, and the
 vendor firmware's own `P0 = 0` "blank" only makes sense under active-high.
 The cross-check section below has the full analysis.
 
-`main.c` isolates the assumption in **one symbol**: `P0_ACTIVE_LOW` (currently
-`1`, matching the spec).  Setting it to `0` flips the framebuffer helpers and
-init — no other changes needed.  `sb3-creator`'s `generateC()` and
-`bw-circuit-ui`'s cube renderer each need the same kind of single-source switch.
+`main.c` isolates the assumption in **one symbol**: `BW_CUBE_ACTIVE_HIGH`
+(currently `1`, matching `probe.c`, `sb3-creator`, and `bw-circuit-ui`).
+Setting it to `0` flips the framebuffer helpers and init to active-low — no
+other changes needed.  All four components now use the same symbol name and
+the same default.
 
 Both unknowns — voxel map and polarity — are settled by the same bench session:
 flash `probe.c`, watch the cube, and record whether `(FE, 01)` lights one LED

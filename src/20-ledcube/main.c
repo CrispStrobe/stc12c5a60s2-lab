@@ -47,25 +47,31 @@
 
 /* ---- P0 data polarity (UNVERIFIED) ----
  *
- * The spec says active-low: a 0 bit lights the LED.
- * probe.c (the measurement instrument) assumes active-high: its
- * blank frame is {0,…} and it probes with (1 << bit).
+ * Three independent lines of evidence point active-high:
+ *   1. probe.c's blank frame is {0,…}  (0 = off)
+ *   2. probe.c lights one LED with (1 << bit)  (1 = on)
+ *   3. The vendor firmware blanks with P0 = 0 before selecting
+ *      a layer — "blank" only means "off" under active-high.
  *
- * These two readings of the same hardware disagree.  Only the
- * physical probe on a real cube can settle it.  Until then, this
- * constant controls the assumption so flipping it is one line.
+ * The spec (§2) originally said active-low; that predates all
+ * three observations.  sb3-creator and bw-circuit-ui default
+ * active-high under the same symbol name.
  *
- * P0_ACTIVE_LOW = 1:  0 = LED on,  0xFF = all off  (spec §2)
- * P0_ACTIVE_LOW = 0:  1 = LED on,  0x00 = all off  (probe.c)
+ * NOT SETTLED — only the physical probe on a real cube settles
+ * it.  Setting this to 0 flips the driver to active-low; no
+ * other changes needed.
+ *
+ * BW_CUBE_ACTIVE_HIGH = 1:  1 = LED on,  0x00 = all off
+ * BW_CUBE_ACTIVE_HIGH = 0:  0 = LED on,  0xFF = all off
  */
-#define P0_ACTIVE_LOW  1
+#define BW_CUBE_ACTIVE_HIGH  1
 
-#if P0_ACTIVE_LOW
-#define FB_ALL_OFF  0xFF
-#define FB_ALL_ON   0x00
-#else
+#if BW_CUBE_ACTIVE_HIGH
 #define FB_ALL_OFF  0x00
 #define FB_ALL_ON   0xFF
+#else
+#define FB_ALL_OFF  0xFF
+#define FB_ALL_ON   0x00
 #endif
 
 /* ---- scan table ---- */
@@ -146,22 +152,22 @@ static void fb_clear(void) {
 /*
  * Set red column mask for a layer (0-3).
  * mask: bit0=col0 .. bit3=col3, 1 = "light this LED".
- * The helpers translate to the hardware polarity via P0_ACTIVE_LOW.
+ * The helpers translate to the hardware polarity via BW_CUBE_ACTIVE_HIGH.
  */
 static void fb_set_red(uint8_t layer, uint8_t mask) {
-#if P0_ACTIVE_LOW
-    fb[layer] = (fb[layer] | 0x0F) & ~(mask & 0x0F);
-#else
+#if BW_CUBE_ACTIVE_HIGH
     fb[layer] = (fb[layer] & 0xF0) | (mask & 0x0F);
+#else
+    fb[layer] = (fb[layer] | 0x0F) & ~(mask & 0x0F);
 #endif
 }
 
 /* Set blue column mask for a layer (0-3). */
 static void fb_set_blue(uint8_t layer, uint8_t mask) {
-#if P0_ACTIVE_LOW
-    fb[layer + 4] = (fb[layer + 4] | 0xF0) & ~((mask & 0x0F) << 4);
-#else
+#if BW_CUBE_ACTIVE_HIGH
     fb[layer + 4] = (fb[layer + 4] & 0x0F) | ((mask & 0x0F) << 4);
+#else
+    fb[layer + 4] = (fb[layer + 4] | 0xF0) & ~((mask & 0x0F) << 4);
 #endif
 }
 
