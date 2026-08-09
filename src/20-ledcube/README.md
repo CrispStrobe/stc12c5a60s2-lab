@@ -8,12 +8,28 @@ forum post.
 
 ## Provenance
 
-[`rgm3/ledcube444`](https://github.com/rgm3/ledcube444) is **MIT** (rgm, 2016):
-the vendor's Keil sources reworked to build on SDCC. That licence is why this
-topic can come back into the repo at all — the vendor's own `4681.zip` package
-is unlicensed and stays out (see the note in `CLAUDE.md`). Nothing here is
-derived from that package; `probe.c` is ours, written against the scan model
-measured below.
+[`rgm3/ledcube444`](https://github.com/rgm3/ledcube444) carries an **MIT** licence
+(rgm, 2016), but it is the vendor's Keil sources reworked to build on SDCC — and
+the vendor's own `4681.zip` package is unlicensed. **A downstream MIT grant does
+not launder an upstream that had no licence to give**, so rgm3 is not treated
+here as independently licensed. That package stays out of this repo either way
+(see the note in `CLAUDE.md`).
+
+What lets the topic come back is therefore not rgm3's licence. It is that
+everything here is ours:
+
+- **Measurements are facts, not expression.** The table below is what the
+  hardware *does*, observed by running firmware under an emulator. Timings and
+  port sequences are not copyrightable, and recording them is the interoperability
+  case, not a derivative work.
+- **`probe.c` is ours**, written against the scan model measured below.
+- **Any firmware in this directory is clean-room.** The implementation brief is
+  `ucsim-stc`'s `spec-updates/008-ledcube-hardware-spec.md`, which describes the
+  hardware and explicitly forbids its implementer from reading the icstation
+  source, the rgm3 port, or any derivative. The agent that measured the vendor
+  firmware wrote the spec; a different one writes the code. That separation is
+  what the term means — a spec written by someone who has read the original is
+  only clean-room if they are not also the one implementing it.
 
 ## What the hardware does
 
