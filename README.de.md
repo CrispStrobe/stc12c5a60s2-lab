@@ -537,7 +537,7 @@ Disconnected!
 
 Wer SDCC nicht installieren will — oder das Ganze aus einem Browser heraus
 ansteuert — findet unter **<https://stc-compiler.vercel.app>** einen gehosteten
-Compiler, der genau die oben beschriebene Toolchain ausführt:
+Compiler:
 
 ```bash
 ./tools/compile-remote.sh                  # 01-blink -> 01-blink.hex
@@ -552,6 +552,26 @@ wrote 01-blink.hex (740 bytes)
 ```
 
 Geflasht wird danach ganz normal mit `stcgal`.
+
+**Es ist nicht derselbe Compiler wie oben, und das Abbild ist nicht dasselbe
+Abbild.** Der gehostete Dienst benutzt **SDCC 4.0.0**, `brew install sdcc`
+liefert **4.5.0**. Das ist dort Absicht — der Dienst läuft auf einem Host mit
+glibc 2.34, und 4.5.0 verlangt GLIBC 2.36 und startet dort nicht —, bedeutet
+aber, dass ein entfernt und ein lokal übersetztes Programm unterschiedliche
+Firmware sind. Gemessen an `01-blink`, gleicher C-Code, gleiche Schalter:
+
+| übersetzt von | Größe |
+|---|---|
+| lokal, SDCC 4.5.0 | 996 Bytes |
+| gehostet, SDCC 4.0.0 | 888 Bytes |
+
+Beide funktionieren. Aber ein entferntes `.hex` nicht mit einem lokalen
+vergleichen und daraus auf einen Fehler schließen — und ein entferntes Abbild
+niemals mit einer lokal erzeugten Symboltabelle paaren. Die Seite unter
+<https://crispstrobe.github.io/stc-compiler/> nennt deshalb jetzt den Compiler
+neben der Byte-Zahl. In Arbeit ist SDCC als WebAssembly: das läuft im Browser,
+hat keine glibc, an die es gebunden wäre, und dann sind beide Wege 4.5.0 und
+dieser Hinweis erledigt sich.
 
 Der Dienst übersetzt **eine einzige Übersetzungseinheit**. `src/01-blink/main.c`
 lässt sich also nicht direkt hinschicken — das scheitert an `board.h: No such

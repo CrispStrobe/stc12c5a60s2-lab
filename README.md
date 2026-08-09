@@ -516,8 +516,7 @@ Disconnected!
 ### Compiling without installing anything
 
 If you would rather not install SDCC — or you are driving this from a browser —
-there is a hosted compiler at **<https://stc-compiler.vercel.app>** running
-exactly the toolchain documented above:
+there is a hosted compiler at **<https://stc-compiler.vercel.app>**:
 
 ```bash
 ./tools/compile-remote.sh                  # 01-blink -> 01-blink.hex
@@ -532,6 +531,25 @@ wrote 01-blink.hex (740 bytes)
 ```
 
 Then flash it exactly as usual with `stcgal`.
+
+**It is not the same compiler as the one above, and the image is not the same
+image.** The hosted service runs **SDCC 4.0.0**; `brew install sdcc` gives you
+**4.5.0**. That is deliberate on their side — the service runs on a glibc 2.34
+host, and 4.5.0 needs GLIBC 2.36 and will not start there — but it means a
+remote build and a local build of one program are different firmware. Measured
+on `01-blink`, same C and the same flags:
+
+| built by | size |
+|---|---|
+| local SDCC 4.5.0 | 996 bytes |
+| hosted SDCC 4.0.0 | 888 bytes |
+
+Both work. But do not compare a remote `.hex` against a local one and conclude
+something is wrong, and do not pair a remote image with a locally produced
+symbol table. The page at <https://crispstrobe.github.io/stc-compiler/> now
+names the compiler beside the byte count for this reason. The fix in progress
+is SDCC compiled to WebAssembly, which runs in the browser with no glibc to be
+pinned by — at which point both paths are 4.5.0 and this note goes away.
 
 The service compiles **one translation unit**, so you cannot POST
 `src/01-blink/main.c` directly — it would fail on `board.h: No such file`. The
