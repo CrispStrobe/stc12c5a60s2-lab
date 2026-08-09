@@ -784,13 +784,25 @@ Bit-Banging von I2C/SPI/1-Wire — läuft nach dem Tausch grob **6–12× zu
 schnell** und scheitert an echter Peripherie (ein DS18B20 antwortet nicht
 auf einen 1-Wire-Reset, der zwölfmal zu kurz ist).
 
-Zwei Konsequenzen stecken im Werkzeug:
+Drei Konsequenzen stecken im Werkzeug:
 
 - **Alles aus Pseudocode Erzeugte hängt an Timer 0 mit FOSC/12**, einem
   Modus, den 12T- wie 1T-Kerne identisch zählen — dasselbe Programm ist
   damit auf `STC12C5A60S2`, `STC89C52RC` und `STC15F2K60S2` zeitkorrekt
   (alle drei sind gültige `DEVICE`-Angaben; der Emitter weiß, welche
   Port-Modus-Register, das AUXR-1T-Bit oder einen ADC haben).
+- **Eine Wartezeit unter einer Millisekunde wird abgelehnt, nicht gerundet.**
+  Der Takt ist eine Millisekunde, `wait 0.4 ms` lässt sich also gar nicht
+  ausdrücken. Früher wurde daraus eine Wartezeit von null — die Pause
+  verschwand ersatzlos, die Schleife lief mit voller Geschwindigkeit, und
+  nichts in der Ausgabe wies darauf hin. Seit dem 09.08.2026 bricht der
+  Compiler stattdessen ab und nennt die Auflösung. Die Grenze schließt die
+  **halbe Millisekunde ein**: auch `wait 0.5 ms` wird abgelehnt, denn beim
+  Runden zur geraden Zahl wird aus 0,5 eine 0. Wer kürzer warten muss — etwa
+  für die Lagenzeit eines POV-Würfels — braucht eine Mikrosekunden-Pause, die
+  es noch nicht gibt; sie wird an einen Timer gebunden sein und nicht an eine
+  gezählte Schleife, und zwar aus genau dem Grund, um den es in diesem
+  Abschnitt geht.
 - **Der Keil-Übersetzer warnt**, wenn migrierter Code Software-Warteschleifen
   oder `_nop_()`-Ketten enthält — genau diese Falle.
 

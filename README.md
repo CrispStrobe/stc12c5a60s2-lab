@@ -757,13 +757,23 @@ I2C/SPI/1-wire — runs roughly **6–12× too fast** after the swap and simply
 stops working against real peripherals (a DS18B20 will not answer a 1-wire
 reset that is twelve times too short).
 
-Two consequences are baked into the tooling:
+Three consequences are baked into the tooling:
 
 - **Everything generated from pseudocode is timed off Timer 0 at FOSC/12**,
   a mode that 12T and 1T parts count identically — so the same program is
   timing-correct on an `STC12C5A60S2`, an `STC89C52RC` or an
   `STC15F2K60S2` (all three are valid `DEVICE` choices, and the emitter
   knows which of them have port-mode registers, the AUXR 1T bit, or an ADC).
+- **A wait shorter than a millisecond is refused, not rounded.** The tick is
+  one millisecond, so `wait 0.4 ms` cannot be expressed. It used to compile
+  to a wait of zero — the delay simply vanished and the loop ran flat out,
+  with nothing in the output to say so. Since 2026-08-09 the compiler stops
+  and names the resolution instead. Note the boundary is **half a millisecond
+  inclusive**: `wait 0.5 ms` is refused too, because rounding a half goes to
+  even and 0.5 rounds to 0. Sub-millisecond dwell — a POV cube's layer time,
+  say — needs a microsecond delay that does not exist yet, and when it is
+  built it will be timer-derived rather than a counted loop, for the reason
+  this whole section is about.
 - **The Keil translator warns** when migrated code contains software
   busy-wait loops or `_nop_()` runs, naming exactly this trap.
 
