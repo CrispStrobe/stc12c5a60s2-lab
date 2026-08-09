@@ -635,6 +635,24 @@ erzeugen, steht die gesamte Kette vom Scratch-Projekt bis zum geflashten Chip.
 | `HANDSHAKE` | `2400` | Handshake-Rate des Bootloaders — nicht anfassen |
 | `PROTOCOL` | `stc12` | stcgal-Protokoll. `auto` geht auch |
 
+### Flashen aus dem Browser, ohne Terminal
+
+<https://crispstrobe.github.io/stc-compiler/> übersetzt Pseudocode direkt in der
+Seite und kann das Ergebnis über Web Serial auf ein Board schreiben — einen
+STC12 über dessen ISP (samt kaltem Einschalten), einen ATmega über den
+Arduino-Bootloader, einen micro:bit über die MicroPython-REPL. Nur Chrome oder
+Edge; Web Serial verlangt einen sicheren Kontext, den die gehostete Seite hat
+und eine lokale Kopie der Datei nicht.
+
+**Keiner dieser drei Wege hat bisher echte Hardware programmiert.** Sie werden
+gegen Simulatoren entwickelt, und der STC-Weg wird Byte für Byte gegen ein
+Protokoll geprüft, das `stcgal` selbst erzeugt hat — das belegt, dass die Bytes
+stimmen, und nichts darüber, ob es auf der Leitung funktioniert. `make flash`
+bleibt der Weg, der nachweislich geht. [docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md)
+beschreibt das Vorgehen, um das zu klären, und nennt für jedes Board den
+wahrscheinlichsten Verdacht. (Nur auf Englisch: es ist ein Prüfvertrag für eine
+Implementierung, kein Einstiegsdokument.)
+
 ---
 
 ## 6. Fehlersuche
@@ -712,7 +730,8 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)
     ├── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (de: ROADMAP.de.md)
     ├── STC12-PERIPHERAL-MODEL.md   was dieser Chip tut — der gemeinsame Vertrag
-    └── DEBUG-CONTROL-MODEL.md      Ablaufsteuerung, für Emulatoren und für Silizium
+    ├── DEBUG-CONTROL-MODEL.md      Ablaufsteuerung, für Emulatoren und für Silizium
+    └── BENCH-FLASHING.md           die Browser-Flasher auf Silizium prüfen
 ```
 
 ### Debuggen auf echtem Silizium

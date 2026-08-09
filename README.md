@@ -613,6 +613,21 @@ whole chain from a Scratch project to a flashed chip is already in place.
 | `HANDSHAKE` | `2400` | Bootloader handshake rate — leave alone |
 | `PROTOCOL` | `stc12` | stcgal protocol. `auto` also works |
 
+### Flashing from a browser, without a terminal
+
+<https://crispstrobe.github.io/stc-compiler/> transpiles pseudocode in the page
+and can write the result to a board over Web Serial — an STC12 over its ISP
+(cold power-on and all), an ATmega over the Arduino bootloader, a micro:bit
+over the MicroPython REPL. Chrome or Edge only; Web Serial needs a secure
+context, which the hosted page has and a local copy of the file does not.
+
+**None of those three paths has yet programmed real hardware.** They are
+developed against simulators, and the STC one is checked byte for byte against
+a transcript `stcgal` itself produced — which establishes that the bytes are
+right and nothing about whether the wire is. `make flash` remains the way that
+is known to work. [docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md) is the
+procedure for settling it, and names what to suspect first for each board.
+
 ---
 
 ## 6. Troubleshooting
@@ -689,7 +704,8 @@ your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
     ├── ROADMAP.md  ROADMAP.de.md   the BrickWright extension plan
     ├── STC12-PERIPHERAL-MODEL.md   what this chip does — the shared contract
-    └── DEBUG-CONTROL-MODEL.md      run control, for emulators and for silicon
+    ├── DEBUG-CONTROL-MODEL.md      run control, for emulators and for silicon
+    └── BENCH-FLASHING.md           verifying the browser flashers on silicon
 ```
 
 ### Debugging on real silicon
