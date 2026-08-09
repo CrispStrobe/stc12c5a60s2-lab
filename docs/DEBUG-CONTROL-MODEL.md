@@ -50,8 +50,22 @@ this produces a front end that lies to the user the moment it is pointed at real
 | read registers, IRAM, XRAM, SFR while halted | all | all | most, §6 |
 | write the same | all | all | most, with hazards, §6 |
 | reset | to a defined state | to a defined state | resets into user code, **not** into ISP |
-| **program time freezes while halted** | inherently | inherently | **only if the monitor freezes Timer 0**, §3 |
+| **program time freezes while halted** | inherently | inherently | **yes — measured**: the monitor clears `TR0`, §3 |
 | **the physical world freezes while halted** | n/a | n/a | **never** |
+
+**The monitor row was a conditional until 2026-08-09; it is now a measurement.** Driving
+`LIVE_CMD_HALT` through the serial bridge against the firmware on `emu8051-stc` (`cd0ff75`,
+32 assertions): `bw_ms` read 67 before a 500 ms halt, 67 during it, and 168 after resume, with
+`TR0 = 0` and `TR1 = 1` throughout the halt. So the monitor really does stop program time by
+clearing Timer 0 while wall time keeps running, and the reported skew was **527 ms for a 500 ms
+halt** — the 27 ms being the round trips either side. That number is what a front end would show a
+user, and it is the first time anyone has seen it.
+
+Note what this does *not* verify, and what the row below it still says: on silicon the PCA, the
+UART and every other peripheral keep running while the CPU sits in the monitor. Program time
+freezing is a firmware behaviour that can regress; the physical world freezing is not on offer at
+all. Testing the emulator rows would prove nothing either way — with no `do_inst` there are no
+ticks, so those two are true by construction, which is why the row says *inherently*.
 
 `capabilities()` is part of the interface (§7) and every front end must branch on it. A target
 refuses by returning a *reason*, never by silently doing something else — the same idiom
