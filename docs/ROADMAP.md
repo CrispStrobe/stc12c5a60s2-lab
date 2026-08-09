@@ -106,8 +106,15 @@ Worth being honest about, because it shapes the order of work:
 1. **Grow this repo's C primitives** — `02-gpio-input`, `03-pwm`, `04-adc`,
    `05-uart`. Each one is a block in the table above, proven on real hardware.
    *This is the current step.*
-2. **Write the resident firmware** (`10-live-firmware`) implementing the framed
-   command protocol, built from those primitives.
+2. ~~**Write the resident firmware** (`10-live-firmware`) implementing the framed
+   command protocol, built from those primitives.~~ — **DONE 2026-08-09, verified
+   under emulation.** It builds, boots and answers `HELLO` / `POS` / `REGS` /
+   `READ` over the wire, and recovers from a torn frame via the idle timeout.
+   Three independent codecs agree on the format: the firmware's own
+   (`include/live-frame.h`), `tools/live-monitor.py`'s Python one, and a
+   hand-built C peer, with the Python tool's own `Decoder` parsing real firmware
+   replies through a serial bridge. Nothing has run on silicon — that is the
+   bench session, and it is now the only thing between here and step 3.
 3. **Ship `stc12live`** as an extension in `CrispStrobe/extensions`, using Web
    Serial through the existing adapter layer. At this point blocks control real
    hardware.
