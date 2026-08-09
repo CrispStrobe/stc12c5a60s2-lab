@@ -176,6 +176,25 @@ Until that table is filled in from a real cube, any renderer we draw is a guess
 with a plausible shape, and every layer above it — the simulated cube, the
 blocks that author animations — is wrong in exactly the same way.
 
+## What is still unknown: P0 data polarity
+
+The voxel map is one unmeasured fact.  **P0 data polarity is the second**, and
+it is the more dangerous of the two because everything *looks* right without it.
+
+The spec (§2) says active-low: `P0 = 0x00` lights all LEDs.  `probe.c` assumes
+active-high: its blank frame is `{0,…}`, its probe step is `1 << bit`, and the
+vendor firmware's own `P0 = 0` "blank" only makes sense under active-high.
+The cross-check section below has the full analysis.
+
+`main.c` isolates the assumption in **one symbol**: `P0_ACTIVE_LOW` (currently
+`1`, matching the spec).  Setting it to `0` flips the framebuffer helpers and
+init — no other changes needed.  `sb3-creator`'s `generateC()` and
+`bw-circuit-ui`'s cube renderer each need the same kind of single-source switch.
+
+Both unknowns — voxel map and polarity — are settled by the same bench session:
+flash `probe.c`, watch the cube, and record whether `(FE, 01)` lights one LED
+(active-high) or darkens one in an otherwise-lit layer (active-low).
+
 ## What `probe.c` and `main.c` agree and disagree about
 
 Both programs were written from the same hardware understanding by different

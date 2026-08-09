@@ -45,6 +45,29 @@
 #include <stc12.h>
 #include <stdint.h>
 
+/* ---- P0 data polarity (UNVERIFIED) ----
+ *
+ * The spec says active-low: a 0 bit lights the LED.
+ * probe.c (the measurement instrument) assumes active-high: its
+ * blank frame is {0,…} and it probes with (1 << bit).
+ *
+ * These two readings of the same hardware disagree.  Only the
+ * physical probe on a real cube can settle it.  Until then, this
+ * constant controls the assumption so flipping it is one line.
+ *
+ * P0_ACTIVE_LOW = 1:  0 = LED on,  0xFF = all off  (spec §2)
+ * P0_ACTIVE_LOW = 0:  1 = LED on,  0x00 = all off  (probe.c)
+ */
+#define P0_ACTIVE_LOW  1
+
+#if P0_ACTIVE_LOW
+#define FB_ALL_OFF  0xFF
+#define FB_ALL_ON   0x00
+#else
+#define FB_ALL_OFF  0x00
+#define FB_ALL_ON   0xFF
+#endif
+
 /* ---- scan table ---- */
 static const uint8_t __code scan_table[8] = {
     0xFE, 0xFD, 0xFB, 0xF7,   /* layers 0-3, first color pass  */
@@ -117,17 +140,29 @@ static void hold(uint16_t duration_ms) {
 
 static void fb_clear(void) {
     uint8_t i;
-    for (i = 0; i < 8; i++) fb[i] = 0xFF;   /* all off */
+    for (i = 0; i < 8; i++) fb[i] = FB_ALL_OFF;
 }
 
-/* Set red column mask for a layer (0-3).  mask: bit0=col0 .. bit3=col3, 1=on */
+/*
+ * Set red column mask for a layer (0-3).
+ * mask: bit0=col0 .. bit3=col3, 1 = "light this LED".
+ * The helpers translate to the hardware polarity via P0_ACTIVE_LOW.
+ */
 static void fb_set_red(uint8_t layer, uint8_t mask) {
+#if P0_ACTIVE_LOW
     fb[layer] = (fb[layer] | 0x0F) & ~(mask & 0x0F);
+#else
+    fb[layer] = (fb[layer] & 0xF0) | (mask & 0x0F);
+#endif
 }
 
 /* Set blue column mask for a layer (0-3). */
 static void fb_set_blue(uint8_t layer, uint8_t mask) {
+#if P0_ACTIVE_LOW
     fb[layer + 4] = (fb[layer + 4] | 0xF0) & ~((mask & 0x0F) << 4);
+#else
+    fb[layer + 4] = (fb[layer + 4] & 0x0F) | ((mask & 0x0F) << 4);
+#endif
 }
 
 /* ---- animation patterns ---- */
@@ -137,7 +172,7 @@ static void fb_set_blue(uint8_t layer, uint8_t mask) {
  */
 static void pattern_all_on(void) {
     uint8_t i;
-    for (i = 0; i < 8; i++) fb[i] = 0x00;   /* all LEDs on */
+    for (i = 0; i < 8; i++) fb[i] = FB_ALL_ON;
     hold(3000);
 }
 
@@ -226,8 +261,8 @@ static void pattern_spiral(void) {
 /* ---- main ---- */
 
 void main(void) {
-    P0 = 0xFF;   /* all LEDs off  */
-    P2 = 0xFF;   /* all layers off */
+    P0 = FB_ALL_OFF;  /* all LEDs off  */
+    P2 = 0xFF;        /* all layers off (always active-low) */
 
     while (1) {
         pattern_all_on();
