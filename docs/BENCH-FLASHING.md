@@ -10,8 +10,13 @@ families that are entered three entirely different ways:
 | board | how it is entered | protocol |
 |---|---|---|
 | ATmega328P, Uno, Nano | pulse DTR to reset into the bootloader | STK500v1 (optiboot) |
-| micro:bit | interrupt the running program | MicroPython raw REPL |
+| micro:bit, Raspberry Pi Pico | interrupt the running program | MicroPython raw REPL |
 | STC12C5A60S2, 5A16S2 | **cold power-on**, nothing else works | STC ISP |
+
+The micro:bit and the Pico share one path exactly, because at this level they
+are the same device: a MicroPython REPL over USB CDC. Everything that differs
+between them is in the *program*, which is the code generator's problem and
+not the flasher's.
 
 **None of the three has ever programmed a real board.** Every protocol was
 developed against a simulator and each is green in CI, which establishes that
@@ -79,7 +84,7 @@ with an external adapter.
 
 ---
 
-## 2. micro:bit
+## 2. micro:bit and Raspberry Pi Pico
 
 ```
 DEVICE MICROBIT:
@@ -96,8 +101,10 @@ No compile step — MicroPython is interpreted on the device, so **Flash** is
 enabled straight after transpiling. It writes `main.py` and restarts the board.
 
 **Suspect first: whether MicroPython is on the board at all.** This path writes
-a file over the REPL; it does not install the runtime. Flash MicroPython once
-from <https://python.microbit.org> and it works from then on.
+a file over the REPL; it does not install the runtime. For a micro:bit that is
+a one-off from <https://python.microbit.org>; for a Pico, hold BOOTSEL while
+plugging it in and drop a MicroPython UF2 on the drive that appears. Neither
+is something this page does, and neither is a protocol.
 
 - *"timed out waiting for `raw REPL`"* — either there is no MicroPython, or
   something else holds the port. Close the online editor and any serial monitor
@@ -105,6 +112,18 @@ from <https://python.microbit.org> and it works from then on.
 - *"wrote N bytes but the board has M"* — a REPL chunk was swallowed. The size
   read-back exists precisely to catch this rather than leave a truncated
   `main.py` in place. Worth reporting with the two numbers.
+
+For the Pico specifically, the program is where the two boards diverge and so
+is what to check once it runs: the pins are `machine.Pin` objects constructed
+at the top, the ADC is scaled (`read_u16() >> 6`) so a reading matches what
+every other board reports, and waits use `ticks_diff` rather than `<` because
+`ticks_ms()` wraps. A Pico that blinks correctly for twelve days and then
+stops would be that last one — which is exactly why it is not written that way.
+
+A second Pico program worth running, because it exercises what a micro:bit
+cannot: PWM and a tone at once. `set dim to 60 percent` should visibly dim,
+and `set buzz to 440 hz` should sound while it does — they are different
+PWM slices, and a board where the tone stops the fade means they collided.
 
 ---
 
