@@ -107,10 +107,14 @@ specification for its first entries.
 |---|---:|---|
 | expressible from the start | 5 | — |
 | needed whole-port I/O + lookup tables | 5 | **done, `da0e1ca`** |
-| driver-backed blocks | 6 | needs a parts library |
+| driver-backed blocks | 6 | **1 done** (`4de782b`), 5 need a bench |
 
-**10 of 16 are expressible**, and the remaining 6 are not a dialect problem at all. That is the
-whole of what this corpus asks of the dialect: it is now a question of parts, not of grammar.
+**11 of 16 are expressible.** The dialect is finished as far as this corpus is concerned; what
+remains is entirely a question of parts. The one tier-3 demo that could be admitted without
+hardware — `01_led_74H595`, whose correctness depends on edge order rather than edge duration —
+is `pseudocode/09-shift-register.bw`. The other five have hard timing minimums and are held back
+deliberately, on the rule in [`PARTS-MODEL.md`](PARTS-MODEL.md): a driver that meets a 15 µs
+deadline by accident of code generation stops meeting it when the optimiser changes.
 
 One incidental finding: **not one of the sixteen uses the UART.** The serial console added in
 `stc-compiler` `c0c1dec` is not something this corpus asked for, and its real justification is

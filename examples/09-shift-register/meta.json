@@ -1,0 +1,18 @@
+{
+  "name": "09-shift-register",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 1140,
+  "netlistRows": [
+    "PART 74HC595 -> shift register, 3 pins in / 8 loads out  (NOT in the contract yet)"
+  ],
+  "artifacts": [
+    "09-shift-register.bw",
+    "09-shift-register.c",
+    "09-shift-register.cdb",
+    "09-shift-register.hex",
+    "pins.json"
+  ]
+}

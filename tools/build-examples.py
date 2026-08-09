@@ -68,6 +68,8 @@ NETLIST_ROWS = {
     "tone":       "TONE -> buzzer between pin and GND  (NOT in the contract yet)",
     "port":       "PORT OUTPUT -> eight loads on one port, e.g. a 7-segment digit"
                   "  (NOT in the contract yet)",
+    "part-595":   "PART 74HC595 -> shift register, 3 pins in / 8 loads out"
+                  "  (NOT in the contract yet)",
 }
 
 
@@ -129,6 +131,18 @@ def build_one(bw_path: Path, sdcc: str, outroot: Path) -> dict:
     # Whole ports are part of boundary C's input too, and were not: an example
     # that declares only a PORT produced an empty pins.json, so the circuit
     # designer had nothing to draw for a display.
+    # Parts are boundary C input too: a PART is three pins in and eight loads
+    # out, and the designer cannot draw the far side without being told.
+    parts = [{
+        "name": w.name,
+        "kind": w.kind,
+        "pins": {"data": f"P{w.data[0]}.{w.data[1]}",
+                 "clock": f"P{w.clock[0]}.{w.clock[1]}",
+                 "latch": f"P{w.latch[0]}.{w.latch[1]}"},
+        "outputs": 8,
+        "activeLow": w.active_low,
+    } for w in program.parts.values()]
+
     ports = [{
         "name": w.name,
         "port": w.port,
@@ -140,7 +154,7 @@ def build_one(bw_path: Path, sdcc: str, outroot: Path) -> dict:
 
     (out / "pins.json").write_text(json.dumps(
         {"device": program.part, "clock": program.clock,
-         "pins": pins, "ports": ports}, indent=2) + "\n")
+         "pins": pins, "ports": ports, "parts": parts}, indent=2) + "\n")
 
     # ---- boundary D input, when there is a scheduler ----------------------
     symbols = None
@@ -168,7 +182,8 @@ def build_one(bw_path: Path, sdcc: str, outroot: Path) -> dict:
         "netlistRows": sorted(
             {netlist_row(p) for p in program.pins.values()}
             | {NETLIST_ROWS["port"] for w in program.ports.values()
-               if w.direction == "output"}),
+               if w.direction == "output"}
+            | {NETLIST_ROWS["part-595"] for _ in program.parts.values()}),
         "artifacts": sorted(p.name for p in out.iterdir() if p.is_file()),
     }
     (out / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")

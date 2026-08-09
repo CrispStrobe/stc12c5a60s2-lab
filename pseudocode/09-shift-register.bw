@@ -1,0 +1,38 @@
+# Eight LEDs on three pins — the parts library's first entry.
+#
+# This is 01_led_74H595 from treideme/stc89c52-demos (Apache-2.0) said in the
+# dialect. It is the first PART rather than the first driver by accident: a
+# 74HC595 is specified into the tens of megahertz and has no minimum clock
+# period an 8051 could violate, so its correctness depends on the ORDER of the
+# edges and not on their duration. There is no delay in the generated driver,
+# and that is deliberate — see docs/PARTS-MODEL.md for why 1-Wire, I2C and the
+# parallel LCDs cannot be written that way without a bench.
+#
+#   DATA   P3.4 -> DS   (pin 14)
+#   CLOCK  P3.6 -> SHCP (pin 11)
+#   LATCH  P3.5 -> STCP (pin 12)
+#   OE to GND, MR to +5V, and the eight outputs through resistors to LEDs.
+#
+# ACTIVE LOW because the LEDs are wired the way everything else here is:
+# +5V -> 1k -> LED -> output. The part inverts the byte on the way out, so the
+# pattern below reads as "which LED is lit" rather than as a register value.
+#
+# Notice what is NOT here: a PORT. Eight outputs for three pins is the whole
+# point, and P0 stays free.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  # One lit LED, walking. Written in binary so the pattern is visible.
+  TABLE walk = 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000
+
+  PART leds = 74HC595 DATA P3.4 CLOCK P3.6 LATCH P3.5 ACTIVE LOW
+
+  WHEN started:
+    set step to 0
+    FOREVER:
+      set leds to walk[step]
+      wait 120 ms
+      change step by 1
+      IF step > 7 THEN:
+        set step to 0

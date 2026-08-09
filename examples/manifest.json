@@ -157,6 +157,24 @@
         "meta.json",
         "pins.json"
       ]
+    },
+    {
+      "name": "09-shift-register",
+      "device": "stc12c5a60s2",
+      "clock": 11059200,
+      "tasks": 1,
+      "scheduler": false,
+      "hexBytes": 1140,
+      "netlistRows": [
+        "PART 74HC595 -> shift register, 3 pins in / 8 loads out  (NOT in the contract yet)"
+      ],
+      "artifacts": [
+        "09-shift-register.bw",
+        "09-shift-register.c",
+        "09-shift-register.cdb",
+        "09-shift-register.hex",
+        "pins.json"
+      ]
     }
   ],
   "netlistRowsCovered": [
@@ -164,6 +182,7 @@
     "INPUT -> button to GND plus a pull-up",
     "OUTPUT -> pin, 1k, LED, GND",
     "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin",
+    "PART 74HC595 -> shift register, 3 pins in / 8 loads out  (NOT in the contract yet)",
     "PORT OUTPUT -> eight loads on one port, e.g. a 7-segment digit  (NOT in the contract yet)",
     "TONE -> buzzer between pin and GND  (NOT in the contract yet)"
   ]
