@@ -31,3 +31,7 @@ vendor-reference/
 
 # Agent context: local paths and operational detail, not for the repo.
 CLAUDE.md
+
+# Python bytecode from tools/ (live-monitor.py is imported by the emulator harnesses)
+__pycache__/
+*.pyc
