@@ -100,6 +100,16 @@ Level 1 needs the **addresses** of `bw_ms`, `<task>_state` and `<task>_until`, a
 **That is work for `stc-compiler` / `sb3-creator`, not for either emulator.** Neither emulator
 agent should implement a symbol resolver; both should take a symbol table as input.
 
+**Both halves exist as of 2026-08-09.** The addresses were always there; the block mapping is
+now `yields[].block` in the same symbol table, carried from an `@bw yield` header that
+`sb3-creator`'s `generateC(project, {debug: true})` writes — the emitter is the only thing that
+knows which Scratch block a `case` label came from, and the C form has lost it by the time
+anything else sees the file. `stc_symtab.py` refuses to merge a map that disagrees with the
+`case` labels in the same file, because pointing a front end at a confidently wrong block is
+worse than pointing at nothing. The front-end design that consumes this is
+`sb3-creator/reference/debugger-ui.md`; it is the UI half of this document and nothing in it
+changes the semantics here.
+
 ---
 
 ## 3. Execution state, and what happens to time
