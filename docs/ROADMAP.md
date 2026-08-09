@@ -183,10 +183,18 @@ Worth being honest about, because it shapes the order of work:
   goal needs a real solver rather than a plausible animation, and "we will not
   beat SPICE" is not a reason to stop — it is a reason to be honest about
   fidelity. Second, **peripheral breadth is a goal, not scope creep.** The
-  evidence was already in hand and read the wrong way round: 275 of 349
-  third-party firmware images already pass differential execution, which is a
-  *run-foreign-firmware* capability, and every peripheral added raises it. The
-  emitter's own needs are a floor on the model, never a ceiling.
+  evidence was already in hand and read the wrong way round: **220 of 349**
+  third-party firmware images pass differential execution *strictly* — both
+  event streams fully identical — which is a *run-foreign-firmware* capability,
+  and every peripheral added raises it. The emitter's own needs are a floor on
+  the model, never a ceiling.
+  ⚠ **That figure is a correction.** It was reported here as 275/349 until
+  2026-08-09, when `ucsim-stc` tightened its own metric and found that the
+  looser count had been folding in 54 *prefix-only* matches — runs where the
+  shorter event stream matched as a prefix but the lengths differed, which
+  means one model stopped emitting or the other emitted extra. That is not
+  agreement. The argument above survives the correction; the number did not,
+  and a metric that flatters itself is worth less than a smaller honest one.
 * **The dialect was measured against somebody else's corpus (2026-08-09).**
   [`DIALECT-COVERAGE.md`](DIALECT-COVERAGE.md) scores all sixteen
   [treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos)

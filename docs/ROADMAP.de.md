@@ -195,10 +195,18 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   und „wir schlagen SPICE nicht" ist kein Grund aufzuhören, sondern einer,
   ehrlich über die Genauigkeit zu sein. Zweitens ist **Peripherie-Breite ein
   Ziel und kein Wildwuchs.** Der Beleg lag schon vor und wurde falsch herum
-  gelesen: 275 von 349 fremden Firmware-Images bestehen den differenziellen
-  Lauf bereits — das *ist* die Fähigkeit, fremde Firmware auszuführen, und jede
-  weitere Peripherie hebt die Zahl. Was der Codegenerator braucht, ist eine
-  Untergrenze für das Modell, nie eine Obergrenze.
+  gelesen: **220 von 349** fremden Firmware-Images bestehen den differenziellen
+  Lauf *strikt* — beide Ereignisströme vollständig identisch. Das *ist* die
+  Fähigkeit, fremde Firmware auszuführen, und jede weitere Peripherie hebt die
+  Zahl. Was der Codegenerator braucht, ist eine Untergrenze für das Modell, nie
+  eine Obergrenze.
+  ⚠ **Diese Zahl ist eine Korrektur.** Bis zum 09.08.2026 stand hier 275/349;
+  dann verschärfte `ucsim-stc` sein eigenes Maß und stellte fest, dass die
+  lockere Zählung 54 reine *Präfix*-Treffer mitgezählt hatte — Läufe, bei denen
+  der kürzere Ereignisstrom als Präfix passte, die Längen aber auseinanderging
+  en. Das ist keine Übereinstimmung. Das Argument überlebt die Korrektur, die
+  Zahl nicht — und ein Maß, das sich selbst schmeichelt, ist weniger wert als
+  ein kleineres ehrliches.
 * **Die Beispielbündel sind der Integrationstest (08.08.2026).** `make examples`
   baut pro Pseudocode-Programm ein Bündel — Quelle, erzeugtes C, `.hex`,
   `pins.json` für Schnittstelle C, `symbols.json` für Schnittstelle D — und es
