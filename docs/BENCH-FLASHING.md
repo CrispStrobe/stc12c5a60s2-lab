@@ -19,6 +19,11 @@ the bytes are right and says nothing about whether the wire is. This document
 is what a bench session needs to close that, and — more usefully — what to
 suspect first for each path, because the suspects are known and specific.
 
+It answers one question: *can a program be written to a board at all.* Everything
+that comes **after** a successful flash — the ADC's analog path, the cube's voxel
+map and `P0` polarity, the monitor over a real UART — is in
+[`BENCH-SESSION.md`](BENCH-SESSION.md), which assumes this one already passed.
+
 Web Serial needs Chrome or Edge and a secure context. The GitHub Pages site is
 HTTPS, so it qualifies; a `file://` copy will not.
 
