@@ -96,6 +96,26 @@ Worth being honest about, because it shapes the order of work:
 3. **The compiler is native.** SDCC is a C program, not a JS library. Either it
    runs server-side (like `legacy-lego-compiler` already does for NBC and
    LMSASM — this is the well-trodden path) or it gets compiled to WASM.
+
+   **Decided 2026-08-09: WASM, for the 8051 targets.** The server-side path was
+   taken first and works, but it brought two problems that have nothing to do
+   with compiling. The deploy rate limit on the host's free tier left the
+   service ~50 commits stale for a day; and the host's glibc pins it to SDCC
+   4.0.0 while this repo builds with 4.5.0, so the two produce different
+   firmware — `01-blink` is 888 bytes remotely and 996 locally. WASM has no
+   glibc and needs no deploy, so it removes both at once rather than working
+   around either. `gbdk-emscripten` already ships this shape for the z80 ports
+   at ~1.3 MB of WASM, so it is a port and not an experiment. The build must be
+   **single-threaded**: GitHub Pages cannot set the COOP/COEP headers that
+   `SharedArrayBuffer` and WASM threads require.
+
+   **AVR stays server-side, or goes without browser compilation.** Measured
+   rather than guessed: the minimum useful `avr-gcc` is 16.1 MB of native code
+   (`cc1plus` plus `as`/`ld`/`objcopy`) once `lto1` is dropped and the Arduino
+   core is precompiled to `core.a`, which estimates to 7–11 MB compressed —
+   roughly 8× the SDCC payload, for an audience that already has a toolchain.
+   Not blocked, just a poor trade; the reasoning and the numbers are in
+   `stc-compiler`'s README so nobody has to derive them twice.
 4. **Flashing needs a power cycle.** The STC bootloader only listens right
    after a cold boot (see README §2.3). In the browser this means either
    instructing the user to unplug VCC, or requiring the DTR-switches-power
@@ -291,9 +311,14 @@ Worth being honest about, because it shapes the order of work:
 * **Board definition.** Right now `include/board.h` hardcodes one two-LED rig.
   Blocks will need a board descriptor the generator reads — probably JSON,
   probably shared with the live firmware so both modes agree on pin names.
-* **SDCC in WASM.** Would remove the server dependency entirely and make the
-  whole thing work offline, which matters for the Tauri/iOS/Android wrappers.
-  Unknown effort; worth a spike before committing to the server path.
+* ~~**SDCC in WASM.** Unknown effort; worth a spike before committing to the
+  server path.~~ **Answered 2026-08-09 — doing it.** Removes the server
+  dependency entirely and works offline, which matters for the Tauri/iOS/
+  Android wrappers. Not a spike after all: `gbdk-emscripten` already ships an
+  Emscripten SDCC for the z80 ports at ~1.3 MB of WASM, so this is a port with
+  a different `--port` flag, not research. Details and the two constraints
+  (single-threaded; pin 4.5.0 rather than the hosted 4.0.0) are in §"Why the
+  compiled mode is genuinely harder", point 3.
 * **Licensing.** SDCC is GPL, but `mcs51/stc12.h` carries the standard linking
   exception, so generated binaries are unencumbered. `stcgal` is MIT, so a JS
   port is fine for BrickWright-lite's fully-permissive requirement. Neither

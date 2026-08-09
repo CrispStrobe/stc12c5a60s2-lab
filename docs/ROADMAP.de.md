@@ -100,6 +100,28 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
 3. **Der Compiler ist nativ.** SDCC ist ein C-Programm, keine JS-Bibliothek.
    Entweder er läuft serverseitig (so wie `legacy-lego-compiler` das für NBC und
    LMSASM längst tut — der ausgetretene Pfad) oder er wird nach WASM übersetzt.
+
+   **Entschieden am 09.08.2026: WASM, für die 8051-Ziele.** Der Server-Weg kam
+   zuerst und funktioniert, brachte aber zwei Probleme mit, die mit dem
+   Übersetzen nichts zu tun haben. Das Deploy-Limit des kostenlosen Tarifs ließ
+   den Dienst einen Tag lang rund 50 Commits veralten; und die glibc des Hosts
+   nagelt ihn auf SDCC 4.0.0 fest, während dieses Repo mit 4.5.0 baut — beide
+   erzeugen also unterschiedliche Firmware: `01-blink` ist entfernt 888 Bytes
+   und lokal 996. WASM hat keine glibc und braucht kein Deployment, beseitigt
+   also beides, statt um eines von beiden herumzuarbeiten. `gbdk-emscripten`
+   liefert diese Bauform für die z80-Ports bereits mit ~1,3 MB WASM aus; es ist
+   damit eine Portierung und kein Experiment. Der Build muss
+   **einfädig** sein: GitHub Pages kann die COOP/COEP-Header nicht setzen, die
+   `SharedArrayBuffer` und WASM-Threads voraussetzen.
+
+   **AVR bleibt serverseitig — oder verzichtet auf das Übersetzen im Browser.**
+   Gemessen statt geschätzt: das kleinste brauchbare `avr-gcc` sind 16,1 MB
+   nativer Code (`cc1plus` plus `as`/`ld`/`objcopy`), wenn `lto1` entfällt und
+   der Arduino-Kern zu `core.a` vorübersetzt wird; geschätzt 7–11 MB
+   komprimiert, also grob das Achtfache der SDCC-Last — für ein Publikum, das
+   bereits eine Toolchain hat. Nicht unmöglich, nur ein schlechter Tausch; die
+   Begründung und die Zahlen stehen im README von `stc-compiler`, damit sie
+   niemand ein zweites Mal herleiten muss.
 4. **Flashen braucht einen Kaltstart.** Der STC-Bootloader lauscht nur direkt
    nach dem Einschalten (siehe README §2.3). Im Browser heißt das: entweder man
    fordert die Nutzerin auf, VCC zu trennen, oder man setzt den
@@ -285,10 +307,15 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
   Zwei-LED-Aufbau fest. Blöcke brauchen eine Board-Beschreibung, die der
   Generator liest — vermutlich JSON, vermutlich geteilt mit der Live-Firmware,
   damit beide Varianten sich über die Pinnamen einig sind.
-* **SDCC als WASM.** Das würde die Server-Abhängigkeit vollständig beseitigen
-  und alles offline lauffähig machen, was für die Tauri-, iOS- und
-  Android-Hüllen zählt. Aufwand unbekannt; vor einer Festlegung auf den
-  Server-Weg einen Machbarkeitstest wert.
+* ~~**SDCC als WASM.** Aufwand unbekannt; vor einer Festlegung auf den
+  Server-Weg einen Machbarkeitstest wert.~~ **Beantwortet am 09.08.2026 — wird
+  gemacht.** Beseitigt die Server-Abhängigkeit vollständig und läuft offline,
+  was für die Tauri-, iOS- und Android-Hüllen zählt. Und eben doch kein
+  Machbarkeitstest: `gbdk-emscripten` liefert ein Emscripten-SDCC für die
+  z80-Ports bereits mit ~1,3 MB WASM aus — es ist also eine Portierung mit
+  einem anderen `--port`-Schalter, keine Forschung. Einzelheiten und die beiden
+  Randbedingungen (einfädig; 4.5.0 statt der gehosteten 4.0.0) stehen in
+  §„Warum der kompilierte Modus wirklich schwerer ist", Punkt 3.
 * **Lizenzen.** SDCC ist GPL, aber `mcs51/stc12.h` trägt die übliche
   Linking-Ausnahme — erzeugte Binaries sind also unbelastet. `stcgal` steht unter
   MIT, eine JS-Portierung ist für die durchgängig permissive Anforderung von
