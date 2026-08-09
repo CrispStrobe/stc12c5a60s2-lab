@@ -164,13 +164,16 @@ Gone relative to the STC12: **`P4SW` (0xBB) is not present** — its job is done
   address. That claim now has a second source behind it: P0–P3, `PxM0`/`PxM1`, `AUXR.T0x12`,
   Timer 0, `P1ASF` and the ADC block are all confirmed identical. The comment's list of "famous
   divergences it never writes" was right, and `ADRJ` (§2.1) can be added to it.
-- **`src/10-live-firmware` will NOT work on an STC15 as written**, and §2.2 says exactly why: it
-  writes an 8-bit reload to `BRT` (0x9C), where an STC15 needs a 16-bit reload in `T2H`/`T2L`.
-  The mode bits in `AUXR` happen to be right. Everything else in the monitor — Level 1 position,
-  the yield-point matching, the curated SFR window — is family-agnostic. Fixing this is one
-  `#if`, and it is the natural first bench task now that STC15 silicon exists.
-- **The curated SFR window in `include/live-sfr.h` is STC12's.** An STC15 build needs the §3
-  additions and must drop `P4SW`.
+- **`src/10-live-firmware` handles the baud-rate difference correctly.** The `#ifdef
+  PART_STC15F2K60S2` path in `uart_init()` writes `T2H`/`T2L` (16-bit reload) instead of `BRT`
+  (8-bit), and `AUXR |= 0x15` means the same thing on both parts (run the baud timer at 1T,
+  select it as UART1's source). Verified under ucsim: both builds produce AUXR=0x15 and SCON=0x50
+  after init, with the correct reload register populated (BRT=0xFD on STC12, T2 running from
+  0xFFFD on STC15). The naive port (BRT written on STC15 without the `#ifdef`) would produce
+  **5 baud instead of 115200** — 23,040× wrong — because 0x9C is deprecated and T2H/T2L stays
+  at the reset default. See `ucsim-stc/spec-updates/015-baud-reload-table.md` for the full table.
+- **The curated SFR window in `include/live-sfr.h` handles the STC15 correctly.** T2H/T2L are
+  included when `PART_STC15F2K60S2` is defined, and P4SW is excluded.
 
 ## 5. The one genuine advantage: the clock stops being a guess
 
@@ -211,7 +214,10 @@ The verification order that buys the most per bench hour, for when it is availab
 2. `src/02-adc` ported — the ADC register sequence has never been confirmed on *any* part, and
    since the ADC core registers are identical (§1), **confirming it on an STC15 is meaningful
    evidence for the STC12 too**, with §2.1's `ADRJ` caveat.
-3. `src/10-live-firmware` with the §2.2 baud fix — the first real test of the debug monitor.
+3. `src/10-live-firmware` — the baud path is already fixed (§4 above), so this is ready to
+   flash as-is with `make PART=stc15f2k60s2 EXAMPLE=10-live-firmware`. Verified under ucsim:
+   both builds produce AUXR=0x15 and the correct reload. The first real test of the debug
+   monitor on silicon.
 
 That third one would make the STC15, not the STC12, the first part in this project with a
 bench-verified peripheral claim.
