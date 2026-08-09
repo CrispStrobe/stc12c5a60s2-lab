@@ -9,8 +9,9 @@ It is a good yardstick precisely because nobody wrote it for us. It is what an e
 person actually does with this family, and the answer to "can our blocks say that" is a fact
 about the dialect rather than an opinion about it.
 
-**The headline: the gap is not "more blocks".** It is two dialect features and a parts library,
-and the sixteen demos split cleanly into three tiers.
+**The headline: the gap was never "more blocks".** It was two dialect features — both since
+built — and a parts library, which is still open. The sixteen demos split cleanly into three
+tiers, and only the third is still a gap.
 
 ## Tier 1 — expressible today, and arguably better (5 of 16)
 
@@ -39,7 +40,7 @@ and gets an actual frequency (peripheral model §5b).
 
 `01_led_matrix`, `01_button_led_matrix`, `01_led_74H595`, `02_7_segment`, `02_7_segment_dyn`.
 
-Every one of these is blocked on the same two things, and on nothing else:
+Every one of these was blocked on the same two things, and on nothing else:
 
 **1. Whole-port I/O.** The dialect addresses one pin at a time. These write eight at once:
 
