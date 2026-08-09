@@ -66,6 +66,8 @@ NETLIST_ROWS = {
     "output-low": "OUTPUT ACTIVE LOW -> VCC, 1k, LED, pin",
     "output":     "OUTPUT -> pin, 1k, LED, GND",
     "tone":       "TONE -> buzzer between pin and GND  (NOT in the contract yet)",
+    "port":       "PORT OUTPUT -> eight loads on one port, e.g. a 7-segment digit"
+                  "  (NOT in the contract yet)",
 }
 
 
@@ -124,8 +126,21 @@ def build_one(bw_path: Path, sdcc: str, outroot: Path) -> dict:
         "activeLow": p.active_low,
     } for p in program.pins.values()]
 
+    # Whole ports are part of boundary C's input too, and were not: an example
+    # that declares only a PORT produced an empty pins.json, so the circuit
+    # designer had nothing to draw for a display.
+    ports = [{
+        "name": w.name,
+        "port": w.port,
+        "sfr": f"P{w.port}",
+        "width": 8,
+        "direction": w.direction,
+        "activeLow": w.active_low,
+    } for w in program.ports.values()]
+
     (out / "pins.json").write_text(json.dumps(
-        {"device": program.part, "clock": program.clock, "pins": pins}, indent=2) + "\n")
+        {"device": program.part, "clock": program.clock,
+         "pins": pins, "ports": ports}, indent=2) + "\n")
 
     # ---- boundary D input, when there is a scheduler ----------------------
     symbols = None
@@ -150,7 +165,10 @@ def build_one(bw_path: Path, sdcc: str, outroot: Path) -> dict:
         "tasks": len(program.whens),
         "scheduler": len(program.whens) > 1,
         "hexBytes": len(hex_path.read_bytes()),
-        "netlistRows": sorted({netlist_row(p) for p in program.pins.values()}),
+        "netlistRows": sorted(
+            {netlist_row(p) for p in program.pins.values()}
+            | {NETLIST_ROWS["port"] for w in program.ports.values()
+               if w.direction == "output"}),
         "artifacts": sorted(p.name for p in out.iterdir() if p.is_file()),
     }
     (out / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")

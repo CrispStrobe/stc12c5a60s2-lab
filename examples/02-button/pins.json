@@ -26,5 +26,6 @@
       "direction": "input",
       "activeLow": true
     }
-  ]
+  ],
+  "ports": []
 }

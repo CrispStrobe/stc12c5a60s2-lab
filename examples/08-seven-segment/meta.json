@@ -1,0 +1,19 @@
+{
+  "name": "08-seven-segment",
+  "device": "stc12c5a60s2",
+  "clock": 11059200,
+  "tasks": 1,
+  "scheduler": false,
+  "hexBytes": 1060,
+  "netlistRows": [
+    "PORT OUTPUT -> eight loads on one port, e.g. a 7-segment digit  (NOT in the contract yet)"
+  ],
+  "artifacts": [
+    "08-seven-segment.bw",
+    "08-seven-segment.c",
+    "08-seven-segment.cdb",
+    "08-seven-segment.hex",
+    "meta.json",
+    "pins.json"
+  ]
+}

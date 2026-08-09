@@ -18,5 +18,6 @@
       "direction": "analog",
       "activeLow": false
     }
-  ]
+  ],
+  "ports": []
 }

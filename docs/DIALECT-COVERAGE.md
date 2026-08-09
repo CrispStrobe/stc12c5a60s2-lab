@@ -35,7 +35,7 @@ second on all three families. The demo's own timing does not survive the port; o
 so its pitch is whatever the tick happens to be. A `TONE` pin is Timer 1 with a computed reload
 and gets an actual frequency (peripheral model §5b).
 
-## Tier 2 — blocked on exactly two features (5 of 16)
+## Tier 2 — WAS blocked on exactly two features; now unblocked (5 of 16)
 
 `01_led_matrix`, `01_button_led_matrix`, `01_led_74H595`, `02_7_segment`, `02_7_segment_dyn`.
 
@@ -58,7 +58,22 @@ const uint8_t segment_map[] = { 0b00111111, 0b00000110, /* ... */ };
 ```
 
 These two are worth having for their own sake: a digit display and an LED matrix are the two
-things people build after a blinking LED, and both are unreachable today.
+things people build after a blinking LED, and both were unreachable.
+
+**Both landed on 2026-08-09** (`stc-compiler` `da0e1ca`). `TABLE` puts constants in code space,
+`PORT` writes eight bits in one store, and `pseudocode/08-seven-segment.bw` is `02_7_segment`
+said in the dialect — with the font asserted against a transcription of the original rather than
+against our own output. The tokenizer gained binary literals on the way, because a seven-segment
+font is written in binary or it is written wrong.
+
+Two refusals came out of it that are worth more than the features. A `PORT` and a `PIN` on the
+same port are rejected **in both directions**, each naming the other: a port write covers all
+eight bits and would clobber the pin, and neither declaration looks wrong on its own. And a
+computed table index is *clamped* rather than trusted — reading past a table means reading a
+random byte of flash and, on a display, showing it, which looks like data rather than like a
+fault. A constant index is checked when it compiles and costs nothing.
+
+**Score is now 10 of 16 expressible.**
 
 ## Tier 3 — not programs, drivers (6 of 16)
 
@@ -87,15 +102,14 @@ specification for its first entries.
 
 ## Score, and what it means for the roadmap
 
-| tier | count | needs |
+| tier | count | status |
 |---|---:|---|
-| expressible now | 5 | — |
-| whole-port I/O + lookup tables | 5 | two dialect features |
-| driver-backed blocks | 6 | a parts library |
+| expressible from the start | 5 | — |
+| needed whole-port I/O + lookup tables | 5 | **done, `da0e1ca`** |
+| driver-backed blocks | 6 | needs a parts library |
 
-**10 of 16 are reachable with two features**, which is a much better position than the raw 5/16
-suggests, and neither feature is speculative — both are forced by the same two demos anybody
-writes third. The remaining 6 are not a dialect problem at all.
+**10 of 16 are expressible**, and the remaining 6 are not a dialect problem at all. That is the
+whole of what this corpus asks of the dialect: it is now a question of parts, not of grammar.
 
 One incidental finding: **not one of the sixteen uses the UART.** The serial console added in
 `stc-compiler` `c0c1dec` is not something this corpus asked for, and its real justification is

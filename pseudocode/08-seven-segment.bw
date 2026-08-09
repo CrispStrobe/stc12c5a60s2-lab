@@ -1,0 +1,42 @@
+# A seven-segment digit counting through 0-F — the first example that drives
+# a display rather than a lamp.
+#
+# This is 02_7_segment from treideme/stc89c52-demos (Apache-2.0) said in the
+# dialect. It is here because that corpus measured it as unreachable: it
+# needed whole-port I/O and an indexed lookup table, and nothing else. Both
+# now exist, so this example is the evidence rather than the claim.
+# See docs/DIALECT-COVERAGE.md.
+#
+#   P0.0-P0.6  segments a-g, P0.7 the decimal point
+#   common cathode, so a 1 lights a segment
+#
+# Wire each segment through its own resistor. A common-anode display wants
+# `PORT segments = P0 OUTPUT ACTIVE LOW` instead, and nothing else changes --
+# which is the point of putting polarity in the declaration.
+#
+# Two things worth noticing about what this compiles to:
+#
+# The font lands in code space as `const __code`, not in the 256 bytes of RAM.
+# Flash is the abundant resource on this part.
+#
+# `font[digit]` with a computed index is clamped, not trusted. Reading past a
+# table means reading a random byte of flash and displaying it, which looks
+# like data rather than like a fault. A constant index is checked when it
+# compiles and costs nothing.
+
+DEVICE STC12C5A60S2:
+  CLOCK 11059200
+
+  #             dGFEDCBA
+  TABLE font = 0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01101111, 0b01110111, 0b01111100, 0b00111001, 0b01011110, 0b01111001, 0b01110001
+
+  PORT segments = P0 OUTPUT              # PDIP-40 pins 39 down to 32
+
+  WHEN started:
+    set digit to 0
+    FOREVER:
+      set segments to font[digit]
+      wait 500 ms
+      change digit by 1
+      IF digit > 15 THEN:
+        set digit to 0
