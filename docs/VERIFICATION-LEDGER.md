@@ -29,7 +29,7 @@ rows they would settle.
 | 70 ngspice golden circuits | Stated tolerances per test file | **Cat 1** — ngspice is an independent reference solver | — |
 | RC charge/discharge vs analytic | Within **5%** of V(t)=VCC*(1-e^(-t/RC)) | **2b** — both are our own code | Oscilloscope on a real RC circuit |
 | 555 astable period | **214 ms** vs 207.9 ms analytic (3%) | **2b** | Oscilloscope on a real 555 circuit |
-| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **2b** — emitter + cycle-accurate emulator, same datasheet. Timed core was never wrong; pulse windows passed through three assembly edits. No strip has lit. | A real WS2812B strip showing the correct colour |
+| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **⚠ UNDER REVIEW** — emu8051-stc confirmed CLR/SETB/CPL bit return 2 cycles where MCS-51 spec says 1. These are the exact opcodes the WS2812B driver bit-bangs with. If ucsim has the same bug, the timing agreement was two copies of one error. If ucsim is correct, the two never actually agreed. Awaiting ucsim-stc's check. Numbers are the measurements taken; category is suspended. | A real WS2812B strip showing the correct colour |
 
 ## Defects found and fixed on the path
 
