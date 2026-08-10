@@ -68,6 +68,42 @@ are plausible engineering estimates with no second source.
 - Device model defaults (relay 200Ω coil, motor kV=0.01, etc.): order-of-
   magnitude fits from typical datasheets, not verified against specific parts.
 
+## The case that made this concrete
+
+Everything above was reasoning until 2026-08-10, when the failure it predicts
+actually happened. It is worth recording precisely, because a rule people
+accept and a rule people apply are different things.
+
+**The check:** bw-circuit-ui cross-checked its terminal definitions against
+bw-parts' 115 sidecars — two agents, two repos, one comparison. It passed.
+
+**The error it did not find:** bw-parts' MCU sidecar carried the generic 8051
+trap. Pin 10 was labelled `rxd` rather than `P3.0`, and pins 29–31 were
+`psen`/`ale`/`ea` — signals this part does not have, because STC removed
+external memory addressing. Those pins are `P4.4`/`P4.5`/`P4.6` GPIOs. Part
+art mislabelled that way teaches the wrong pinout to everyone who looks at it.
+
+**Why the cross-check stayed green:** it skipped MCU, breadboard and meter as
+"deliberately different". The exclusion was defensible in itself. It also meant
+the one part carrying a real error was the one part not compared.
+
+**What found it:** bw-parts checking its own sidecar against `docs/PINOUT.md`
+and the datasheet — a source, not another agent.
+
+Three things follow, and they are the argument for this whole file:
+
+1. **Category 2 agreement can be perfect while one side is wrong.** Here it was
+   worse than perfect: the check could not have disagreed, because the
+   disagreeing part was outside it.
+2. **Every exclusion in a cross-check is an unchecked claim.** "Deliberately
+   different" is a reason to compare differently, not a reason to skip. When
+   you exclude something, write down what now goes unverified.
+3. **Going to the source is not ceremony.** It was the only thing that worked,
+   and it took one agent reading a pinout table.
+
+Cost had it survived: the drawings are what a beginner trusts most, because
+they look like the chip in front of them.
+
 ## Using this classification
 
 When writing "X and Y agree", add where X and Y got their information. One
