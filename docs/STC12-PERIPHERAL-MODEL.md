@@ -312,13 +312,41 @@ same fact stated twice — if they disagree, one is wrong.
 | 3 | 0x1B | Timer 1 | |
 | 4 | 0x23 | UART1 | |
 | 5 | 0x2B | ADC | replaces Timer 2 of the generic 8052 |
-| 6 | 0x33 | LVD | the slot commonly mistaken for PCA |
-| 7 | 0x3B | PCA / CCP | `__interrupt(7)`, enabled by `IE.EC` |
+| 6 | 0x33 | LVD | enabled by `ELVD` (IE.6); the slot commonly mistaken for PCA |
+| 7 | 0x3B | PCA / CCP | `__interrupt(7)`. **There is no `IE` bit for PCA** — see below |
 | 8 | 0x43 | UART2 | |
 | 9 | 0x4B | SPI | |
 
 A model that dispatches to the wrong vector should be caught by asserting the whole
 table, not by checking the one entry someone already suspected.
+
+**`IE.EC` does not exist on this part, and this table used to claim it did.** The
+row for vector 7 said PCA was "enabled by `IE.EC`", which is the arrangement on
+8052 derivatives that carry a PCA in the classic layout. On the STC12,
+**IE.6 is `ELVD`** — so code that sets `EC` to enable the PCA silently enables
+the Low Voltage Detector instead, and the PCA interrupt never fires. That is the
+failure this section warns about three paragraphs above, produced by this
+section.
+
+The PCA interrupt is enabled **per module**, not centrally:
+
+| what | bit | where |
+|---|---|---|
+| module *n* match/capture | `ECCF` | `CCAPM`*n*`.0` — `CCAPM0` is 0xDA |
+| counter overflow | `ECF` | `CMOD.0` |
+| globally | `EA` | `IE.7`, as for everything |
+
+Ordering matters as much as the bits: **`EA` must be set before `CR`**. Start the
+counter first and it can match a `CCAP` value of 0 immediately, set `CCF0`, and
+that first match is lost because interrupts are not yet on — after which nothing
+reloads `CCAP0` and the channel is dead. It looks like a broken driver rather
+than a race.
+
+Corrected 2026-08-10 on category-1 evidence — three sources that got their
+information from different places, per `EVIDENCE-CATEGORIES.md`: ucsim-stc
+(c162861) and bw-board (4f14c35) each ran the real hex and independently found
+the ISR never firing, and SDCC's own `mcs51/stc12.h` defines
+`SBIT(ELVD, 0xA8, 6)` and contains no `EC` symbol anywhere.
 
 `WAKE_CLKO` (0x8F): `PCAWAKEUP RXD_PIN_IE T1_PIN_IE T0_PIN_IE LVD_WAKE BRTCLKO T1CLKO T0CLKO`.
 
