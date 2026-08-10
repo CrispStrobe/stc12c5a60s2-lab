@@ -69,9 +69,51 @@ So `when x pressed` lowers to a task that samples `x` each tick and runs its bod
 low-to-high transition of the *logical* value (polarity-aware, as everything else is). Edge, not
 level — a held button must not re-run the body every millisecond.
 
-⚠ `when x above <n>` for an ANALOG pin is listed for completeness but should **not** be built
-yet: an ADC read is not free, and a hat that quietly polls the ADC at 1 kHz is a performance
-trap disguised as a block. Decide the sampling rate deliberately before offering it.
+### `when x above <n>` — decided 2026-08-10
+
+**Build it at 50 Hz with edge semantics and hysteresis.** The derivation:
+
+**ADC conversion cost.** `SPEED=11` (fastest): 70 oscillator clocks + ~8 clocks mux settle
+= 78 clocks. At FOSC 11,059,200 Hz (1T): **7.1 µs per conversion** (datasheet §10.5 via
+`STC12-PERIPHERAL-MODEL.md` §4). At 50 Hz that is 7 µs every 20 ms = **0.035% CPU** — negligible.
+At the scheduler tick (1 kHz): 7 µs/ms = 0.7% per analog pin, which adds up with multiple pins
+and competes with wait-deadline checks. The 1 kHz rate the warning flagged IS a trap for ≥3 pins.
+
+**What rate is defensible?** A potentiometer turned by hand has a bandwidth of ~5 Hz (deliberate)
+to ~20 Hz (fast fiddling). Nyquist: sample at 2× → 10–40 Hz. **50 Hz** captures everything a hand
+can produce, with margin, and costs nothing. It also matches the meter-block display rate
+(§ *Meter blocks must sample at display rate*), which is the right precedent: both report a
+measurement, not an instantaneous value.
+
+**What does the block promise?** At 50 Hz, a pulse shorter than 20 ms is invisible. The block is a
+**level detector with hysteresis**, not a frequency counter. A signal that oscillates at 100 Hz
+fires once (when it first crosses the threshold), not 100 times. This is honest and is what the
+user wants: "tell me when the pot is above halfway", not "tell me every time the ADC reads above
+512".
+
+**Edge or level?** **Edge-triggered with hysteresis**, matching the button hat:
+
+- **Fires** when the reading crosses from below to at-or-above the threshold.
+- **Re-arms** when the reading drops below `threshold − 10` (10 counts ≈ 50 mV at 5 V).
+- A held value above the threshold does NOT re-run the body every sample.
+- The hysteresis band (10 counts) absorbs ADC noise (±2 LSB typical on this part) without
+  hiding real changes.
+
+**What it lowers to.** A cooperative task whose body is:
+
+```
+case S:
+  adc_val = adc_read(channel);
+  if (adc_val >= threshold && !armed) { armed = 1; /* run body */ }
+  if (adc_val < threshold - 10) armed = 0;
+  bw_taskN_until = bw_now() + 20;   /* 50 Hz = 20 ms */
+  bw_taskN_state = S;
+  return;
+```
+
+This is the same shape as the button hat (a polled task that yields at every check), with two
+additions: the ADC call and the hysteresis flag. It runs on the existing scheduler with no new
+scheduling concept.
 
 ## What this does not change
 
