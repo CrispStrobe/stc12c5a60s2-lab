@@ -77,8 +77,8 @@ einstecken. Der Bootloader braucht ein **kaltes** Einschalten.
 |---|---|
 | Verhältnis 10:1 – 30:1, gleichmäßig | **BESTANDEN** — Analogpfad funktioniert |
 | Verhältnis 10:1 – 30:1, aber Plateau/Sprung | **UNKLAR** — möglicherweise ein feststeckender ADC-Bit |
-| Verhältnis ~1:1 (konstantes Blinken) | **FEHLGESCHLAGEN** — ADC liest nicht |
-| LED blinkt gar nicht | **FEHLGESCHLAGEN** — Programm nicht geflasht |
+| Verhältnis ~1:1 (konstantes Blinken) | **FEHLGESCHLAGEN** — ADC liest nicht. Verdacht: falscher Pin, P1ASF nicht gesetzt, Poti-Enden vertauscht |
+| LED blinkt gar nicht | **FEHLGESCHLAGEN** — Programm nicht geflasht, oder LED-Verdrahtung falsch |
 
 **Toleranz bei absoluten Perioden:** ±30 %. Das Verhältnis ist der stärkere Test.
 
@@ -86,7 +86,11 @@ einstecken. Der Bootloader braucht ein **kaltes** Einschalten.
 
 - **ADC-Registersequenz** von 2b auf **Kategorie 1**.
 - **ADC-Analogpfad** von „offen" auf „auf Silizium bestätigt".
-- Die ADC-**Genauigkeit** (Linearität, Offset) bleibt offen.
+### Was es NICHT aufwertet
+
+- ADC-**Genauigkeit** (10-Bit-Linearität, Offset, Verstärkung) — ein Poti-Test
+  kann das nicht messen. Dafür bräuchte man eine kalibrierte Spannungsquelle.
+- Alles über **PWM, UART oder den Würfel** — andere Peripherien, andere Tests.
 
 ---
 
@@ -116,7 +120,14 @@ Pin 21 (P1.0) über ein **Multimeter im DC-mA-Modus** in Reihe mit dem
 |---|---|
 | 1,17 – 1,76 mA (±20 %) | **BESTANDEN** |
 | 0,5 – 1,17 oder 1,76 – 2,5 mA | **UNKLAR** — Wert notieren |
-| < 0,1 mA | **FEHLGESCHLAGEN** — PWM läuft nicht |
+| < 0,1 mA | **FEHLGESCHLAGEN** — PWM läuft nicht, oder Pin treibt nicht |
+| ~2,9 mA (stetig, kein Flackern) | PWM hängt auf AN — der PCA toggelt nicht |
+
+### Was es aufwertet
+
+- **PCA-8-Bit-PWM-Tastgrad** von 2b auf **Kategorie 1**, wenn der Strom zur
+  Vorhersage passt.
+- Die `BENCH-PWM`-ID kann geschlossen werden.
 
 ---
 
@@ -134,13 +145,20 @@ make EXAMPLE=20-ledcube flash
 **Polarität: active-HIGH.** Bei `(FE, 01)` leuchtet **eine** LED.
 **Bildwiederholrate: 124 Hz** (unsichtbar fürs Auge).
 
+### Was beobachten
+
+1. Bei `(FE, 01)`: leuchtet **eine** LED, oder sind **sieben** an (eine dunkel)?
+2. Alle 64 Positionen durchgehen und die Tabelle in `src/20-ledcube/README.md` füllen.
+3. Gibt es sichtbares Flackern? (Sollte nicht sein.)
+
 ### Entscheidungsregel
 
 | Beobachtung | Bewertung |
 |---|---|
 | Eine LED leuchtet bei `(FE, 01)` | **BESTANDEN** — active-high bestätigt |
-| Eine LED DUNKEL, sieben leuchten | **BESTANDEN aber invertiert** — active-low |
-| Sichtbares Flackern | **UNKLAR** — Verweilzeit kürzer als vorhergesagt |
+| Eine LED DUNKEL, sieben leuchten | **BESTANDEN aber invertiert** — active-low; `BW_CUBE_ACTIVE_HIGH` in 4 Dateien umschalten |
+| Keine LED leuchtet überhaupt | **FEHLGESCHLAGEN** — Verdrahtung, oder P0/P2-Portmodus falsch |
+| Sichtbares Flackern | **UNKLAR** — Verweilzeit kürzer als vorhergesagt; erkennbare Rate notieren |
 
 ---
 
@@ -172,9 +190,15 @@ python3 tools/live-monitor.py --port /dev/cu.usbserial-XXXX
 
 | Beobachtung | Bewertung |
 |---|---|
-| `HELLO` antwortet mit gültigem Frame | **BESTANDEN** |
-| `HELLO` antwortet verstümmelt | **UNKLAR** — Baud-Fehlanpassung |
-| Keine Antwort | **FEHLGESCHLAGEN** |
+| `HELLO` antwortet mit gültigem Frame | **BESTANDEN** — Baudrate, Framing und Codec stimmen auf Silizium |
+| `HELLO` antwortet verstümmelt | **UNKLAR** — Baud-Fehlanpassung; Verdacht FOSC-Kalibrierung |
+| Keine Antwort | **FEHLGESCHLAGEN** — Verdrahtung, Adapter, oder Baud. P3.0/P3.1-Verbindungen prüfen |
+| Halt-Versatz 480–550 ms | **BESTANDEN** — Timer-Genauigkeit bestätigt |
+| Halt-Versatz > 600 ms | **UNKLAR** — Host-seitige Latenz; Wert notieren |
+
+**Baud-Hinweis:** Ein ungetrimmter interner RC bei 12,5 MHz statt der erwarteten
+11,0592 MHz ergibt ~13 % Baud-Fehler — genug für Framing-Fehler, die wie
+Protokoll-Bugs aussehen.
 
 ---
 
