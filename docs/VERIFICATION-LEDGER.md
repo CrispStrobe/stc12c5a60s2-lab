@@ -10,9 +10,9 @@ rows they would settle.
 
 | Claim | Number | Category | What would raise it |
 |-------|--------|----------|---------------------|
-| Servo pulse width at 90° | emu8051: **1500.0 µs**, ucsim: **1499.6 µs** (0.4 µs spread) | **2b** — the 0.4 µs spread is **90% explained** by emu8051's SETB/CLR cycle-count defect (3 MC vs 1 MC spec). The ISR executes one SETB or CLR per edge; 2 extra cycles × 0.0904 µs = 0.18 µs per edge, 0.36 µs per pulse (two edges). Remainder (~0.04 µs) is ISR dispatch jitter. Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM**: frequency counter on real CEX0 pin |
-| Servo pulse at 0° / 180° | emu8051: **499.2 / 2500.6 µs** | **2b** — emu8051 only, no ucsim number. Contains the same SETB/CLR defect (~0.36 µs bias). ucsim measurement would be ~0.4 µs lower. | BENCH-PWM |
-| Servo frame period | emu8051: **20003.5 µs** = 50.0 Hz, ucsim: **20000.0 µs** | **2b** — the 3.5 µs spread is **41% explained** by 8 ISR invocations × 0.18 µs = 1.45 µs from the SETB/CLR defect. Remainder (~2 µs) is ISR entry/exit overhead differing between emulators. | BENCH-PWM |
+| Servo pulse width at 90° | emu8051 (defective): **1500.0 µs**, ucsim: **1499.6 µs**. emu8051 number is **stale** — measured with 3 MC SETB/CLR (should be 1 MC). The 0.4 µs spread was 90% the defect (0.36 µs from 2 extra cycles per edge). **Awaiting re-measurement on fixed build** — if emu8051 converges to ~1499.6 µs, the spread drops to ~0.04 µs (ISR jitter). Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM** |
+| Servo pulse at 0° / 180° | emu8051 (defective): **499.2 / 2500.6 µs**. **Stale** — contains ~0.36 µs SETB/CLR bias. Awaiting re-measurement. | BENCH-PWM |
+| Servo frame period | emu8051 (defective): **20003.5 µs**, ucsim: **20000.0 µs**. **Stale** — 1.45 µs of the 3.5 µs spread is the defect (8 ISRs × 0.18 µs). Awaiting re-measurement. | BENCH-PWM |
 | Motor PWM duty (register) | Driver loads **84/128/192** of 256 counts for 33/50/75% | **2b** — independent anchor: these are what the driver arithmetic computes | BENCH-PWM |
 | Motor PWM duty (pin) | ucsim measured: 33% = **32.83%** pin duty, period **277561 ns** | **2b** — a measurement of the pin, not a re-derivation of the register | BENCH-PWM |
 | Motor H-bridge direction decode | Board: IN1=5V/IN2=0V → FORWARD, IN1=0V/IN2=5V → REVERSE | **2b** | A motor visibly spinning on silicon |
@@ -55,7 +55,7 @@ answer that would have shipped without the end-to-end check.
 | NeoPixel driver sent only 1 of 9 bytes | Inline `djnz r7` clobbered the R7 SDCC's outer loop used as its byte counter — invisible while all bytes were zeros | ucsim-stc re-measurement after the all-zeros fix |
 | NeoPixel R6 assumed free by first fix | Register swap relied on a claim about SDCC's allocator, not a check of the listing. `push ar7`/`pop ar7` verified against generated assembly is what held. | Checking the `.asm` output rather than trusting the assumption |
 | ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`b4f4bb1`) |
-| emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Bit-banged timing 3× too slow on these opcodes. WS2812B would produce wrong pulse widths if measured from emu8051. | steveschnepp/emu8051 systematic sweep found the family; ucsim-stc `3d6489e` confirmed ucsim is correct at 1 MC. |
+| emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Opcodes returned 2 (tickDelay convention: `(return+1)*scale-1` = 3 MC at 1T). Bit-banged timing 3× too slow. Servo 0.4 µs spread is 90% this defect. Commit `6cb9bc7` title says "2 cycles" — **title is wrong**, should say "3 cycles" (return 2 → 3 MC total). Ledger row is correct at 3 MC. Fixed to return 0 (= 1 MC). | steveschnepp/emu8051 sweep; ucsim-stc `3d6489e` confirmed 1 MC correct. |
 
 ## Bench questions and the rows they settle
 
