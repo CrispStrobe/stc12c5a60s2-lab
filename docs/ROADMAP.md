@@ -109,13 +109,18 @@ Worth being honest about, because it shapes the order of work:
    **single-threaded**: GitHub Pages cannot set the COOP/COEP headers that
    `SharedArrayBuffer` and WASM threads require.
 
-   **AVR stays server-side, or goes without browser compilation.** Measured
-   rather than guessed: the minimum useful `avr-gcc` is 16.1 MB of native code
-   (`cc1plus` plus `as`/`ld`/`objcopy`) once `lto1` is dropped and the Arduino
-   core is precompiled to `core.a`, which estimates to 7–11 MB compressed —
-   roughly 8× the SDCC payload, for an audience that already has a toolchain.
-   Not blocked, just a poor trade; the reasoning and the numbers are in
-   `stc-compiler`'s README so nobody has to derive them twice.
+   **AVR: decided 2026-08-10 — drop browser compiling for now, revisit via a
+   small hosted service, and port `avr-gcc` to WASM only if someone asks.**
+   Measured rather than guessed: the minimum useful `avr-gcc` is 16.1 MB of
+   native code (`cc1plus` plus `as`/`ld`/`objcopy`) once `lto1` is dropped and
+   the Arduino core is precompiled to `core.a`, which estimates to 7–11 MB
+   compressed — roughly 8× the SDCC payload, for an audience that already has a
+   toolchain. The governing argument is allocation, not difficulty: this is an
+   8051 project and AVR is a bonus target, so the largest engineering item on
+   the board should not be aimed at it. Full reasoning, and the correction that
+   `avr-gcc`'s GMP/MPFR/MPC dependency is already largely scripted for WASM in
+   `math-stack-ios-builder`, are in `stc-compiler`'s README so nobody derives
+   them twice.
 4. **Flashing needs a power cycle.** The STC bootloader only listens right
    after a cold boot (see README §2.3). In the browser this means either
    instructing the user to unplug VCC, or requiring the DTR-switches-power

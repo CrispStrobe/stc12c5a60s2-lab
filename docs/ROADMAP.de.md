@@ -114,14 +114,19 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
    **einfädig** sein: GitHub Pages kann die COOP/COEP-Header nicht setzen, die
    `SharedArrayBuffer` und WASM-Threads voraussetzen.
 
-   **AVR bleibt serverseitig — oder verzichtet auf das Übersetzen im Browser.**
-   Gemessen statt geschätzt: das kleinste brauchbare `avr-gcc` sind 16,1 MB
-   nativer Code (`cc1plus` plus `as`/`ld`/`objcopy`), wenn `lto1` entfällt und
-   der Arduino-Kern zu `core.a` vorübersetzt wird; geschätzt 7–11 MB
-   komprimiert, also grob das Achtfache der SDCC-Last — für ein Publikum, das
-   bereits eine Toolchain hat. Nicht unmöglich, nur ein schlechter Tausch; die
-   Begründung und die Zahlen stehen im README von `stc-compiler`, damit sie
-   niemand ein zweites Mal herleiten muss.
+   **AVR: entschieden am 10.08.2026 — das Übersetzen im Browser entfällt
+   vorerst, bei Bedarf über einen kleinen gehosteten Dienst, und `avr-gcc` wird
+   nur dann nach WASM portiert, wenn jemand danach fragt.** Gemessen statt
+   geschätzt: das kleinste brauchbare `avr-gcc` sind 16,1 MB nativer Code
+   (`cc1plus` plus `as`/`ld`/`objcopy`), wenn `lto1` entfällt und der
+   Arduino-Kern zu `core.a` vorübersetzt wird; geschätzt 7–11 MB komprimiert,
+   also grob das Achtfache der SDCC-Last — für ein Publikum, das bereits eine
+   Toolchain hat. Ausschlaggebend ist nicht die Schwierigkeit, sondern die
+   Mittelverteilung: dies ist ein 8051-Projekt, AVR ein Zusatzziel, und der
+   größte Einzelposten gehört nicht dorthin. Die vollständige Begründung —
+   samt der Korrektur, dass die GMP/MPFR/MPC-Abhängigkeit von `avr-gcc` in
+   `math-stack-ios-builder` bereits weitgehend für WASM skriptiert ist — steht
+   im README von `stc-compiler`, damit sie niemand ein zweites Mal herleitet.
 4. **Flashen braucht einen Kaltstart.** Der STC-Bootloader lauscht nur direkt
    nach dem Einschalten (siehe README §2.3). Im Browser heißt das: entweder man
    fordert die Nutzerin auf, VCC zu trennen, oder man setzt den
