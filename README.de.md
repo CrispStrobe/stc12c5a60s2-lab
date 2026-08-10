@@ -134,9 +134,9 @@ Registeradressen: `P0M1`=0x93 `P0M0`=0x94, `P1M1`=0x91 `P1M0`=0x92,
 > dem Reset kann ein Pin 20 mA nach Masse *ziehen*, aber nur etwa ein Viertel
 > Milliampere *liefern*. Genau deshalb sind die LEDs in diesem Repository
 > **low-aktiv** verdrahtet (siehe §3) — das ist die einzige Beschaltung, die in
-> jedem Modus funktioniert. Standard-8051-Familienrichtlinie: **~80 mA pro
-> Port**, **~120 mA pro Chip** (nicht im STC12-Datenblatt angegeben, aber in
-> der Familie allgemein beachtet). Ca. 10 mA pro LED einplanen oder multiplexen.
+> jedem Modus funktioniert. §4.1 sagt: „the whole chip had better drive
+> lower than **120 mA**". ~80 mA pro Port ist 8051-Familienrichtlinie (nicht
+> in diesem Datenblatt). Ca. 10 mA pro LED einplanen oder multiplexen.
 
 ### Eine Falle, die aus der 1T-Architektur folgt
 
@@ -351,8 +351,8 @@ kurzes Abziehen der 5-V-Steckbrücke — das ist der sauberste Weg.
 Eine **0** auf dem Pin lässt die LED leuchten, eine **1** schaltet sie aus.
 
 Warum herum? Wegen der Asymmetrie aus §1: ein quasi-bidirektionaler Pin liefert
-rund 230 µA, was für eine sichtbar leuchtende LED nicht reicht — nach Masse
-senkt er dagegen problemlos 20 mA. STCs eigenes Datenblatt (§4.6) schreibt
+rund 230 µA (§4.1), was für eine sichtbar leuchtende LED nicht reicht — nach
+Masse senkt er dagegen problemlos 20 mA. §4.6 schreibt
 genau das vor: *„Für schwach hochziehende / quasi-bidirektionale I/O den
 Senkenstrom zum Treiben der LED benutzen, Vorwiderstand größer als 1 kΩ,
 mindestens jedoch 470 Ω.“*

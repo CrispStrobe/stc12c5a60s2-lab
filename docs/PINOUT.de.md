@@ -70,15 +70,14 @@ Zwei Register pro Port, ein Bit pro Pin:
 
 Jeder Pin hat einen Schmitt-Trigger am Eingang.
 
-**Stromgrenzen:**
-- Pro Pin: max. 20 mA Senkstrom (Datenblatt §4.8)
-- Pro 8-Bit-Port: **~80 mA** Gesamtsenkstrom (Standard-8051-Familienrichtlinie —
-  nicht im STC12-Datenblatt angegeben, aber in der Familie allgemein beachtet)
-- Pro Chip: **~120 mA** gesamt (ebenfalls Familienrichtlinie, nicht im Datenblatt)
+**Stromgrenzen (§4.1):**
+- Pro Pin: 20 mA Senkstrom, ~230 µA Quellstrom (quasi; real 150–250 µA laut §4.1)
+- Pro Chip: **120 mA** gesamt („the whole chip had better drive lower than 120mA" — §4.1)
+- Pro 8-Bit-Port: **~80 mA** (8051-Familienrichtlinie — nicht in diesem Datenblatt)
 
-Die Port-Richtlinie ist der Grund, warum man nicht 8 LEDs mit je 20 mA an
-einem Port betreiben kann — ca. 10 mA pro LED einplanen oder multiplexen.
-Der Quellstrom im quasi-bidirektionalen Modus beträgt nur ~230 µA pro Pin.
+Die Chip-Grenze ist der Grund, warum man nicht 8 LEDs mit je 20 mA betreiben
+kann — das wären 160 mA, über der 120-mA-Richtlinie. Ca. 10 mA pro LED
+einplanen oder multiplexen.
 
 ### Eine LED treiben (§4.6)
 

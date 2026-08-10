@@ -128,9 +128,9 @@ Register addresses: `P0M1`=0x93 `P0M0`=0x94, `P1M1`=0x91 `P1M0`=0x92,
 > **This asymmetry is the single most common beginner trap.** Out of reset a
 > pin can *sink* 20 mA but can only *source* about a quarter of a milliamp.
 > That is why the LEDs in this repo are wired **active-low** (see §3) — it is
-> the arrangement that works in every mode. Standard 8051 family guidance:
-> **~80 mA per port**, **~120 mA per chip** (not stated in the STC12 datasheet,
-> but widely observed). Budget ~10 mA per LED on one port, or multiplex.
+> the arrangement that works in every mode. §4.1 says "the whole chip had
+> better drive lower than **120 mA**". Per-port ~80 mA is 8051 family guidance
+> (not in this datasheet). Budget ~10 mA per LED, or multiplex.
 
 ### Speed gotcha inherited from being 1T
 
@@ -336,8 +336,8 @@ Wired **active-low**: the MCU sinks the current, VCC supplies it.
 Writing **0** to the pin lights the LED. Writing **1** turns it off.
 
 Why this way round? Because of the sink/source asymmetry in §1: a
-quasi-bidirectional pin sources ~230 µA, which is not enough to light an LED
-visibly, but sinks 20 mA happily. STC's own datasheet (§4.6) specifies exactly
+quasi-bidirectional pin sources ~230 µA (§4.1), which is not enough to light
+an LED visibly, but sinks 20 mA happily. §4.6 specifies exactly
 this: *"For weak pull-up / quasi-bidirectional I/O, use sink current to drive
 the LED, current-limiting resistor greater than 1 kΩ, minimum not less than
 470 Ω."*

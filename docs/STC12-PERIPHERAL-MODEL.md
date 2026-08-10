@@ -105,7 +105,7 @@ Each pin's mode comes from one bit in `PxM1` and one in `PxM0`:
 
 **The sink/source asymmetry is the central electrical fact of this chip, and the reason for
 the whole active-low convention:** a quasi-bidirectional pin **sinks 20 mA but sources only
-~230 µA** (datasheet §4.6). So LEDs are wired `+5 V → 1 kΩ → LED → pin` and writing a `0`
+~230 µA** (datasheet §4.1, port mode tables). So LEDs are wired `+5 V → 1 kΩ → LED → pin` and writing a `0`
 lights them.
 
 **For the board layer, model each mode as a Thévenin equivalent** — this is what lets the
