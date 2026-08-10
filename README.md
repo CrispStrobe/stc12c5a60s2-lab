@@ -721,7 +721,7 @@ your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
 │   └── live-monitor.py      the host end of the debug link
 └── docs/
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
-    ├── ROADMAP.md  ROADMAP.de.md   the BrickWright extension plan
+    ├── ROADMAP.md                 the BrickWright extension plan
     ├── STC12-PERIPHERAL-MODEL.md   what this chip does — the shared contract
     ├── DEBUG-CONTROL-MODEL.md      run control, for emulators and for silicon
     └── BENCH-FLASHING.md           verifying the browser flashers on silicon

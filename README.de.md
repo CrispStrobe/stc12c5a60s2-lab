@@ -13,7 +13,7 @@ reproduzierbar wird.
 Das eigentliche Ziel weiter hinten: eine **[BrickWright](https://github.com/CrispStrobe/brickwright)-Erweiterung**
 für diesen Chip — Scratch-Blöcke → C → `.hex`, genau so, wie BrickWright heute
 schon nach LEGO-NXT-/EV3-Bytecode transpiliert. Siehe
-[docs/ROADMAP.de.md](docs/ROADMAP.de.md).
+[docs/ROADMAP.md](docs/ROADMAP.md) (englisch).
 
 ---
 
@@ -583,7 +583,7 @@ Beispiel zu einer Datei zusammen. System-Includes wie `<stc12.h>` bleiben
 unangetastet, die hat der Server über SDCC selbst.
 
 Der Quelltext liegt in [`CrispStrobe/stc-compiler`](https://github.com/CrispStrobe/stc-compiler).
-Den Dienst gibt es, weil das BrickWright-Backend aus [docs/ROADMAP.de.md](docs/ROADMAP.de.md)
+Den Dienst gibt es, weil das BrickWright-Backend aus [docs/ROADMAP.md](docs/ROADMAP.md) (englisch)
 aus dem Browser heraus übersetzen muss, wo SDCC nicht laufen kann — aus
 demselben Grund, aus dem es `legacy-lego-compiler` für NXT- und EV3-Bytecode
 gibt.
@@ -630,7 +630,7 @@ vollständige Grammatik — `DEFINE`-Prozeduren, `WHILE`, `REPEAT UNTIL`,
 [stc-compiler-README](https://github.com/CrispStrobe/stc-compiler#pseudocode).
 
 Das ist die vordere Hälfte des BrickWright-Backends aus
-[docs/ROADMAP.de.md](docs/ROADMAP.de.md): sobald Blöcke diesen Pseudocode
+[docs/ROADMAP.md](docs/ROADMAP.md) (englisch): sobald Blöcke diesen Pseudocode
 erzeugen, steht die gesamte Kette vom Scratch-Projekt bis zum geflashten Chip.
 
 ### Alle make-Ziele
@@ -750,7 +750,7 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 │   └── live-monitor.py      das Host-Ende der Debug-Verbindung
 └── docs/
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)
-    ├── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (de: ROADMAP.de.md)
+    ├── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (nur englisch)
     ├── STC12-PERIPHERAL-MODEL.md   was dieser Chip tut — der gemeinsame Vertrag
     ├── DEBUG-CONTROL-MODEL.md      Ablaufsteuerung, für Emulatoren und für Silizium
     └── BENCH-FLASHING.md           die Browser-Flasher auf Silizium prüfen
@@ -795,7 +795,7 @@ Galerie-Beispiele.
 
 Der vollständige Entwurf — Blockvokabular, IR-Abbildung, Ressourcenzuteilung
 und wie das Flashen aus dem Browser heraus angesteuert wird — steht in
-[docs/ROADMAP.de.md](docs/ROADMAP.de.md).
+[docs/ROADMAP.md](docs/ROADMAP.md) (englisch).
 
 ### 8.1 Eine Familie ist nicht die andere: die 1T/12T-Falle
 

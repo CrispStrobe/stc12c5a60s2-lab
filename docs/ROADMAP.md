@@ -1,6 +1,5 @@
 # Roadmap: an STC12C5A60S2 back-end for BrickWright
 
-🇬🇧 English · [🇩🇪 Deutsch](ROADMAP.de.md)
 
 This repo is the hardware-and-toolchain groundwork. The destination is a
 **BrickWright extension** that lets you drive — and then *permanently program* —
@@ -208,25 +207,25 @@ Worth being honest about, because it shapes the order of work:
   changes nothing. Software delay loops would have run 6-12x fast — which is
   why the generator never emits one, and why the Keil translator now warns
   when it sees them in migrated code.
-* **Where this sits against the state of the art, and two things that are NOT
-  concessions (2026-08-08).** The closest comparables: **Proteus VSM**
-  (commercial) does 8051 co-simulation in mixed-mode SPICE with source-level
-  debugging — that is the target; **SimulIDE** is the nearest open-source
-  equivalent and does have an 8051, but it is **AGPLv3**, so `brickwright-lite`
-  can learn from it and can never link it; **Wokwi** has no 8051 and no path to
-  one (its Custom Chips API models peripherals, not cores), which is why the
-  browser core has to be built and why reusing MIT `wokwi-elements` for the UI
-  is the right depth of adoption. Nothing found does **Scratch blocks →
-  bare-metal 8051 with no Arduino runtime** — mBlock, MakeCode and eBlock all
-  assume a framework. That, and two independently written emulators
-  cross-validated against 349 real firmware images, are the genuinely
-  unoccupied ground.
+* **What the target is, and two things that are NOT concessions
+  (2026-08-08).** The bar to clear is 8051 co-simulation in mixed-mode SPICE
+  with source-level debugging — that combination exists in commercial tooling
+  and is what "good" looks like here. Two constraints follow from licences
+  rather than from features, and both are recorded in the licence audit below:
+  an AGPLv3 implementation can be learned from but never linked, and the
+  MIT-licensed browser UI elements can be reused directly. No existing
+  browser-based 8051 core was found to build on — the ones surveyed model
+  peripherals rather than cores — which is why the core has to be written.
+  What is genuinely unoccupied is **Scratch blocks → bare-metal 8051 with no
+  Arduino runtime**: the block-based toolchains surveyed all assume a
+  framework. That, and two independently written emulators cross-validated
+  against 349 real firmware images.
   **Two corrections to an earlier reading of this comparison.** First, the
-  circuit simulator is a *core deliverable*, not something to cede to SimulIDE
-  and Proteus: it is being built now (`bw-board`, `bw-circuit-ui`), the teaching
-  goal needs a real solver rather than a plausible animation, and "we will not
-  beat SPICE" is not a reason to stop — it is a reason to be honest about
-  fidelity. Second, **peripheral breadth is a goal, not scope creep.** The
+  circuit simulator is a *core deliverable*, not something to leave to existing
+  desktop tools: it is being built now (`bw-board`, `bw-circuit-ui`), the
+  teaching goal needs a real solver rather than a plausible animation, and "we
+  will not beat SPICE" is not a reason to stop — it is a reason to be honest
+  about fidelity. Second, **peripheral breadth is a goal, not scope creep.** The
   evidence was already in hand and read the wrong way round: **220 of 349**
   third-party firmware images pass differential execution *strictly* — both
   event streams fully identical — which is a *run-foreign-firmware* capability,
