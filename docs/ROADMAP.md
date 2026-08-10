@@ -252,10 +252,20 @@ Worth being honest about, because it shapes the order of work:
   nothing tested that they compose. The set covers all four `inferNetlist` rows
   and the builder fails if that regresses. **The gap it exposes is the next
   work:** everything is GPIO and ADC because that is all the emitter emits, so
-  `ledBrightness` and `buzzerTone` — both specified in boundary B — have never
-  been exercised, because nothing produces a duty cycle. **PWM via the PCA is
-  the next slice**, and it needs §5 of the peripheral model filled in from the
-  datasheet first.
+  `ledBrightness` and `buzzerTone` — both specified in boundary B — have now
+  been exercised. **PCA PWM is built and measured** (category 2b — two models
+  correcting each other, anchored by arithmetic the driver fixes in advance):
+  - 8-bit PWM: period 277561 ns, duty 33/50/75% at 84/128/192 counts
+    (`ucsim-stc` `dafbaf9`)
+  - 16-bit compare/match (servo): 1499.6 µs at 90°, 50.0 Hz frame
+    (`bw-board` `c02fa9f`)
+  - UART TX: 86.8 µs/frame at 115200 (`ucsim-stc` `e426929`)
+  - 14 device blocks have real drivers (`ucsim-stc` `a78a8f0`, `bw-board` `57ef1fa`)
+
+  ⚠ **None of this is silicon.** The ADC *register sequence* is verified
+  (two models agree) but its *analog path* is not — that is `BENCH-ADC`.
+  PWM duty cycle is verified between models but not against a frequency
+  counter — that is `BENCH-PWM`. Do not read "verified" without the category.
 * **STC15 is a delta; STC8H is a separate project (decided 2026-08-08).**
   [`STC15-PERIPHERAL-MODEL.md`](STC15-PERIPHERAL-MODEL.md) says only what differs
   from the STC12: 74 SFRs identical, **no register keeps its name at a different
