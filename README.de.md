@@ -776,16 +776,18 @@ selbst lief noch nie auf Hardware.**
 
 ## 8. Wohin das führt
 
-Zwei blinkende LEDs sind Schritt null. Der Plan ist, daraus einen kleinen,
-gut verstandenen Satz von Primitiven wachsen zu lassen — GPIO, PWM, ADC, UART,
-Timer — und genau diese Primitive dann als **BrickWright-Blöcke** anzubieten,
-die nach C transpilieren und über dieselbe SDCC-plus-stcgal-Kette wie oben zu
-einer `.hex` werden.
+Zwei blinkende LEDs waren Schritt null. Die Primitive — GPIO, PWM (PCA 8-Bit
+und 16-Bit Compare/Match), ADC, UART, Timer — sind **gebaut und zwischen zwei
+Emulatoren gegengeprüft** (Kategorie 2b; noch nicht auf echtem Silizium
+verifiziert — siehe `BENCH-ADC`, `BENCH-PWM`, `BENCH-UART` in
+[docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
 
-BrickWright transpiliert bereits verlustfrei in beide Richtungen zwischen
-Scratch-Blöcken, Pseudocode, Python und JavaScript und hat Backends für LEGO-NXT-
-und EV3-Bytecode. Das STC12-Backend ist dieselbe Idee, gerichtet auf einen
-nackten 8051:
+Diese Primitive werden als **BrickWright-Blöcke** angeboten, die nach C
+transpilieren und über dieselbe SDCC-plus-stcgal-Kette wie oben zu einer
+`.hex` werden. Vierzehn Geräteblöcke (Servo, Motor, Relais, LCD, 7-Segment,
+RGB-LED, NeoPixel, Matrix, Sensoren) haben echte C-Treiber; der Roundtrip
+`Pseudocode → C → Pseudocode` ist ein verifizierter Fixpunkt über 54
+Galerie-Beispiele.
 
 ```
    Scratch-Blöcke ──▶ BrickWright-IR ──▶ C (SDCC) ──▶ .ihx ──▶ stcgal ──▶ Chip

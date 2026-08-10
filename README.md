@@ -749,14 +749,16 @@ stay English, since they track the datasheet's own naming.
 
 ## 8. Where this is going
 
-Blinking two LEDs is step zero. The plan is to grow this into a small,
-well-understood set of primitives — GPIO, PWM, ADC, UART, timers — and then
-expose exactly those primitives as **BrickWright blocks** that transpile to C
-and compile to a `.hex` with the same SDCC + stcgal pipeline documented above.
+Blinking two LEDs was step zero. The primitives — GPIO, PWM (PCA 8-bit and
+16-bit compare/match), ADC, UART, timers — are **built and cross-checked
+between two emulators** (category 2b; not yet verified on silicon — see
+`BENCH-ADC`, `BENCH-PWM`, `BENCH-UART` in [docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
 
-BrickWright already does lossless two-way transpiling between Scratch blocks,
-pseudocode, Python and JavaScript, and already has back-ends for LEGO NXT and
-EV3 bytecode. The STC12 back-end is the same idea pointed at a bare 8051:
+These primitives are exposed as **BrickWright blocks** that transpile to C and
+compile to a `.hex` with the same SDCC + stcgal pipeline documented above.
+Fourteen device blocks (servo, motor, relay, LCD, 7-segment, RGB LED, NeoPixel,
+matrix, sensors) have real C drivers; the round-trip `pseudocode → C →
+pseudocode` is a verified fixed point over 54 gallery examples.
 
 ```
    Scratch blocks ──▶ BrickWright IR ──▶ C (SDCC) ──▶ .ihx ──▶ stcgal ──▶ chip

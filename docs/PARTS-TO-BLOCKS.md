@@ -221,18 +221,23 @@ this project keeps refusing to ship.
 - **The lowering already exists** — `stc-compiler`, except the event hat, which needs the polled
   task described above.
 
-## What of this now exists (2026-08-09)
+## What of this now exists (updated 2026-08-10)
 
 Written down because the table above was a plan and most of it has since been built, and a plan
 that is silently half-true is worse than either state.
 
-| piece | where | state |
-|---|---|---|
-| `when x pressed` event hat | `stc-compiler`, `sb3-creator` | built — polled task, edge-triggered |
-| `stc12` blocks incl. `whenpin` | `extensions`, bundled in `brickwright-lite` | 12 opcodes, both copies conformance-checked against what `sb3Creator` emits |
-| `circuit` meter blocks | `extensions/CrispStrobe/circuit.js` | built; reads the Board from `vm.runtime.circuitBoard`, refuses with a reason when absent |
-| `LEDCUBE 4` + 7 blocks | `sb3-creator` `26e0ff4` | built — parse, decompile, round-trip, and `generateC()` emits frame buffer + scan kernel |
-| cube as a drawable part | `bw-circuit-ui` `35b3ca5` | built, rendering the unknown map honestly |
+| piece | where | state | evidence |
+|---|---|---|---|
+| `when x pressed` event hat | `stc-compiler`, `sb3-creator` | built — polled task, edge-triggered | cat. 2b |
+| `when x above <n>` analog hat | decided in this doc (2026-08-10) | 50 Hz, edge-triggered, 10-count hysteresis | — (design, not impl.) |
+| `stc12` blocks incl. `whenpin` | `extensions`, bundled in `brickwright-lite` | 12 opcodes, conformance-checked | cat. 2b |
+| `circuit` meter blocks | `extensions/CrispStrobe/circuit.js` | built; refuses with a reason when absent | cat. 3 |
+| `LEDCUBE 4` + 10 blocks | `sb3-creator` | built — parse, decompile, round-trip, scan kernel | cat. 2b |
+| cube as a drawable part | `bw-circuit-ui` `35b3ca5` | built, rendering the unknown map honestly | cat. 3 |
+| 14 device blocks (servo, motor, relay, LCD, 7-seg, RGB, NeoPixel, matrix, sensors) | `sb3-creator` `ebec01f` | C lowering built; real PCA driver for servo + motor | cat. 2b (PCA timing) |
+| C → pseudocode round-trip for all 42 `bw_*` calls | `cToPseudocode.js` `aed84c4` | symmetry test enforces both directions | cat. 2b |
+| 54 gallery examples | `sb3-creator` `examples/` | parse, compile, C round-trip, circuit validation, determinism | cat. 3 |
+| aggregate current check (120 mA chip budget) | `cToPseudocode.js` `3a30324` | static warning on declarations, datasheet §4.1 verified | cat. 1 (datasheet) |
 
 **The one thing still genuinely unknown is the voxel map.** `src/20-ledcube/README.md` carries an
 empty `(select, bit) → (x, y, z)` table that only a real cube can fill, and `probe.c` is the

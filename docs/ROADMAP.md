@@ -128,9 +128,11 @@ Worth being honest about, because it shapes the order of work:
 
 ## Suggested order of work
 
-1. **Grow this repo's C primitives** — `02-gpio-input`, `03-pwm`, `04-adc`,
-   `05-uart`. Each one is a block in the table above, proven on real hardware.
-   *This is the current step.*
+1. ~~**Grow this repo's C primitives** — `02-gpio-input`, `03-pwm`, `04-adc`,
+   `05-uart`.~~ — **Built.** GPIO and ADC proven on real hardware (`01-blink`,
+   `02-adc`). PWM and UART modelled and cross-checked between two emulators
+   (category 2b, not silicon — `BENCH-PWM` and `BENCH-UART` are the bench
+   sessions that would settle them).
 2. ~~**Write the resident firmware** (`10-live-firmware`) implementing the framed
    command protocol, built from those primitives.~~ — **DONE 2026-08-09, verified
    under emulation.** It builds, boots and answers `HELLO` / `POS` / `REGS` /
