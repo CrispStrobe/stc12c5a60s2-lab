@@ -1,0 +1,33 @@
+stc12c5a60s2-lab
+Copyright (c) 2026 CrispStrobe
+
+This product includes software derived from work licensed under the
+Apache License, Version 2.0.
+
+--------------------------------------------------------------------------
+treideme/stc89c52-demos
+https://github.com/treideme/stc89c52-demos
+Licensed under the Apache License, Version 2.0.
+Full licence text: LICENSES/Apache-2.0.txt
+--------------------------------------------------------------------------
+
+Two examples in this repository are derived from that project and are
+MODIFIED. They are not copies: each was re-expressed in the BrickWright
+pseudocode dialect, targets a different part (STC12C5A60S2 rather than
+STC89C52), and compiles through a different toolchain. The circuit each
+one drives, and the order of operations it performs, come from the
+original.
+
+  examples/08-seven-segment/   derived from 02_7_segment
+  examples/09-shift-register/  derived from 01_led_74H595
+
+Both files carry the attribution in their own headers as well.
+
+These two examples exist because that corpus was used to measure what the
+dialect could not yet express: 02_7_segment needed whole-port I/O and an
+indexed lookup table, and 01_led_74H595 needed a shift-register part. The
+examples are the evidence that those gaps closed. See
+docs/DIALECT-COVERAGE.md.
+
+Everything else in this repository is original work under the MIT licence
+in LICENSE, written from the STC12C5A60S2 datasheet.

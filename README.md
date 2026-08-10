@@ -808,6 +808,7 @@ Three consequences are baked into the tooling:
 * [rgm3/ledcube444](https://github.com/rgm3/ledcube444) — 4×4×4 LED cube on this exact chip, and where the DTR auto-reset trick comes from (MIT)
 * [tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8) — 8×8×8 cube, larger SDCC codebase (MIT)
 * [kabirz/c51_sdcc](https://github.com/kabirz/c51_sdcc) — CMake scaffolding for SDCC + STC12 (MIT)
+* [treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos) — 16 STC89C52 programs (Apache-2.0); the corpus the dialect's coverage was measured against, and the source of two examples here (see [NOTICE](NOTICE))
 
 > **A note on licensing of third-party STC code.** Most STC12C5A60S2 code on
 > GitHub carries **no licence at all** — including
@@ -822,4 +823,11 @@ Three consequences are baked into the tooling:
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE) — with one exception.
+
+`examples/08-seven-segment` and `examples/09-shift-register` are derived from
+[treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos), which is
+**Apache-2.0**. Both are modified: re-expressed in the pseudocode dialect, for a
+different part, through a different toolchain. That licence travels with them —
+its text is in [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt) and the
+attribution is in [NOTICE](NOTICE) as well as in each file's own header.

@@ -855,4 +855,12 @@ Drei Konsequenzen stecken im Werkzeug:
 
 ## Lizenz
 
-MIT — siehe [LICENSE](LICENSE).
+MIT — siehe [LICENSE](LICENSE) — mit einer Ausnahme.
+
+`examples/08-seven-segment` und `examples/09-shift-register` sind abgeleitet von
+[treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos), das unter
+**Apache-2.0** steht. Beide sind verändert: im Pseudocode-Dialekt neu
+formuliert, für einen anderen Baustein, über eine andere Toolchain. Diese Lizenz
+gilt für sie weiterhin — der Text liegt in
+[LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt), die Zuschreibung in
+[NOTICE](NOTICE) und zusätzlich im Kopf jeder Datei.
