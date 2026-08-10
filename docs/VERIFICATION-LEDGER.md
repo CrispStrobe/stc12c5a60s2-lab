@@ -29,7 +29,7 @@ rows they would settle.
 | 70 ngspice golden circuits | Stated tolerances per test file | **Cat 1** — ngspice is an independent reference solver | — |
 | RC charge/discharge vs analytic | Within **5%** of V(t)=VCC*(1-e^(-t/RC)) | **2b** — both are our own code | Oscilloscope on a real RC circuit |
 | 555 astable period | **214 ms** vs 207.9 ms analytic (3%) | **2b** | Oscilloscope on a real 555 circuit |
-| NeoPixel WS2812B decode | Model decodes 800 kHz NRZ from `din` pin edges (T0H/T1H threshold at 550 ns), GRB→RGB, reset >50 µs. Not yet tested end-to-end with real driver edges. | **Cat 3** — single implementation, no cross-check. Driver (`7d38a0d`) was found sending all zeros; fix not yet re-measured. | End-to-end: driver edges → model → correct RGB values |
+| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **2b** — emitter + cycle-accurate emulator, same datasheet. Timed core was never wrong; pulse windows passed through three assembly edits. No strip has lit. | A real WS2812B strip showing the correct colour |
 
 ## Defects found and fixed on the path
 
@@ -51,7 +51,9 @@ answer that would have shipped without the end-to-end check.
 | Current rating schema change (`{chip_mA, supply_mA}`) — old vendored copy | `0 + 'circuit'` = `'0circuit'`, comparisons silently false | Coordinator grep within an hour of the change |
 | ucsim `CL`-wrap bug in 16-bit compare | PCA compare/match fired at wrong count | ucsim's own measurement against expected period |
 | Flag gate fetched 4.7 MiB unconditionally | `import()` fired regardless of flag; flag check was inside the imported module | Playwright request interception (measuring the untriggered case) |
-| NeoPixel driver sent all zero bits regardless of colour | `bw_neo_byte` rotated `A` while byte sat in `DPL` | ucsim-stc measurement of the bit stream |
+| NeoPixel driver sent all zero bits regardless of colour | `bw_neo_byte` rotated `A` while byte sat in `DPL` — all bytes identical, so the byte-count bug below was invisible | ucsim-stc measurement of the bit stream |
+| NeoPixel driver sent only 1 of 9 bytes | Inline `djnz r7` clobbered the R7 SDCC's outer loop used as its byte counter — invisible while all bytes were zeros | ucsim-stc re-measurement after the all-zeros fix |
+| NeoPixel R6 assumed free by first fix | Register swap relied on a claim about SDCC's allocator, not a check of the listing. `push ar7`/`pop ar7` verified against generated assembly is what held. | Checking the `.asm` output rather than trusting the assumption |
 | ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`b4f4bb1`) |
 
 ## Bench questions and the rows they settle
