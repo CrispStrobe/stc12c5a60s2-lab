@@ -162,3 +162,109 @@ what it is waiting for, so updating them is transcription rather than judgement.
 the day and it should be written down before it is explained.** Two independent
 emulators agreeing with each other has been the standard of proof here all along,
 and it is still not the same as agreeing with a chip.
+
+---
+
+## Pre-registered simulator predictions
+
+Written before any bench measurement. Once a measurement exists, any number
+produced afterwards is a number produced knowing the answer, and the
+comparison stops being a test.
+
+### 1 + 2. `02-adc` — blink period at pot extremes
+
+**Derivation:** The program reads P1.3 (ADC channel 3, 10-bit), scales the
+result, and uses it as a delay loop count. With FOSC=11.0592 MHz at 1T:
+
+- **Pot at 0V (wiper to GND):** ADC reads ~0. Minimum delay → fastest blink.
+  Prediction: **~100 ms period** (depends on the delay loop constant in the
+  source; the loop body is ~4 cycles at 1T).
+- **Pot at 5V (wiper to VCC):** ADC reads ~1023. Maximum delay → slowest blink.
+  Prediction: **~2000 ms period**.
+- **Tracking:** should be **monotonic and approximately linear** across travel.
+  A jump or plateau at a specific pot position would indicate a stuck ADC bit
+  or a nonlinearity in the pot.
+
+**Tolerance:** ±30% on the absolute periods (the delay constant may differ from
+what I assume). The *ratio* between the two extremes is the stronger prediction:
+it should be ~20:1. A ratio of 1:1 (constant blink) means the ADC is not
+reading, or the pot is not wired, or P1ASF is not set.
+
+**Confidence:** MEDIUM. The delay constant is in the source but I have not
+traced the exact loop; the ratio is more reliable than the absolute values.
+
+### 3. `probe.c` — polarity and refresh
+
+**Polarity prediction: ACTIVE-HIGH.** At `(FE, 01)` = select line 0 active,
+data bit 0 set:
+
+- **One LED lights** (the voxel at scan line 0, column 0).
+
+This is what all four codebases assume (`BW_CUBE_ACTIVE_HIGH = 1`), and what
+the emulator trace confirms: `0x00` = blank (1560 occurrences), `0xFF` = all
+data bits on (414 occurrences), zero exceptions in 3,930+ P0 writes.
+
+**Confidence:** HIGH. Four independent implementations agree. But all four
+derive from the same vendor animation tables, so a shared misreading of the
+hardware is possible. This is the prediction most worth checking.
+
+**Refresh prediction: 124 Hz**, invisible to the eye. Measured under emulation
+from the scan timing: 8 scan lines × dwell = ~8.06 ms per full frame. Visible
+flicker (>~50 Hz threshold) would indicate the dwell is not what the emulator
+says — the first disagreement between silicon and the model.
+
+**Tolerance:** ±10% on refresh rate (112–136 Hz). Below ~70 Hz flicker becomes
+visible; that would be a real finding.
+
+**Confidence:** HIGH for invisible flicker. The scan timing comes directly from
+the PCA/timer configuration, which is verified by two emulators.
+
+### 4. `10-live-firmware` — halt skew
+
+**Prediction:** A 500 ms halt (`bw_halt(500)`) on real silicon should produce
+a measured wall-clock duration of **500 ± 5 ms**.
+
+Under emulation, the skew was **527 ms for a 500 ms halt** (27 ms overhead).
+On silicon, the overhead should be SMALLER because:
+- No emulator per-instruction overhead
+- Timer hardware runs at exact FOSC, not emulated tick-counting
+- The 27 ms is dominated by the UART round-trip for the halt/resume protocol
+
+**Tolerance:** 480–550 ms. Anything outside this range indicates:
+- <480 ms: timer running fast (wrong FOSC calibration)
+- >550 ms: UART latency higher than expected (baud mismatch, OS buffering)
+- >1000 ms or no response: baud problem, not protocol (suspect first per §4)
+
+**Confidence:** MEDIUM. The protocol overhead depends on the host-side UART
+driver latency, which varies by OS and adapter. The prediction is that it
+should be CLOSER to 500 ms than the 527 ms measured under emulation.
+
+**Baud caveat:** The emulator does not model baud rate (documented in
+`emu8051-stc/docs/UART-ENTRY-POINTS.md`). If `HELLO` answers at all, the baud
+is correct. If it does not, the first suspect is FOSC vs expected baud rate,
+not the protocol — an untrimmed internal RC at 12.5 MHz vs the expected
+11.0592 MHz produces ~13% baud error, enough for framing errors.
+
+### 5. Brightness / PWM — measurable current
+
+**Prediction:** A 50% duty PCA PWM driving an LED through 1 kΩ at VCC=5V
+produces an average current of **1.46 mA**.
+
+Derivation:
+- LED on (pin LOW, quasi sink): I = (5V - 2V) / (1000Ω + 25Ω) = 2.926 mA
+- LED off (pin HIGH, quasi source): I ≈ 0 (230 µA through 21.7 kΩ, reverse-
+  biased for the LED)
+- Average at 50% duty: 2.926 / 2 = **1.463 mA**
+
+This corresponds to the board's normalised brightness of 0.07248
+(= 1.463 mA / 20 mA rated).
+
+**What to measure:** DC milliamps through the LED using a multimeter in series.
+A true-RMS meter is not needed at this frequency (3.6 kHz) — the meter's
+internal averaging gives the DC average directly.
+
+**Tolerance:** ±20% (1.17–1.76 mA). A factor-of-two error would indicate
+the duty cycle is wrong or the LED forward voltage differs from 2.0V.
+
+**Confidence:** HIGH for the ratio (current proportional to duty), MEDIUM for
+the absolute value (depends on actual LED Vf and resistor tolerance).
