@@ -208,6 +208,11 @@ is available on this target and grey out the rest, with the reason.** A greyed b
 "needs the simulator" is honest; a block that silently returns 0 on real hardware is the thing
 this project keeps refusing to ship.
 
+> ⚠ **Specified, not yet implemented.** The blocks currently return NaN as a stopgap;
+> `runtime.stc12liveCapabilities` is written by `stc12live` on connect but read by nobody in
+> the palette layer. The implementation belongs in `bw-blocks` (sb3-creator's block surface).
+> See `bw-circuit-ui/spec-updates/circuit-block-greying.md` for the finding.
+
 ## Where each piece lives
 
 - **The designer writes declarations** — `bw-circuit-ui`, when a part is dropped or renamed.
