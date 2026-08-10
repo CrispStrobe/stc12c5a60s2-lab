@@ -205,3 +205,33 @@ catches the whole class, including the error nobody imagined.
 The flag gate that fetched 4.7 MiB regardless of the flag, and the
 chip-budget warning that stayed green while the function was defined only
 inside its own test, were both correct in the source.
+
+## If it would pass with the thing absent, it needs a positive control
+
+bw-board's rule, arrived at on 2026-08-10 after its own test lied to it twice
+in one day. It is the sharpest form of the corollary above, and it is
+mechanical enough to apply without judgement:
+
+> **If a check would still pass with the measured thing absent, it needs a
+> positive control.**
+
+The test that produced the rule is worth recording in full, because it passed
+convincingly. `serial-debug-e2e.test.js` asserted that the firmware answers a
+torn frame after an idle timeout, and reported PASS (`a551258`). It was a
+false positive: the assertions matched **hex digits inside PC trace
+addresses**, not UART TX data. Zero TX bytes were produced at any run length.
+The test would have passed with the UART entirely disconnected — which,
+functionally, it was. Corrected in `9f69af9`, and the finding restated as
+INCONCLUSIVE in `be62e14` rather than downgraded quietly or left green.
+
+The same shape had already caught the byte-identity gate, where the metric was
+saturated by construction: two 172-byte images offset by one byte differ in
+~169 positions no matter what else is fixed, so "169 differences" could not
+move and two successive real fixes looked identical to no fix at all.
+
+Both were correct in the source. Both were read by people who knew what they
+were looking for. What distinguishes them from an honest pass is not care but
+a control: something that must be found for the method to be working, checked
+alongside the thing being measured. Without it, a green result and a broken
+harness are indistinguishable — and the harness is the more likely of the two,
+because nothing tests it.
