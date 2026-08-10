@@ -10,9 +10,9 @@ rows they would settle.
 
 | Claim | Number | Category | What would raise it |
 |-------|--------|----------|---------------------|
-| Servo pulse width at 90° | emu8051: **1500.0 µs**, ucsim: **1499.6 µs** (0.4 µs spread) | **2b** — both PCA dispatches fixed after exchanging findings. Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM**: frequency counter on real CEX0 pin |
-| Servo pulse at 0° / 180° | emu8051: **499.2 / 2500.6 µs** | **2b** | BENCH-PWM |
-| Servo frame period | emu8051: **20003.5 µs** = 50.0 Hz, ucsim: **20000.0 µs** | **2b** | BENCH-PWM |
+| Servo pulse width at 90° | emu8051: **1500.0 µs**, ucsim: **1499.6 µs** (0.4 µs spread) | **2b** — the 0.4 µs spread is **90% explained** by emu8051's SETB/CLR cycle-count defect (3 MC vs 1 MC spec). The ISR executes one SETB or CLR per edge; 2 extra cycles × 0.0904 µs = 0.18 µs per edge, 0.36 µs per pulse (two edges). Remainder (~0.04 µs) is ISR dispatch jitter. Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM**: frequency counter on real CEX0 pin |
+| Servo pulse at 0° / 180° | emu8051: **499.2 / 2500.6 µs** | **2b** — emu8051 only, no ucsim number. Contains the same SETB/CLR defect (~0.36 µs bias). ucsim measurement would be ~0.4 µs lower. | BENCH-PWM |
+| Servo frame period | emu8051: **20003.5 µs** = 50.0 Hz, ucsim: **20000.0 µs** | **2b** — the 3.5 µs spread is **41% explained** by 8 ISR invocations × 0.18 µs = 1.45 µs from the SETB/CLR defect. Remainder (~2 µs) is ISR entry/exit overhead differing between emulators. | BENCH-PWM |
 | Motor PWM duty (register) | Driver loads **84/128/192** of 256 counts for 33/50/75% | **2b** — independent anchor: these are what the driver arithmetic computes | BENCH-PWM |
 | Motor PWM duty (pin) | ucsim measured: 33% = **32.83%** pin duty, period **277561 ns** | **2b** — a measurement of the pin, not a re-derivation of the register | BENCH-PWM |
 | Motor H-bridge direction decode | Board: IN1=5V/IN2=0V → FORWARD, IN1=0V/IN2=5V → REVERSE | **2b** | A motor visibly spinning on silicon |
