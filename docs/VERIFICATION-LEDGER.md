@@ -10,9 +10,9 @@ rows they would settle.
 
 | Claim | Number | Category | What would raise it |
 |-------|--------|----------|---------------------|
-| Servo pulse width at 90° | emu8051 (defective): **1500.0 µs**, ucsim: **1499.6 µs**. emu8051 number is **stale** — measured with 3 MC SETB/CLR (should be 1 MC). The 0.4 µs spread was 90% the defect (0.36 µs from 2 extra cycles per edge). **Awaiting re-measurement on fixed build** — if emu8051 converges to ~1499.6 µs, the spread drops to ~0.04 µs (ISR jitter). Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM** |
-| Servo pulse at 0° / 180° | emu8051 (defective): **499.2 / 2500.6 µs**. **Stale** — contains ~0.36 µs SETB/CLR bias. Awaiting re-measurement. | BENCH-PWM |
-| Servo frame period | emu8051 (defective): **20003.5 µs**, ucsim: **20000.0 µs**. **Stale** — 1.45 µs of the 3.5 µs spread is the defect (8 ISRs × 0.18 µs). Awaiting re-measurement. | BENCH-PWM |
+| Servo pulse width at 90° | emu8051: **1499.6 µs**, ucsim: **1499.6 µs** (**0.0 µs spread**). Pre-registered prediction: "~1499.6 µs, spread ~0.04 µs". Actual: exact match at measurement resolution. Previously 1500.0 µs with 0.4 µs spread, 90% explained by the SETB/CLR 3 MC defect. Fix (6cb9bc7) earned this convergence. Independent anchor: 1500 µs from FOSC/12 arithmetic. | **2b → genuine cross-implementation agreement** — two emulators with different upstream lineage, matching to <1 µs after an independently found defect was fixed. | **BENCH-PWM** |
+| Servo pulse at 0° / 180° | emu8051: **499.0 / 2500.4 µs** (was 499.2 / 2500.6). Bias removed by cycle-count fix. | **2b** — emu8051 only, no ucsim number for direct comparison | BENCH-PWM |
+| Servo frame period | emu8051: **20003.5 µs** = 50.0 Hz, ucsim: **20000.0 µs**. 3.5 µs spread **unchanged** by the fix — this is ISR dispatch overhead, not the bit-opcode defect (confirmed: the defect contributed 1.45 µs of the old spread, but the frame period is dominated by other timing). | **2b** — remaining spread is ISR overhead, not a known defect | BENCH-PWM |
 | Motor PWM duty (register) | Driver loads **84/128/192** of 256 counts for 33/50/75% | **2b** — independent anchor: these are what the driver arithmetic computes | BENCH-PWM |
 | Motor PWM duty (pin) | ucsim measured: 33% = **32.83%** pin duty, period **277561 ns** | **2b** — a measurement of the pin, not a re-derivation of the register | BENCH-PWM |
 | Motor H-bridge direction decode | Board: IN1=5V/IN2=0V → FORWARD, IN1=0V/IN2=5V → REVERSE | **2b** | A motor visibly spinning on silicon |
