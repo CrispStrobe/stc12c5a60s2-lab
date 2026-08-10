@@ -294,6 +294,32 @@ work**, and the arithmetic that kills it is worth writing down before someone tr
 
 ### 5b.1 The three hardware clock outputs
 
+### Interrupt vectors
+
+Two headers in `emu8051-stc` disagreed about `ISR_PCA` (0x33 vs 0x3B) because this
+table was not written down anywhere both could read. 0x33 is **LVD**; PCA is 0x3B.
+The error is one slot, and it is invisible: an ISR at the wrong vector never runs,
+which looks like a driver bug in code that is correct.
+
+SDCC places `__interrupt(n)` at `0x03 + 8n`, so the number and the address are the
+same fact stated twice — if they disagree, one is wrong.
+
+| n | vector | source | note |
+|---|---|---|---|
+| 0 | 0x03 | INT0 | |
+| 1 | 0x0B | Timer 0 | |
+| 2 | 0x13 | INT1 | |
+| 3 | 0x1B | Timer 1 | |
+| 4 | 0x23 | UART1 | |
+| 5 | 0x2B | ADC | replaces Timer 2 of the generic 8052 |
+| 6 | 0x33 | LVD | the slot commonly mistaken for PCA |
+| 7 | 0x3B | PCA / CCP | `__interrupt(7)`, enabled by `IE.EC` |
+| 8 | 0x43 | UART2 | |
+| 9 | 0x4B | SPI | |
+
+A model that dispatches to the wrong vector should be caught by asserting the whole
+table, not by checking the one entry someone already suspected.
+
 `WAKE_CLKO` (0x8F): `PCAWAKEUP RXD_PIN_IE T1_PIN_IE T0_PIN_IE LVD_WAKE BRTCLKO T1CLKO T0CLKO`.
 
 | bit | pin | source | output rate |
