@@ -118,3 +118,37 @@ When filing a new cross-model result, state:
 A prediction written before a measurement is the only instrument that detects
 a shared misreading. The bench predictions in `BENCH-SESSION.md` exist for
 exactly this reason.
+
+## Assert the property, not the symptom
+
+Four repos arrived at this independently on 2026-08-10. It belongs beside
+the taxonomy because the two are the same idea at different scopes: the
+taxonomy is about what evidence is worth; this is about what a test actually
+establishes.
+
+**The rule:** testing for the absence of the specific wrong thing catches
+only the wrong thing you already thought of. Asserting what something IS
+catches the whole class, including the error nobody imagined.
+
+**Real cases from this campaign:**
+
+- **Absence tests pass by omission.** A terminal cross-check excluded the
+  MCU as "deliberately different" and passed — while the MCU sidecar
+  carried wrong pin names. Asserting "PSEN is absent" would also have
+  passed a sidecar with every pin shifted by one, or P0 ascending, or
+  `rxd` where `P3.0` belongs. (bw-parts `a78ff11`)
+- **Presence tests cannot.** "Pin 32 IS P0.7, P0 runs descending, RST/GND/VCC
+  are at their correct positions" fails loudly on any wrong map, including
+  wrong maps nobody has thought of. (bw-bundle pin-map test)
+- **Set equality beats spot checks.** bw-blocks asserts the emitter and
+  decompiler function sets are equal — so a `createBlock` call with no
+  corresponding `case` label fails the census, rather than passing because
+  nobody remembered to add it to a hand-kept list.
+- **Position assumptions break on real parts.** bw-circuit-ui found that
+  not all DIP-14 chips have VCC on pin 14 — `74hc73` puts VCC on pin 4.
+  "Assert presence, not position." (`568b5dc`)
+
+**Corollary:** a check that has never failed has not been shown to work.
+The flag gate that fetched 4.7 MiB regardless of the flag, and the
+chip-budget warning that stayed green while the function was defined only
+inside its own test, were both correct in the source.
