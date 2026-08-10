@@ -13,7 +13,8 @@ rows they would settle.
 | Servo pulse width at 90° | emu8051: **1500.0 µs**, ucsim: **1499.6 µs** (0.4 µs spread) | **2b** — both PCA dispatches fixed after exchanging findings. Independent anchor: 1500 µs from FOSC/12 arithmetic. | **BENCH-PWM**: frequency counter on real CEX0 pin |
 | Servo pulse at 0° / 180° | emu8051: **499.2 / 2500.6 µs** | **2b** | BENCH-PWM |
 | Servo frame period | emu8051: **20003.5 µs** = 50.0 Hz, ucsim: **20000.0 µs** | **2b** | BENCH-PWM |
-| Motor PWM duty (8-bit) | ucsim: 84/128/192 of 256 counts. Period **277561 ns** unchanged. | **2b** — independent anchor: counts are what the driver arithmetic fixed. | BENCH-PWM |
+| Motor PWM duty (register) | Driver loads **84/128/192** of 256 counts for 33/50/75% | **2b** — independent anchor: these are what the driver arithmetic computes | BENCH-PWM |
+| Motor PWM duty (pin) | ucsim measured: 33% = **32.83%** pin duty, period **277561 ns** | **2b** — a measurement of the pin, not a re-derivation of the register | BENCH-PWM |
 | Motor H-bridge direction decode | Board: IN1=5V/IN2=0V → FORWARD, IN1=0V/IN2=5V → REVERSE | **2b** | A motor visibly spinning on silicon |
 | Motor 100% boundary case | EN constant HIGH, no PWM edges, OUT1=3.6V OUT2=1.4V | **2b** | BENCH-PWM |
 | LED brightness at 50% PCA duty | emu8051 → adapter → board: **0.07248**, analytic: **0.07246** (0.03%) | **2b** — found the adapter time-zero bug (all edges at t=0). Self-consistency could not have found it. | BENCH-PWM: milliamp measurement on LED |
@@ -28,6 +29,7 @@ rows they would settle.
 | 70 ngspice golden circuits | Stated tolerances per test file | **Cat 1** — ngspice is an independent reference solver | — |
 | RC charge/discharge vs analytic | Within **5%** of V(t)=VCC*(1-e^(-t/RC)) | **2b** — both are our own code | Oscilloscope on a real RC circuit |
 | 555 astable period | **214 ms** vs 207.9 ms analytic (3%) | **2b** | Oscilloscope on a real 555 circuit |
+| NeoPixel WS2812B decode | Model decodes 800 kHz NRZ from `din` pin edges (T0H/T1H threshold at 550 ns), GRB→RGB, reset >50 µs. Not yet tested end-to-end with real driver edges. | **Cat 3** — single implementation, no cross-check. Driver (`7d38a0d`) was found sending all zeros; fix not yet re-measured. | End-to-end: driver edges → model → correct RGB values |
 
 ## Defects found and fixed on the path
 
@@ -47,6 +49,10 @@ answer that would have shipped without the end-to-end check.
 | `§4.6` citation fabricated — per-pin currents are in §4.1 | Four bilingual docs cited a section that says something else | Reading the actual datasheet PDF |
 | `aggregateCurrent()` defined inside its own test, nowhere in src | DRC warning existed only as a test, not as real code | Grepping for the function name |
 | Current rating schema change (`{chip_mA, supply_mA}`) — old vendored copy | `0 + 'circuit'` = `'0circuit'`, comparisons silently false | Coordinator grep within an hour of the change |
+| ucsim `CL`-wrap bug in 16-bit compare | PCA compare/match fired at wrong count | ucsim's own measurement against expected period |
+| Flag gate fetched 4.7 MiB unconditionally | `import()` fired regardless of flag; flag check was inside the imported module | Playwright request interception (measuring the untriggered case) |
+| NeoPixel driver sent all zero bits regardless of colour | `bw_neo_byte` rotated `A` while byte sat in `DPL` | ucsim-stc measurement of the bit stream |
+| ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`b4f4bb1`) |
 
 ## Bench questions and the rows they settle
 

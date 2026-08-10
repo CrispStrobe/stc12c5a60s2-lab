@@ -19,9 +19,10 @@ This is the strongest cross-check short of hardware.
   different authors, different architectures.
 - 70 ngspice golden circuits: bw-board's MNA solver vs ngspice, a mature
   open-source SPICE implementation with decades of independent validation.
-- LED brightness cross-check: emu8051's PCA model (C) → adapter → bw-board's
-  brightness integrator (JS). Found the adapter time-zero bug that
-  self-consistency could not have detected.
+- *(LED brightness was listed here but is **2b**: both sides were modified this
+  campaign. It found a real bug — the adapter time-zero defect — which makes
+  it valuable despite the lower category. See the ledger for the correct
+  classification.)*
 
 **Limit of this category:** emu8051 and ucsim share no upstream code, but both
 were read and modified by agents in this campaign, and both were checked
