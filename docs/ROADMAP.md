@@ -351,3 +351,47 @@ Worth being honest about, because it shapes the order of work:
   blocks the store-shippable track — but a WASM SDCC bundled into the app
   *would* pull GPL into the bundle, which is exactly the thing `brickwright-lite`
   exists to avoid. Server-side compilation sidesteps that.
+
+## Multi-architecture expansion (assessed 2026-08-10; running)
+
+The 8051 stack was built in layers on purpose, and the layers are the asset:
+boundary A (pins ↔ circuit engine), boundary D (run control), and a codegen
+that owns the cooperative state-machine contract. New targets slot into those
+seams; nothing above them changes.
+
+**Assessment (full matrix in the campaign notes):**
+
+* **AVR — Arduino Nano / Uno (ATmega328P): first.** The emulator problem is
+  already solved in the open: `avr8js` is MIT, pure TypeScript, browser-native,
+  and from the same family as the `@wokwi/elements` art the designer already
+  renders. Run control is *easier* than the 8051 — the emulator is a JS
+  stepping loop, RAM is a typed array, and since our codegen emits the
+  `<task>_state` variables, the Level-1 position protocol ports unchanged.
+  Compilation: hosted `avr-gcc` behind the same REST pattern as the SDCC
+  service (small sketches compile in ~1–2 s; GPL toolchain as a *service*, the
+  precedent already set). ADC is injectable in `avr8js`, so pot → channel maps
+  onto boundary A directly.
+* **RP2040 — Pi Pico: second, via MicroPython.** `rp2040js` is MIT TypeScript.
+  The MicroPython route needs **no compiler at all** — ship the official UF2,
+  feed generated Python (`generatePython` exists today), instrument the
+  emission to publish task/state for the debugger. The C-SDK route (CMake +
+  a large SDK) is the only genuinely heavy story and waits for demand.
+* **Deferred:** ESP32 / STM32 (no MIT-clean emulator; QEMU-class engines are
+  GPL and enormous), micro:bit (behavioral simulator, different fidelity
+  class).
+* **Fidelity is declared, not discovered:** `avr8js` covers timers/UART/GPIO/
+  ADC well; `rp2040js` is solid on GPIO/timer/UART, thinner on PIO. Each
+  target gets a per-peripheral capability row in DEBUG-CONTROL-MODEL's
+  matrix — the three 8051 targets were never equal either, and that design
+  now pays for itself.
+
+**The `DEVICE` axis in the pseudocode already carries part-awareness
+(STC12C5A60S2 / STC89C52RC / STC15F2K60S2); `DEVICE ARDUINO_NANO` and
+`DEVICE PI_PICO` extend an existing axis, not a new design.** The millisecond
+scheduler tick is target-portable by construction.
+
+**Division of labour:** coordinator writes the two contract-bearing pieces
+(the avr8js boundary-A adapter and the debugger port); the fleet takes the
+avr-gcc endpoint, board sidecars with datasheet-audited pin tables (the pin
+chooser needs per-pin meanings for D0–D13/A0–A5 exactly as it has for the
+STC12), device selection in the app, and an examples wave per device.
