@@ -304,6 +304,14 @@ which looks like a driver bug in code that is correct.
 SDCC places `__interrupt(n)` at `0x03 + 8n`, so the number and the address are the
 same fact stated twice — if they disagree, one is wrong.
 
+**Provenance of this table, because its first version was wrong.** The vector
+addresses are the STC12C5A60S2 datasheet interrupt chapter, cross-checked against
+SDCC's `__interrupt(n)` placement (`0x03 + 8n`), which is a genuinely independent
+source: the compiler's arithmetic does not come from our reading of the datasheet.
+The **enable bits below the table are datasheet-only** — SDCC knows nothing about
+them, which is exactly why the `IE.EC` error survived arithmetic that was correct.
+Any row changed here needs its source named in the commit.
+
 | n | vector | source | note |
 |---|---|---|---|
 | 0 | 0x03 | INT0 | |
