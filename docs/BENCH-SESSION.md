@@ -18,19 +18,20 @@ works, or that `make flash` does. If neither does, stop here and go there.
 
 Do them in this sequence. Each one either unblocks the next or fails cheaply.
 
-| | what it answers | needs |
+| ID | what it answers | needs |
 |---|---|---|
-| 1 | Does flashing work with a real peripheral attached? | pot, LED |
-| 2 | The ADC's analog path | pot on P1.3 |
-| 3 | The `(select, bit) → (x, y, z)` voxel map, and P0 polarity | a cube |
-| 4 | The monitor over a real UART, and ISP pin contention | USB-TTL |
+| **BENCH-ADC** | Flashing with a peripheral + the ADC's analog path | pot, LED |
+| **BENCH-CUBE** | The `(select, bit) → (x, y, z)` voxel map, and P0 polarity | a cube |
+| **BENCH-UART** | The monitor over a real UART, and ISP pin contention | USB-TTL |
+| **BENCH-PWM** | LED brightness / PWM current at 50% duty | LED, resistor, multimeter |
 
-1 and 2 are the same flash. 3 needs the cube kit. 4 is the one most likely to
-surprise, so it goes last — a failure there does not cost you the others.
+BENCH-ADC is one flash answering two questions (does flashing work, and does the
+ADC analog path work). BENCH-CUBE needs the cube kit. BENCH-UART is the one most
+likely to surprise, so it goes last — a failure there does not cost you the others.
 
 ---
 
-## 1 + 2. `02-adc` — the analog path
+## BENCH-ADC: `02-adc` — the analog path
 
     make EXAMPLE=02-adc flash
 
@@ -56,7 +57,7 @@ not that it is broken.
 
 ---
 
-## 3. `probe.c` — the voxel map and the polarity, in one flash
+## BENCH-CUBE: `probe.c` — the voxel map and the polarity, in one flash
 
 This is the highest-value measurement of the session. Two things are unknown
 and one program answers both.
@@ -95,7 +96,7 @@ disagreement between silicon and the model all day.
 
 ---
 
-## 4. `10-live-firmware` — the monitor on a real UART
+## BENCH-UART: `10-live-firmware` — the monitor on a real UART
 
     make EXAMPLE=10-live-firmware flash
     python3 tools/live-monitor.py --port /dev/cu.usbserial-XXXX
@@ -146,12 +147,12 @@ baud, not the codec.
 
 ## What to bring back
 
-The four numbers, and the observations behind them:
+The four results, keyed by ID:
 
-- two blink periods at the pot's extremes, and whether tracking was smooth
-- sixty-four `(select, bit) → (x, y, z)` rows
-- what happened at `(FE, 01)`, described rather than concluded
-- whether `HELLO` answered, and if so the halt skew in ms
+- **BENCH-ADC**: two blink periods at the pot's extremes, and whether tracking was smooth
+- **BENCH-CUBE**: sixty-four `(select, bit) → (x, y, z)` rows + what happened at `(FE, 01)`
+- **BENCH-UART**: whether `HELLO` answered, and if so the halt skew in ms
+- **BENCH-PWM**: DC milliamps through the LED at 50% duty
 
 Then the documents that currently say "unverified on silicon" can say what was
 seen instead — `CLAUDE.md`'s layout notes, `src/20-ledcube/README.md`'s empty
@@ -188,7 +189,7 @@ So: record emulator agreement next to a prediction, never in place of it. Tick
 nothing off this list until a meter, a scope, a photodiode or a pair of eyes has
 seen the real board.
 
-### 1 + 2. `02-adc` — blink period at pot extremes
+### BENCH-ADC: blink period at pot extremes
 
 **Derivation:** The program reads P1.3 (ADC channel 3, 10-bit), scales the
 result, and uses it as a delay loop count. With FOSC=11.0592 MHz at 1T:
@@ -210,7 +211,7 @@ reading, or the pot is not wired, or P1ASF is not set.
 **Confidence:** MEDIUM. The delay constant is in the source but I have not
 traced the exact loop; the ratio is more reliable than the absolute values.
 
-### 3. `probe.c` — polarity and refresh
+### BENCH-CUBE: polarity and refresh
 
 **Polarity prediction: ACTIVE-HIGH.** At `(FE, 01)` = select line 0 active,
 data bit 0 set:
@@ -236,7 +237,7 @@ visible; that would be a real finding.
 **Confidence:** HIGH for invisible flicker. The scan timing comes directly from
 the PCA/timer configuration, which is verified by two emulators.
 
-### 4. `10-live-firmware` — halt skew
+### BENCH-UART: halt skew
 
 **Prediction:** A 500 ms halt (`bw_halt(500)`) on real silicon should produce
 a measured wall-clock duration of **500 ± 5 ms**.
@@ -262,7 +263,7 @@ is correct. If it does not, the first suspect is FOSC vs expected baud rate,
 not the protocol — an untrimmed internal RC at 12.5 MHz vs the expected
 11.0592 MHz produces ~13% baud error, enough for framing errors.
 
-### 5. Brightness / PWM — measurable current
+### BENCH-PWM: measurable current at 50% duty
 
 **Prediction:** A 50% duty PCA PWM driving an LED through 1 kΩ at VCC=5V
 produces an average current of **1.46 mA**.
