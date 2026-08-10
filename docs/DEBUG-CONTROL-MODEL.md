@@ -437,8 +437,13 @@ against each other. That found one real defect — an unescaped framing scheme l
 frame after any truncation, which is why `live_rx_idle()` exists.
 
 **Nothing above the framing layer has been run on silicon**, and no bench session has happened.
-An emulator cannot stand in for one here: what is unverified is the UART bring-up, the BRT baud
-divisor, and whether halting at a yield point behaves as designed on a real 1T core.
+An emulator cannot stand in for one here: neither emulator models UART baud generation — the
+UART SFRs are register cells with no behavioral model behind them (`ucsim-stc/PARITY-GAPS.md`:
+4 of 13 emitted SFR paths are cells-only, all four are UART). The baud reload value (divisor
+3 → 115200 at 11.0592 MHz) is a derivation, not a timed bit on a wire. What is unverified: the
+UART bring-up, the BRT/T2 baud clock, and whether halting at a yield point behaves as designed
+on a real 1T core. `BENCH-SESSION.md` question 4 ("Does HELLO answer?") is the only test of the
+entire baud path, and a garbled reply means baud rather than codec.
 
 ## 9. Deliberately out of scope
 
