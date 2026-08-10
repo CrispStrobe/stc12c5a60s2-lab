@@ -99,6 +99,18 @@ for line in data.get("memory", "").splitlines():
         print("  " + " ".join(line.split()))
 PY
 
+# Surface BW_STUB and BW_COLLISION warnings from the generated C.
+# These mark blocks that compile but do nothing on hardware (stubs) or
+# two drivers claiming the same pin/timer (collisions).  Do not fail the
+# build — the program is 90% fine; the user just needs to know which 10%
+# will be inert.
+GENERATED="${OUT%.hex}.c"
+if [[ -f "$GENERATED" ]]; then
+    grep -n 'BW_STUB\|BW_COLLISION' "$GENERATED" | while IFS= read -r match; do
+        printf '\033[1;33mwarning:\033[0m %s\n' "$match" >&2
+    done
+fi
+
 cat <<EOF
 
 Flash it with:
