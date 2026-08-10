@@ -22,7 +22,7 @@ rows they would settle.
 | Relay coil decode (active-low) | P2.0=0.6V → energised=true. No spurious interrupt enable. | **2b** | A relay clicking on silicon |
 | Button contact closure | Open: 5.0V / readPin=1. Pressed: 0.0V / readPin=0. INT0 NOT enabled. | **2b** | BENCH-ADC (the same flash tests GPIO read) |
 | ADC register sequence | ADC_CONTR=0xE0 (powered), P1ASF=0x02, P1M1 high-Z. START→FLAG→clear. | **2b register sequence only** — analog path open | **BENCH-ADC**: the analog path is the first bench question |
-| UART TX bit period | ucsim: **86.8 µs** at 115200 baud, 3.1 µs polling residual | **2b** — baud not modelled by emu8051 | **BENCH-UART**: a real UART answering HELLO |
+| UART TX bit period | ucsim: **86.8 µs** at 115200 baud, 3.1 µs polling residual | **2b** — emu8051 has no bit timing (UART-ENTRY-POINTS.md §9: "a target passing against an untimed model is 2b"). ucsim HAS bit timing but idle-timeout resync is still unreachable. | **BENCH-UART**: a real UART answering HELLO |
 | Cube refresh rate | **124.1 Hz** against 124 predicted. Invisible to the eye. | **2b** — prediction still open until silicon | **BENCH-CUBE**: visible flicker = model wrong |
 | Cube polarity | All four codebases assume active-HIGH from same vendor tables | **2b** — shared source, cannot catch a shared misreading | **BENCH-CUBE**: photograph of lit LED at (FE,01) |
 | 347-image corpus sweep | 0 genuine disagreements between emu8051 and ucsim | **Cat 1 (lineage)** — different upstream projects, but both modified this campaign. Independent lineage is not independent interpretation. | Silicon running one of the 347 images |
