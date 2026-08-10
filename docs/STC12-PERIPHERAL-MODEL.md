@@ -352,7 +352,7 @@ than a race.
 
 Corrected 2026-08-10 on category-1 evidence — three sources that got their
 information from different places, per `EVIDENCE-CATEGORIES.md`: ucsim-stc
-(c162861) and bw-board (4f14c35) each ran the real hex and independently found
+(a8e2bf4) and bw-board (74671d5) each ran the real hex and independently found
 the ISR never firing, and SDCC's own `mcs51/stc12.h` defines
 `SBIT(ELVD, 0xA8, 6)` and contains no `EC` symbol anywhere.
 

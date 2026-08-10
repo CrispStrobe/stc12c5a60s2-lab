@@ -61,7 +61,7 @@ einstecken. Der Bootloader braucht ein **kaltes** Einschalten.
 
 | Poti-Stellung | ADC-Wert | Blinkperiode | Quelle |
 |---|---|---|---|
-| Schleifer → GND | ~0 | ~100 ms (schnellstes) | `STC12-PERIPHERAL-MODEL.md` §4, `ucsim-stc` `f45ecc6` |
+| Schleifer → GND | ~0 | ~100 ms (schnellstes) | `STC12-PERIPHERAL-MODEL.md` §4, `ucsim-stc` `c0bd557` |
 | Schleifer → VCC | ~1023 | ~2000 ms (langsamstes) | gleich |
 | **Verhältnis** | — | **~20:1** | aus der Schleifenkonstante abgeleitet |
 

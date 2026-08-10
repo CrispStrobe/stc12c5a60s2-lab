@@ -158,8 +158,8 @@ the wrong physics. The contract already encodes that as a return type rather tha
 
 ### Meter blocks must sample at display rate, not per edge
 
-**Measured, not assumed** (`bw-board` `f2d8f15`, measured on commit `c4d8031`; supersedes the
-earlier `88ac0d6` round, which predates a 68× `advanceTo` optimisation). The numbers:
+**Measured, not assumed** (`bw-board` `e13722a`, measured on commit `ce58b39`; supersedes the
+earlier `fce625c` round, which predates a 68× `advanceTo` optimisation). The numbers:
 
 | path | rate |
 |---|---|
@@ -175,7 +175,7 @@ PWM simulates in 75 ms — 13.4× real time, with the brightness correct at 0.07
 **But `(current through <led>)` on a PWM'd LED calls `branchCurrent` per edge**, and the number
 that decides the design is the *whole* per-edge path, not the MNA solver in isolation. Measured
 end to end — `advanceTo` + `setPin` + `branchCurrent` — it sustains **8.0 K edges/sec against
-7.2 K: 1.1× real time** (`bw-board` `f2d8f15`; an earlier run said 6.6 K / 0.92×, which was JIT
+7.2 K: 1.1× real time** (`bw-board` `e13722a`; an earlier run said 6.6 K / 0.92×, which was JIT
 pessimism from too short a warmup). Two blocks a user would naturally combine, and 1.1× is not
 headroom — any emulator speedup erases it, and running faster than real time is gone already.
 
@@ -233,11 +233,11 @@ that is silently half-true is worse than either state.
 | `stc12` blocks incl. `whenpin` | `extensions`, bundled in `brickwright-lite` | 12 opcodes, conformance-checked | cat. 2b |
 | `circuit` meter blocks | `extensions/CrispStrobe/circuit.js` | built; refuses with a reason when absent | cat. 3 |
 | `LEDCUBE 4` + 10 blocks | `sb3-creator` | built — parse, decompile, round-trip, scan kernel | cat. 2b |
-| cube as a drawable part | `bw-circuit-ui` `35b3ca5` | built, rendering the unknown map honestly | cat. 3 |
-| 14 device blocks (servo, motor, relay, LCD, 7-seg, RGB, NeoPixel, matrix, sensors) | `sb3-creator` `ebec01f` | C lowering built; real PCA driver for servo + motor | cat. 2b (PCA timing) |
-| C → pseudocode round-trip for all 42 `bw_*` calls | `cToPseudocode.js` `aed84c4` | symmetry test enforces both directions | cat. 2b |
+| cube as a drawable part | `bw-circuit-ui` `de24976` | built, rendering the unknown map honestly | cat. 3 |
+| 14 device blocks (servo, motor, relay, LCD, 7-seg, RGB, NeoPixel, matrix, sensors) | `sb3-creator` `02aaabe` | C lowering built; real PCA driver for servo + motor | cat. 2b (PCA timing) |
+| C → pseudocode round-trip for all 42 `bw_*` calls | `cToPseudocode.js` `d71572c` | symmetry test enforces both directions | cat. 2b |
 | 54 gallery examples | `sb3-creator` `examples/` | parse, compile, C round-trip, circuit validation, determinism | cat. 3 |
-| aggregate current check (120 mA chip budget) | `cToPseudocode.js` `3a30324` | static warning on declarations, datasheet §4.1 verified | cat. 1 (datasheet) |
+| aggregate current check (120 mA chip budget) | `cToPseudocode.js` `969667c` | static warning on declarations, datasheet §4.1 verified | cat. 1 (datasheet) |
 
 **The one thing still genuinely unknown is the voxel map.** `src/20-ledcube/README.md` carries an
 empty `(select, bit) → (x, y, z)` table that only a real cube can fill, and `probe.c` is the

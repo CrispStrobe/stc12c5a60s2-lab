@@ -199,7 +199,7 @@ catches the whole class, including the error nobody imagined.
   nobody remembered to add it to a hand-kept list.
 - **Position assumptions break on real parts.** bw-circuit-ui found that
   not all DIP-14 chips have VCC on pin 14 — `74hc73` puts VCC on pin 4.
-  "Assert presence, not position." (`568b5dc`)
+  "Assert presence, not position." (`1581233`)
 
 **Corollary:** a check that has never failed has not been shown to work.
 The flag gate that fetched 4.7 MiB regardless of the flag, and the

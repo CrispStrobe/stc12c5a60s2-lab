@@ -29,7 +29,7 @@ rows they would settle.
 | 70 ngspice golden circuits | Stated tolerances per test file | **Cat 1** — ngspice is an independent reference solver | — |
 | RC charge/discharge vs analytic | Within **5%** of V(t)=VCC*(1-e^(-t/RC)) | **2b** — both are our own code | Oscilloscope on a real RC circuit |
 | 555 astable period | **214 ms** vs 207.9 ms analytic (3%) | **2b** | Oscilloscope on a real 555 circuit |
-| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **2b** — measured from ucsim only. ucsim CLR/SETB/CPL = 1 MC (correct per MCS-51 spec, confirmed `3d6489e`). emu8051 has them at 3 MC (wrong). The two emulators **disagree** on these opcodes — emu8051 would produce different pulse widths. Numbers stand because they come from the correct implementation. | A real WS2812B strip showing the correct colour |
+| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **2b** — measured from ucsim only. ucsim CLR/SETB/CPL = 1 MC (correct per MCS-51 spec, confirmed `8350048`). emu8051 has them at 3 MC (wrong). The two emulators **disagree** on these opcodes — emu8051 would produce different pulse widths. Numbers stand because they come from the correct implementation. | A real WS2812B strip showing the correct colour |
 
 ## Defects found and fixed on the path
 
@@ -38,9 +38,9 @@ answer that would have shipped without the end-to-end check.
 
 | What was wrong | How it presented | What found it |
 |----------------|-----------------|---------------|
-| `IE = 0x00` — PCA ISR never fires | Servo driver compiles, flashes, does nothing | bw-board e2e test (`4f14c35`) |
+| `IE = 0x00` — PCA ISR never fires | Servo driver compiles, flashes, does nothing | bw-board e2e test (`74671d5`) |
 | `IE.6` is ELVD, not EC — setting it enables Low Voltage Detection, not PCA | Bogus `EC=1` in emitted C, agreed on by two agents | SDCC's own `stc12.h` header (category 1 — independent source) |
-| PCA interrupt enable is ECCF in CCAPMn, not a bit in IE | Both emulators checked IE instead of CCAPM | Contract correction (`e9a3f02`), not a measurement |
+| PCA interrupt enable is ECCF in CCAPMn, not a bit in IE | Both emulators checked IE instead of CCAPM | Contract correction (`02dd84e`), not a measurement |
 | EA after CR — init race, first CCF0 lost | ISR declared but never entered, relay/servo silently dead | bw-board analysis of the match-at-zero race |
 | `advanceTo` never called `_updateDevices` | Relay with 5ms delay never energised without pin activity | bw-cfront relay example assertion |
 | Adapter push-mode: `advanceTo` not called before `setPin` | All 214 PWM edges at time zero, brightness = 0 | Cross-model brightness check (self-consistency could not find it) |
@@ -54,8 +54,8 @@ answer that would have shipped without the end-to-end check.
 | NeoPixel driver sent all zero bits regardless of colour | `bw_neo_byte` rotated `A` while byte sat in `DPL` — all bytes identical, so the byte-count bug below was invisible | ucsim-stc measurement of the bit stream |
 | NeoPixel driver sent only 1 of 9 bytes | Inline `djnz r7` clobbered the R7 SDCC's outer loop used as its byte counter — invisible while all bytes were zeros | ucsim-stc re-measurement after the all-zeros fix |
 | NeoPixel R6 assumed free by first fix | Register swap relied on a claim about SDCC's allocator, not a check of the listing. `push ar7`/`pop ar7` verified against generated assembly is what held. | Checking the `.asm` output rather than trusting the assumption |
-| ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`b4f4bb1`) |
-| emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Opcodes returned 2 (tickDelay convention: `(return+1)*scale-1` = 3 MC at 1T). Bit-banged timing 3× too slow. Servo 0.4 µs spread is 90% this defect. Commit `6cb9bc7` title says "2 cycles" — **title is wrong**, should say "3 cycles" (return 2 → 3 MC total). Ledger row is correct at 3 MC. Fixed to return 0 (= 1 MC). | steveschnepp/emu8051 sweep; ucsim-stc `3d6489e` confirmed 1 MC correct. |
+| ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`4eaa84f`) |
+| emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Opcodes returned 2 (tickDelay convention: `(return+1)*scale-1` = 3 MC at 1T). Bit-banged timing 3× too slow. Servo 0.4 µs spread is 90% this defect. Commit `6cb9bc7` title says "2 cycles" — **title is wrong**, should say "3 cycles" (return 2 → 3 MC total). Ledger row is correct at 3 MC. Fixed to return 0 (= 1 MC). | steveschnepp/emu8051 sweep; ucsim-stc `8350048` confirmed 1 MC correct. |
 
 ## Bench questions and the rows they settle
 

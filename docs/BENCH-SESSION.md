@@ -40,7 +40,7 @@ Wire per README §3: pot wiper to **P1.3**, ends to VCC and GND, LED1 as usual.
 **What to watch:** the blink rate should track the pot smoothly across its
 whole travel. Smooth tracking is the result; it means the register sequence
 (already verified — `docs/STC12-PERIPHERAL-MODEL.md` §4, and `ucsim-stc`
-`f45ecc6`) is driving a working analog front end.
+`c0bd557`) is driving a working analog front end.
 
 **What to record**, because it is what the emulator cannot tell you:
 

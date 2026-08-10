@@ -46,7 +46,7 @@ hand immediately:
 | frame format | 8 bytes: one `P0` byte per select |
 
 **The refresh rate is a property of the build, not of the cube.** The dwell is a software delay
-loop, so it moves with the compiler. `ucsim-stc`'s `RESULTS.md` (`9c0ef85`, 5-second windows over
+loop, so it moves with the compiler. `ucsim-stc`'s `RESULTS.md` (`0921851`, 5-second windows over
 the scan phase) measures the same sources at:
 
 | build | per line | frame | refresh |

@@ -267,11 +267,11 @@ Worth being honest about, because it shapes the order of work:
   been exercised. **PCA PWM is built and measured** (category 2b — two models
   correcting each other, anchored by arithmetic the driver fixes in advance):
   - 8-bit PWM: period 277561 ns, duty 33/50/75% at 84/128/192 counts
-    (`ucsim-stc` `dafbaf9`)
+    (`ucsim-stc` `1d3c932`)
   - 16-bit compare/match (servo): 1499.6 µs at 90°, 50.0 Hz frame
-    (`bw-board` `c02fa9f`)
-  - UART TX: 86.8 µs/frame at 115200 (`ucsim-stc` `e426929`)
-  - 14 device blocks have real drivers (`ucsim-stc` `a78a8f0`, `bw-board` `57ef1fa`)
+    (`bw-board` `cce2192`)
+  - UART TX: 86.8 µs/frame at 115200 (`ucsim-stc` `644c5c6`)
+  - 14 device blocks have real drivers (`ucsim-stc` `498370f`, `bw-board` `62d961b`)
 
   ⚠ **None of this is silicon.** The ADC *register sequence* is verified
   (two models agree) but its *analog path* is not — that is `BENCH-ADC`.

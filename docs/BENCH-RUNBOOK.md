@@ -61,7 +61,7 @@ The program reads P1.3 (10-bit ADC), scales the result, and uses it as a delay.
 
 | pot position | ADC reading | blink period | source |
 |---|---|---|---|
-| wiper → GND | ~0 | ~100 ms (fastest) | `STC12-PERIPHERAL-MODEL.md` §4, `ucsim-stc` `f45ecc6` |
+| wiper → GND | ~0 | ~100 ms (fastest) | `STC12-PERIPHERAL-MODEL.md` §4, `ucsim-stc` `c0bd557` |
 | wiper → VCC | ~1023 | ~2000 ms (slowest) | same |
 | **ratio** | — | **~20:1** | derived from loop constant |
 
@@ -121,7 +121,7 @@ the 1 kΩ resistor and LED.
 
 | condition | predicted current | source |
 |---|---|---|
-| 50% duty, 1 kΩ + LED (Vf=2.0V), VCC=5V | **1.46 mA** DC average | `bw-board` brightness model, `ucsim-stc` `dafbaf9` |
+| 50% duty, 1 kΩ + LED (Vf=2.0V), VCC=5V | **1.46 mA** DC average | `bw-board` brightness model, `ucsim-stc` `1d3c932` |
 | 100% on (steady LOW) | **2.93 mA** | I = (5−2)/(1000+25) |
 
 Derivation: at 50% duty the pin is LOW half the time (2.93 mA) and HIGH the
@@ -163,7 +163,7 @@ make EXAMPLE=20-ledcube flash
   `bw-circuit-ui`), derived from the vendor animation tables.
 
 **Refresh: 124 Hz** (invisible to the eye). From the scan timing: 8 lines × ~1 ms
-dwell. Measured under emulation (`ucsim-stc` `dafbaf9`).
+dwell. Measured under emulation (`ucsim-stc` `1d3c932`).
 
 ### What to observe
 
@@ -213,7 +213,7 @@ python3 tools/live-monitor.py --port /dev/cu.usbserial-XXXX
 | command | expected | source |
 |---|---|---|
 | `HELLO` | a valid framed reply | wire format verified by 4 codecs |
-| `POS` | a position matching program state | `ucsim-stc` `e426929` |
+| `POS` | a position matching program state | `ucsim-stc` `644c5c6` |
 | 500 ms halt | wall-clock **500 ± 50 ms** | emulator measured 527 ms; silicon should be closer to 500 |
 
 ### Decision rule
