@@ -134,9 +134,9 @@ Registeradressen: `P0M1`=0x93 `P0M0`=0x94, `P1M1`=0x91 `P1M0`=0x92,
 > dem Reset kann ein Pin 20 mA nach Masse *ziehen*, aber nur etwa ein Viertel
 > Milliampere *liefern*. Genau deshalb sind die LEDs in diesem Repository
 > **low-aktiv** verdrahtet (siehe §3) — das ist die einzige Beschaltung, die in
-> jedem Modus funktioniert. Aggregatgrenzen (§4.6): **80 mA pro 8-Bit-Port**,
-> **150 mA pro Chip**. 8 LEDs mit je 20 mA an einem Port geht nicht — die
-> Port-Grenze ist 80 mA, also max. 10 mA pro LED oder multiplexen.
+> jedem Modus funktioniert. Standard-8051-Familienrichtlinie: **~80 mA pro
+> Port**, **~120 mA pro Chip** (nicht im STC12-Datenblatt angegeben, aber in
+> der Familie allgemein beachtet). Ca. 10 mA pro LED einplanen oder multiplexen.
 
 ### Eine Falle, die aus der 1T-Architektur folgt
 

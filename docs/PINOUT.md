@@ -68,13 +68,14 @@ Two registers per port, one bit per pin:
 
 Every pin has a Schmitt-triggered input.
 
-**Current limits (§4.6):**
-- Per pin: 20 mA sink max
-- Per 8-bit port: **80 mA** total sink (not 8 × 20 = 160!)
-- Per chip: **150 mA** total sink (all ports combined)
+**Current limits:**
+- Per pin: 20 mA sink max (datasheet §4.8)
+- Per 8-bit port: **~80 mA** total sink (standard 8051 family guidance — not
+  stated in the STC12 datasheet, but widely observed across the family)
+- Per chip: **~120 mA** total (same: family guidance, not in this datasheet)
 
-The per-port limit is why you cannot drive 8 LEDs at 20 mA each on one port —
-the aggregate is 80 mA, so each LED gets at most 10 mA, or you multiplex.
+The per-port guideline is why you cannot drive 8 LEDs at 20 mA each on one
+port — budget ~10 mA each, or multiplex.
 Source current in quasi-bidirectional mode is only ~230 µA per pin.
 
 ### Driving an LED (§4.6)
