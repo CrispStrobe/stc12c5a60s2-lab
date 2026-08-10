@@ -171,6 +171,23 @@ Written before any bench measurement. Once a measurement exists, any number
 produced afterwards is a number produced knowing the answer, and the
 comparison stops being a test.
 
+**Only silicon can discharge a prediction on this list.** Every prediction here
+was derived from the datasheet and from our own models, so re-deriving it in an
+emulator — even a different emulator, even to four decimal places — checks that
+we transcribed consistently, not that the chip behaves this way. That is
+category 2b in `EVIDENCE-CATEGORIES.md`, and a 2b result agreeing with a 2b
+prediction is a tautology wearing a tolerance.
+
+Concretely: an emulator run reporting "124.1 Hz measured against 124 Hz
+predicted, 0.1% error" is a real and useful consistency check, and it removes
+nothing from the bench session. The refresh prediction below already says so in
+its own text — it *is* an emulator figure. The bench exists precisely to supply
+the one source that is independent of every document we have read.
+
+So: record emulator agreement next to a prediction, never in place of it. Tick
+nothing off this list until a meter, a scope, a photodiode or a pair of eyes has
+seen the real board.
+
 ### 1 + 2. `02-adc` — blink period at pot extremes
 
 **Derivation:** The program reads P1.3 (ADC channel 3, 10-bit), scales the
