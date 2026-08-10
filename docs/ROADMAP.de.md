@@ -135,9 +135,20 @@ Das gehört ehrlich benannt, weil es die Reihenfolge der Arbeit bestimmt:
 
 ## Vorgeschlagene Reihenfolge
 
-1. **Die C-Primitive in diesem Repository ausbauen** — `02-gpio-input`,
-   `03-pwm`, `04-adc`, `05-uart`. Jedes davon ist ein Block aus der Tabelle oben,
-   an echter Hardware nachgewiesen. *Das ist der aktuelle Schritt.*
+1. ~~**Die C-Primitive in diesem Repository ausbauen** — `02-gpio-input`,
+   `03-pwm`, `04-adc`, `05-uart`.~~ — **Gebaut und zwischen zwei Emulatoren
+   gegengeprüft — nicht auf Silizium.** GPIO, ADC, PWM und UART existieren und
+   stimmen zwischen emu8051 und ucsim überein; das ist **Kategorie 2b**.
+   `BENCH-ADC`, `BENCH-PWM` und `BENCH-UART` sind die Bench-Sitzungen, die das
+   anheben würden.
+
+   > Hier stand bis zum 10.08.2026 „an echter Hardware nachgewiesen“. Das war
+   > falsch, und zwar in genau der Richtung, gegen die dieses Projekt
+   > angelegt ist. `VERIFICATION-LEDGER.md` beginnt mit dem Satz, dass nichts
+   > davon je auf echtem Silizium gelaufen ist, führt den ADC als „2b, nur die
+   > Registerfolge — der analoge Pfad ist offen“ und lässt `BENCH-ADC` genau
+   > für die Messung offen, die ihn schließen würde. `DEBUG-CONTROL-MODEL.md`
+   > sagt unmissverständlich, dass es noch keine Bench-Sitzung gab.
 2. **Die residente Firmware schreiben** (`10-live-firmware`), die das
    Rahmenprotokoll implementiert, aufgebaut aus genau diesen Primitiven.
 3. **`stc12live` veröffentlichen** als Erweiterung in `CrispStrobe/extensions`,

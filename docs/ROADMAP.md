@@ -129,10 +129,20 @@ Worth being honest about, because it shapes the order of work:
 ## Suggested order of work
 
 1. ~~**Grow this repo's C primitives** — `02-gpio-input`, `03-pwm`, `04-adc`,
-   `05-uart`.~~ — **Built.** GPIO and ADC proven on real hardware (`01-blink`,
-   `02-adc`). PWM and UART modelled and cross-checked between two emulators
-   (category 2b, not silicon — `BENCH-PWM` and `BENCH-UART` are the bench
-   sessions that would settle them).
+   `05-uart`.~~ — **Built, and cross-checked between two emulators — not
+   silicon.** GPIO, ADC, PWM and UART all exist and agree across emu8051 and
+   ucsim, which is **category 2b**; `BENCH-ADC`, `BENCH-PWM` and `BENCH-UART`
+   are the bench sessions that would raise them.
+
+   > This line said "GPIO and ADC proven on real hardware" until 2026-08-10.
+   > It was wrong, and wrong in the direction this project exists to avoid.
+   > `VERIFICATION-LEDGER.md` opens with "Nothing here has run on real
+   > silicon", records the ADC as *"2b register sequence only — analog path
+   > open"*, and leaves `BENCH-ADC` outstanding for exactly the reading that
+   > would settle it. `DEBUG-CONTROL-MODEL.md` says plainly that no bench
+   > session has happened. The claim was introduced by the commit that set out
+   > to *level the docs with evidence*, which is worth recording: the pass that
+   > audits claims is itself a place where claims get made.
 2. ~~**Write the resident firmware** (`10-live-firmware`) implementing the framed
    command protocol, built from those primitives.~~ — **DONE 2026-08-09, verified
    under emulation.** It builds, boots and answers `HELLO` / `POS` / `REGS` /
