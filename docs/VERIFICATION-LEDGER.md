@@ -29,7 +29,7 @@ rows they would settle.
 | 70 ngspice golden circuits | Stated tolerances per test file | **Cat 1** — ngspice is an independent reference solver | — |
 | RC charge/discharge vs analytic | Within **5%** of V(t)=VCC*(1-e^(-t/RC)) | **2b** — both are our own code | Oscilloscope on a real RC circuit |
 | 555 astable period | **214 ms** vs 207.9 ms analytic (3%) | **2b** | Oscilloscope on a real 555 circuit |
-| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **⚠ UNDER REVIEW** — emu8051-stc confirmed CLR/SETB/CPL bit return 2 cycles where MCS-51 spec says 1. These are the exact opcodes the WS2812B driver bit-bangs with. If ucsim has the same bug, the timing agreement was two copies of one error. If ucsim is correct, the two never actually agreed. Awaiting ucsim-stc's check. Numbers are the measurements taken; category is suspended. | A real WS2812B strip showing the correct colour |
+| NeoPixel WS2812B timing | ucsim: T0H=**362 ns** (250–550✓), T1H=**814 ns** (650–950✓), T0L=**814 ns** (700–1000✓), T1L=**452 ns** (300–600✓). All four windows pass. 72 bits (9 bytes), inter-byte gap 3074 ns, send 103.7 µs, pin LOW after → latch met. | **2b** — measured from ucsim only. ucsim CLR/SETB/CPL = 1 MC (correct per MCS-51 spec, confirmed `3d6489e`). emu8051 has them at 3 MC (wrong). The two emulators **disagree** on these opcodes — emu8051 would produce different pulse widths. Numbers stand because they come from the correct implementation. | A real WS2812B strip showing the correct colour |
 
 ## Defects found and fixed on the path
 
@@ -55,6 +55,7 @@ answer that would have shipped without the end-to-end check.
 | NeoPixel driver sent only 1 of 9 bytes | Inline `djnz r7` clobbered the R7 SDCC's outer loop used as its byte counter — invisible while all bytes were zeros | ucsim-stc re-measurement after the all-zeros fix |
 | NeoPixel R6 assumed free by first fix | Register swap relied on a claim about SDCC's allocator, not a check of the listing. `push ar7`/`pop ar7` verified against generated assembly is what held. | Checking the `.asm` output rather than trusting the assumption |
 | ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`b4f4bb1`) |
+| emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Bit-banged timing 3× too slow on these opcodes. WS2812B would produce wrong pulse widths if measured from emu8051. | steveschnepp/emu8051 systematic sweep found the family; ucsim-stc `3d6489e` confirmed ucsim is correct at 1 MC. |
 
 ## Bench questions and the rows they settle
 
