@@ -22,7 +22,8 @@ rows they would settle.
 | Relay coil decode (active-low) | P2.0=0.6V → energised=true. No spurious interrupt enable. | **2b** | A relay clicking on silicon |
 | Button contact closure | Open: 5.0V / readPin=1. Pressed: 0.0V / readPin=0. INT0 NOT enabled. | **2b** | BENCH-ADC (the same flash tests GPIO read) |
 | ADC register sequence | ADC_CONTR=0xE0 (powered), P1ASF=0x02, P1M1 high-Z. START→FLAG→clear. | **2b register sequence only** — analog path open | **BENCH-ADC**: the analog path is the first bench question |
-| UART TX bit period | ucsim: **86.8 µs** at 115200 baud, 3.1 µs polling residual | **2b** — emu8051 has no bit timing (UART-ENTRY-POINTS.md §9: "a target passing against an untimed model is 2b"). ucsim HAS bit timing but idle-timeout resync is still unreachable. | **BENCH-UART**: a real UART answering HELLO |
+| UART TX bit period | ucsim: **86.8 µs** at 115200 baud, 3.1 µs polling residual | **2b** — emu8051 has no bit timing (UART-ENTRY-POINTS.md §9). | **BENCH-UART**: a real UART answering HELLO |
+| Idle-timeout resync | Firmware recovers from torn frame (SOF+garbage) after 10ms gap. Reply: **13 bytes** (SOF 0x7E, CMD 0x81, LEN 9). All 4 pre-registered predictions confirmed, none adjusted. Positive control: valid HELLO produced a reply on the same channel, so "no reply to garbage" is an observation, not an absence. | **2b** — single emulator with bit timing (86.8 µs/byte). emu8051 cannot exercise this path (instant bytes — by construction, not neglect). Three bugs found on the path: piped stdio SIGTERM, `-e run` bypasses inject, inject during init. | **BENCH-UART** |
 | Cube refresh rate | **124.1 Hz** against 124 predicted. Invisible to the eye. | **2b** — prediction still open until silicon | **BENCH-CUBE**: visible flicker = model wrong |
 | Cube polarity | All four codebases assume active-HIGH from same vendor tables | **2b** — shared source, cannot catch a shared misreading | **BENCH-CUBE**: photograph of lit LED at (FE,01) |
 | 347-image corpus sweep | 0 genuine disagreements between emu8051 and ucsim | **Cat 1 (lineage)** — different upstream projects, but both modified this campaign. Independent lineage is not independent interpretation. | Silicon running one of the 347 images |
@@ -56,6 +57,10 @@ answer that would have shipped without the end-to-end check.
 | NeoPixel R6 assumed free by first fix | Register swap relied on a claim about SDCC's allocator, not a check of the listing. `push ar7`/`pop ar7` verified against generated assembly is what held. | Checking the `.asm` output rather than trusting the assumption |
 | ROADMAP claimed "ADC proven on real hardware" | No bench session has happened; the claim was introduced in a doc-levelling pass | Coordinator reading the document (`4eaa84f`) |
 | emu8051 CLR/SETB/CPL bit = 3 MC (should be 1 MC per MCS-51 spec) | Opcodes returned 2 (tickDelay convention: `(return+1)*scale-1` = 3 MC at 1T). Bit-banged timing 3× too slow. Servo 0.4 µs spread is 90% this defect. Commit `6cb9bc7` title says "2 cycles" — **title is wrong**, should say "3 cycles" (return 2 → 3 MC total). Ledger row is correct at 3 MC. Fixed to return 0 (= 1 MC). | steveschnepp/emu8051 sweep; ucsim-stc `8350048` confirmed 1 MC correct. |
+| Resync test: piped stdio filled 200KB trace buffer → SIGTERM | stc12_trace killed before TX file written, test read 0 bytes | Switching from execFileSync(pipe) to spawnSync(ignore) |
+| Resync test: `-e run` bypasses `-inject` dispatch | Inject fires in stc12_trace's own `-until-ns` loop, not in `-e`'s interactive interpreter. Two mutually exclusive execution loops. | ucsim-stc `477d5d2` identified the dispatch path |
+| Resync test: inject fired during init, before UART configured | SCON/BRT not yet written when byte arrived. RI set but firmware not listening. | Derived inject time from firmware listing; 29ms margin past SCON write |
+| Resync test: false positive — assertions matched PC hex digits | `result.includes('7e')` matched PC address 17E4, not UART TX byte 0x7E | Positive control (prediction 4) would have caught it; switching to TX file capture |
 
 ## Bench questions and the rows they settle
 
