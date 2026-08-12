@@ -371,11 +371,35 @@ seams; nothing above them changes.
   service (small sketches compile in ~1–2 s; GPL toolchain as a *service*, the
   precedent already set). ADC is injectable in `avr8js`, so pot → channel maps
   onto boundary A directly.
-* **RP2040 — Pi Pico: second, via MicroPython.** `rp2040js` is MIT TypeScript.
-  The MicroPython route needs **no compiler at all** — ship the official UF2,
-  feed generated Python (`generatePython` exists today), instrument the
-  emission to publish task/state for the debugger. The C-SDK route (CMake +
-  a large SDK) is the only genuinely heavy story and waits for demand.
+* **RP2040 — Pi Pico: second. ROUTE DECIDED 2026-08-12: bare-metal C first,
+  MicroPython later as an additive runtime.** The original lean here was
+  MicroPython ("no compiler at all"), but the facts changed once the AVR
+  chain landed: the boundary-A adapter AND the boundary-D debug target for
+  `rp2040js` are built and oracle-tested (bw-board `255dd78`), and both
+  speak the same `<task>_state` position protocol as the other cores —
+  which MicroPython cannot feed without inventing a second, weaker
+  debugging story. Evidence gathered for the C route:
+    - **Toolchain fits.** The hosted avr-gcc bundle is 36 MB; our generated
+      C is freestanding (no libc — UART/ADC are register writes; only
+      libgcc's `__aeabi_uidiv` is needed, Cortex-M0 has no divide). A
+      gcc + binutils + v6-m-libgcc bundle, no newlib, lands well inside
+      the service's limits via the same fetch/stage pattern as
+      `fetch-avr-gcc.sh`.
+    - **No bootrom needed for emulation.** Images link at SRAM 0x20000000;
+      the adapter loads halfwords and jumps — proven by the hand-assembled
+      oracles. Flash/UF2 (boot2 + vector table + elf2uf2) is only needed
+      for real silicon and comes later.
+    - **Timebase: the RP2040 TIMER, ISR-free.** `rp2040js` implements the
+      1 MHz microsecond counter (TIMELR) and SysTick both; `bw_now()`
+      reads TIMELR/1000 directly — no tick ISR at all, simpler than
+      either sibling core and race-free by construction.
+    - **Symbols: same pattern as AVR.** arm-none-eabi-objdump -t +
+      --dwarf=decodedline through the avr_symtab machinery (ARM addresses
+      are absolute; no 0x800000 strip, no word/byte trap).
+  The MicroPython route (official UF2 into flash, generatePython feeds a
+  REPL, capabilities honestly reduced — no code breakpoints, no insn
+  stepping) stays on the map as a *second runtime* for the same board,
+  and the capability matrix already knows how to say so.
 * **Deferred:** ESP32 / STM32 (no MIT-clean emulator; QEMU-class engines are
   GPL and enormous), micro:bit (behavioral simulator, different fidelity
   class).
