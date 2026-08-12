@@ -419,3 +419,45 @@ scheduler tick is target-portable by construction.
 avr-gcc endpoint, board sidecars with datasheet-audited pin tables (the pin
 chooser needs per-pin meanings for D0–D13/A0–A5 exactly as it has for the
 STC12), device selection in the app, and an examples wave per device.
+
+## Examples gallery: generic circuits, explicit targets (2026-08-12)
+
+The gallery must grow faster than any one MCU port. Its metadata and UI should
+therefore separate three axes that are currently too easy to conflate:
+
+1. **Concept and level.** Every example gets a stable concept/category and a
+   difficulty level (Beginner, Intermediate, Advanced). Pure-circuit lessons
+   are first-class examples, not a special screen or an afterthought.
+2. **Parts involved.** Entries advertise capabilities such as `no-mcu`, `mcu`,
+   `resistor`, `led`, `diode`, `transistor`, `motor`, `sensor`, and `display`.
+   The browser uses these tags for filters, so “MCU / non-MCU” is only the
+   first useful question; the same mechanism can expose any part family later.
+3. **Execution target.** A program may name a concrete target (`stc12`,
+   `stc89`, `arduino-uno`, `arduino-nano`, `pico`) or declare a generic target
+   contract. Target filters must be data-driven and open-ended, not a hard-coded
+   STC-versus-everything-else switch.
+
+The preferred authoring model is **generic-first**. A lesson about blinking,
+debouncing, PWM, ADC thresholds, or cooperative tasks should describe the
+portable pins, capabilities, timing assumptions, and expected behavior once.
+Target adapters then map that contract to STC12, AVR/Arduino, RP2040, and later
+chips. When a physical detail genuinely differs — pin names, voltage, timer
+resolution, or peripheral availability — keep a small target-specific variant
+beside the generic lesson and state the difference. Do not silently rewrite an
+STC12 lesson as an RP2040 lesson: that would make the circuit and the learning
+objective ambiguous.
+
+Near-term implementation order:
+
+* add explicit `parts`, `targets`, and optional `capabilities` metadata to the
+  gallery index, while keeping the current `kind` field for compatibility;
+* make the Examples panel open by default, readable in dark themes, scrollable,
+  and filterable by category, level, parts, and target family;
+* tag the existing pure-circuit wave first, then add generic MCU lessons and
+  target projections for STC12, AVR/Arduino, and RP2040;
+* validate each projection against the same circuit JSON, expected behavior,
+  simulator capabilities, and compiler/debugger contract.
+
+This keeps the teaching content reusable without pretending that all MCUs are
+electrically interchangeable. The gallery is a catalog of concepts plus
+explicit portability evidence, not merely a list of firmware files.
