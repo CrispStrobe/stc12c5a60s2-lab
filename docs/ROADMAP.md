@@ -737,6 +737,20 @@ seams; nothing above them changes.
   VDU-terminal and arrays lanes). Two unlicensed example repos and
   the chibiakumas sources joined the LOCAL research corpus with
   provenance notes.
+  **The VDU terminal's logic half EXISTS (bw-board 02b01fe), and the
+  fleet's HD44780 landed.** The VDU decoder turns the ACIA stream into
+  typed events (move/draw/plot signed-16-bit, mode, colour, origin,
+  cls, text; unknown codes surface, nothing drops), state across any
+  chunking; its live test types a DRAW program at the BeebEater
+  prompt and asserts the decoded closed square. The fleet's HD44780
+  behavioral part (datasheet clean-room, 21 oracle tests) is wired to
+  VIA port B in the BeebEater smoke with busy-flag read-back — the
+  LCD now SHOWS the interpreter's screen ("HI3" / ">"), asserted.
+  What remains of the terminal is the canvas face in the app (fleet,
+  after bundle frees). bw-board recycled onto the mike42 preset
+  (HB6502, CC-BY facts, banked-ROM gap to be reported not hacked);
+  the MS BASIC port session was found crashed at launch (wrong cwd)
+  and relaunched; PicoBB still in flight.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
