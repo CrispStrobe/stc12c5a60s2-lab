@@ -571,7 +571,34 @@ seams; nothing above them changes.
   -O DISCARDS (void)-cast volatile reads — the T1 harvest now stores
   through a volatile sink. compareTraces gained per-device physics
   budgets (driftPerSecMs, startupMs) for slow machines; order and
-  levels stay exact. All six device axes now have a closed chain. Found on the way: Symon's 6522 is an unimplemented stub —
+  levels stay exact. All six device axes now have a closed chain.
+  **The 6502 program corpus, adjudicated 2026-08-13 (owner's survey of
+  ~11 source repos).** Tier 2 landed the same hour: the Klaus Dormann
+  functional suites (GPL-3, out-of-repo clone) both pass on the first
+  run — the NMOS functional test after 30.6M real instructions, the
+  65C02 extended-opcodes test after 22M (bw-board f00d762, 52M
+  instructions in 1.2 s). Tier 3 is the survey: by license, MIT
+  (an assembly crash-course examples repo, a 6502-assembly examples
+  repo) and CC-BY-4.0 (a homebrew 65C02 computer whose machine —
+  65C02 + 65C22 + 65C51N + 32K/32K — is a near-sibling of EATER6502
+  and becomes our second machine PRESET) are publishable corpus with
+  attribution; everything unlicensed (a beginners-book repo, a
+  C/asm/Forth robot game, three C64 example collections, a Neo6502
+  examples repo, a 6502+TFT breadboard project, an emulator+assembler
+  repo) goes to the research corpus, LOCAL ONLY, exactly the 8051
+  pattern. The mechanism that makes ANY 6502 binary a CPU test
+  regardless of its target machine: the TWIN-RUN harness — flat 64K
+  RAM on both sides, our core vs an independent permissive core
+  (lib6502/run6502 MIT, or py65 BSD), lockstep state comparison,
+  instruction-capped so machine-specific busy-waits bound instead of
+  hang; C64/NES-specific I/O reads open-bus identically on both sides.
+  That harness is the corpus lane's next build. ehBASIC (NC license):
+  never vendored, never shipped — but "boots to the READY prompt over
+  the ACIA" is a legitimate LOCAL validation milestone on the mike42
+  preset, the retro tier's deepest whole-system smoke test, feasible
+  once nothing more than the preset exists. The 6502+TFT project also
+  seeds a future machine peripheral (TFT + shift-register controller
+  on the Eater bus) — hardware pattern noted, code unlicensed. Found on the way: Symon's 6522 is an unimplemented stub —
   Symon stays a CPU/machine referee, the W65C22 datasheet is the
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
