@@ -456,6 +456,25 @@ seams; nothing above them changes.
   I/O on a bus you can see. And the bench session is the best of any
   target: WDC still manufactures both chips NEW in DIP-40 — breadboard
   silicon at 1 MHz with an EEPROM programmer, no SMD, no USB stack.
+  **Verification stack refined 2026-08-13 — the 6502 will be our
+  best-verified core BEFORE it ships:** the SingleStepTests/65x02 suite
+  (MIT) provides 10,000 randomly-generated JSON vectors PER OPCODE with
+  full before/after state AND cycle-by-cycle bus activity, specifically
+  for the WDC 65C02 — the exact variant still in production and on the
+  breadboard. Our core lands only after passing all ~2.56M vectors, a
+  conformance bar none of our other cores had at birth. Above it: Klaus
+  Dormann's functional test (whole-CPU), perfect6502 (BSD-2, the
+  transistor-netlist simulation derived from the real die — the deepest
+  oracle in retro computing, CI-side), and Symon (MIT, Java, actively
+  maintained) as an independent reference implementation that ALREADY
+  models the exact target machine — 65C02 + 6522 VIA + 6551 ACIA in a
+  'BenEater' configuration; GUI-bound so not our runtime nor an easy CI
+  harness, but a behavior referee when our VIA/ACIA models face a
+  datasheet ambiguity. Serial: the machine grows a W65C51 ACIA model
+  beside the VIA (both real WDC parts, both in production) so print
+  rides real silicon, not an invented console register. bw_now: poll
+  T1's IFR rollover between task calls in the scheduler loop —
+  ISR-free, the Pico pattern's 6502 spelling.
   Second in the tier: the Z80 — SDCC on OUR OWN compile service already
   targets it (the compile side is nearly free), permissive cores are
   everywhere, and the RC2014 ecosystem is the same teaching energy; its
