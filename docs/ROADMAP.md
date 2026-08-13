@@ -887,6 +887,29 @@ seams; nothing above them changes.
   standard emulator practice. RECOMMENDED: (c) as the built default,
   (b) as an owner-flippable option later. The BYOR slot is app-lane
   work (goes to the fleet with the VDU/terminal wiring).
+  **The Z80 breadboard-scene survey + THE MACHINE (2026-08-14, owner's
+  two rounds of pointers).** The lineage is singular: nearly every
+  breadboard Z80 — the makerhacks free-run, the PainfulDiodes BeanZee
+  (whose MIT examples we already carry), hackaday builds, Fort
+  Collins, the Arduino-supervised variants — descends from GRANT
+  SEARLE's minimal 7-chip design (ROM low, RAM high, MC6850 ACIA at
+  ports $80/$81), which is also RC2014's ancestor. New MIT finds from
+  the second round: Bread80's Couch-To-64k (a STAGED Ben-Eater-style
+  Z80 tutorial — pedagogically ideal for designer presets) and
+  trevor-makes' avr-z80 (the AVR-supervisor pattern, which our stack
+  could uniquely model as a TWO-CPU circuit someday — we emulate both
+  sides). The composable Z80Machine is BUILT (bw-board): the 6502
+  pattern with the Z80's twist — chips in PORT space (IORQ), regions
+  in MEMORY space (MREQ); SEARLE preset; our own MC6850 from the
+  datasheet; IM 1 delivery in the machine layer (RST $38, HALT wake,
+  EI deferral) — tests boot a hand-assembled ROM that prints and
+  echoes, and an RX interrupt wakes HALT through the handler. Designer
+  parts to brief: Z80 DIP-40 + MC6850 DIP-24 (62256/28C256/74HC00
+  reuse); the bus extractor's Z80 extension = the MREQ/IORQ split.
+  Software story per machine: Searle's NASCOM BASIC ROM is Microsoft
+  heritage (local-only, BYOR slot like the Acorn ROM); the SHIPPABLE
+  path stays CP/M + BBCBASIC.COM (CP/M 2.2's 2001/2022 releases) and
+  Zeal 8-bit OS (Apache-2.0) as a future native preset.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
