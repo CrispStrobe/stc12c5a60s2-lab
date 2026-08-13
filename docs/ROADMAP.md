@@ -685,6 +685,25 @@ seams; nothing above them changes.
   interpreter (multi-WHEN refused honestly: BASIC is single-
   threaded); (e) the BASIC interpreter as a twin-run CPU workload,
   millions of real-code instructions of differential.
+  **ALL FIVE OPTIONS GREENLIT (owner, 2026-08-14) — and BBC BASIC
+  itself turns permissive.** The R.T. Russell lineage is Zlib across
+  the board (verified in the repo licenses): the original Z80 BBC
+  BASIC, the SDL/console edition (C — adopted as the future
+  generateBASIC oracle: run generated BASIC under it as ground
+  truth), the Spectrum Next port, the eZ80 Agon port, and PicoBB —
+  BBC BASIC for the Pico, which our EXISTING RP2040 chain may boot
+  as-is (fleet lane opened). So the language is shippable via
+  Russell even though Acorn's 6502 ROM stays local-only. A BBC Micro
+  dev environment under Apache-2.0 joins as corpus tooling; an MIT
+  Rust BBC Model B emulator (boots MOS 1.20 — ROMs are the user's
+  own) is the rendering cross-check for the VDU terminal, never a
+  vendored runtime. Three unlicensed BBC games/asm projects join the
+  local research corpus. Fleet lanes seeded the same hour: the MS
+  BASIC ca65 port with our own ACIA shim (the shippable BASIC), the
+  HD44780 part model (datasheet clean-room), and the PicoBB boot.
+  The coordinator's next contract: generateBASIC (bbc + ms profiles,
+  single-script programs, honest multi-WHEN refusal) and
+  basicToPseudocode — the AST bridge the owner named.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
