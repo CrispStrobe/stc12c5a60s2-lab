@@ -414,6 +414,19 @@ seams; nothing above them changes.
 `DEVICE PI_PICO` extend an existing axis, not a new design.** The millisecond
 scheduler tick is target-portable by construction.
 
+**STATUS 2026-08-13 — the phase is essentially COMPLETE.** All three
+architectures run end-to-end IN THE PRODUCTION APP, proven by the
+five-assertion user-visible probe (lite `scripts/proof-production.mjs`:
+live position, blinking bench LED, visible serial, honest pause, working
+step — 5/5 on both Nano and Pico). The block surface is complete on all
+cores: digital in/out, ADC, PWM dimming, servo, motor, serial print, the
+cooperative scheduler, and full boundary-D debugging. Examples retarget
+mechanically (`retargetPseudocode` + per-device role pools; gallery
+device lists are COMPUTED from dry-runs and test-enforced). Remaining in
+flight: the app's "switch device" affordance, the pull-down PinMode
+(mna-gated), the simavr differential oracle — and the bench session that
+puts the first chain on real silicon.
+
 **Division of labour:** coordinator writes the two contract-bearing pieces
 (the avr8js boundary-A adapter and the debugger port); the fleet takes the
 avr-gcc endpoint, board sidecars with datasheet-audited pin tables (the pin
