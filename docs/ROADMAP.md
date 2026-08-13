@@ -514,7 +514,23 @@ seams; nothing above them changes.
   surface as {tMs, via1.PA0, level} — the canonical trace shape.
   Verified: hand-assembled ROM blinks PA0 on the exact 1 ms T1 grid,
   serial prints through the ACIA, a T1 interrupt wakes WAI through
-  IRQB. Found on the way: Symon's 6522 is an unimplemented stub —
+  IRQB.
+  **MILESTONE 2026-08-13 (same day, part 3): generateC speaks 6502.**
+  sb3-creator ff7db49 — DEVICE EATER6502 is the sixth device axis and
+  '6502' the fourth emitter core: VIA pins PA0-PA7/PB0-PB6 (PB7
+  refused, T1 owns it), level-before-DDR, port A read through $600F
+  (no CA-flag side effects), bw_now() harvests T1 IFR6 with no ISR
+  anywhere, print paces the ACIA 2 ms/byte and NEVER polls TDRE (the
+  WDC silicon bug — delay pacing is correct on buggy and pre-bug parts
+  alike). PWM/tone/servo/motor/ADC refuse with reasons. 18 gallery
+  examples join by computed dry-run. Found on the way, pre-existing:
+  PART (74HC595) programs retargeted "ok" onto every non-8051 device
+  while the C silently commented out the output path — compiled, ran,
+  did nothing; retarget now refuses PART off-8051 with a reason until
+  the bit-banged port lands (a clean fleet lane). OPEN verification:
+  compile the emitted C with cc65/llvm-mos and run it on the
+  M6502Machine against the referee — the differential that closed the
+  Nano and Pico chains; cc65 (zlib) can join the compile service. Found on the way: Symon's 6522 is an unimplemented stub —
   Symon stays a CPU/machine referee, the W65C22 datasheet is the
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
