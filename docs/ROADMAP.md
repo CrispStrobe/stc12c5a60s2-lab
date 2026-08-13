@@ -400,9 +400,34 @@ seams; nothing above them changes.
   REPL, capabilities honestly reduced — no code breakpoints, no insn
   stepping) stays on the map as a *second runtime* for the same board,
   and the capability matrix already knows how to say so.
-* **Deferred:** ESP32 / STM32 (no MIT-clean emulator; QEMU-class engines are
-  GPL and enormous), micro:bit (behavioral simulator, different fidelity
-  class).
+* **AVR family widening — ADJUDICATED 2026-08-13, the cheap wins:** avr8js
+  ships port configs A through L (the ATmega2560's full set) and an ATtiny
+  timer config — Mega and ATtiny85 are designed-for targets of the emulator
+  we already vendor. The hosted toolchain bundle carries only the avr5
+  multilib today; adding avr6 (mega2560) and avr25 (attiny85/84) device
+  libs is a fetch-script refresh, the same trim done once for the 328.
+  Order of attack: ATmega168P (already a live compile target — needs only
+  the DEVICE axis + retarget pools; near-free), ATmega2560 (adapter port
+  config + pin table D0–D53/A0–A15 + pools), ATtiny85 (the best teaching
+  chip: five usable pins, no hardware UART — print REFUSES with the
+  reason until a soft-serial story exists; PWM via its own timer1).
+* **ESP8266 / ESP32 — reassessed 2026-08-13, still deferred, now with the
+  reasons current:** no permissively-licensed Xtensa emulator with SoC
+  peripherals exists. The open self-hosted simulator that appeared this
+  year is AGPLv3 dual-licensed and runs ESP32 on a GPL QEMU fork; the
+  commercial browser ESP32-S3 core is closed. Copyleft engines fit our
+  GPL-as-a-service precedent (compile/run oracles, server-side, like SDCC/
+  ucsim/simavr) — an ESP target COULD exist as oracle-backed compile-only,
+  but the in-browser boundary-D debugger contract would not hold, making
+  it a second-class target we choose not to ship half-made. ESP32-C3
+  (RISC-V) is the least-blocked future: permissive RV32 cores exist (MIT),
+  but the SoC peripheral layer would be ours to build from the TRM — a
+  bw-board-scale project. Revisit when a permissive peripheral model
+  appears. ESP8266: aging, LX106, nothing permissive — skip outright.
+* **Deferred:** STM32 (Renode, MIT, covers it as a CI oracle; a browser
+  runner could reuse rp2040js's MIT Cortex-M0 core with our own peripheral
+  layer — possible, big, not scheduled), micro:bit (behavioral simulator,
+  different fidelity class).
 * **Fidelity is declared, not discovered:** `avr8js` covers timers/UART/GPIO/
   ADC well; `rp2040js` is solid on GPIO/timer/UART, thinner on PIO. Each
   target gets a per-peripheral capability row in DEBUG-CONTROL-MODEL's
