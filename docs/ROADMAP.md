@@ -475,6 +475,37 @@ seams; nothing above them changes.
   rides real silicon, not an invented console register. bw_now: poll
   T1's IFR rollover between task calls in the scheduler loop —
   ISR-free, the Pico pattern's 6502 spelling.
+  **The machine is COMPOSABLE, not fixed — decided 2026-08-13 (owner):
+  the tier ships configurations, not one museum piece.** The 6502 system
+  emulator is config-driven: a machine is {cpu variant, address-map
+  entries (RAM/ROM/VIA/ACIA at ranges, chip-select logic)}. Three ways
+  to get a config, one emulator underneath:
+  1. **Presets** — DEVICE EATER6502 (the canonical map) and siblings.
+  2. **Declared** — the pseudocode's declaration language grows MAP/CHIP
+     lines (`CHIP via1 = W65C22 AT $6000`, `MAP RAM $0000-$3FFF`), so
+     any bare-6502-plus-whatever build is expressible without wiring.
+  3. **Wired** — the pedagogical crown: place the DIP-40 W65C02, the
+     VIA, RAM, ROM and a 74HC00 on the virtual breadboard and wire the
+     bus BY HAND like the real build; a bus extractor reads the
+     designer's netlist, statically solves the glue-gate network over
+     the address lines into a chip-select map, and derives the SAME
+     config. Your actual wiring determines your actual memory map —
+     wire the decode wrong and the derived machine is wrong in exactly
+     the way the real breadboard would be. Execution still runs inside
+     the emulator at instruction speed (the bus-inside rule stands);
+     the wiring is the CONFIG source, not the simulation substrate.
+  **Ecosystem triage 2026-08-13 (owner's survey of 13 more
+  implementations):** none displaces the own-core-plus-vector-suite
+  plan, two join the stack: run6502/lib6502 (MIT, headless C CLI) as a
+  fast third CI executor beside perfect6502's slow depth, and py6502
+  (BSD-2) whose Python assembler gives test tooling an assembler
+  without invoking the full toolchain. Symon remains the machine-level
+  reference. Excluded and why: GPL3/GPL2 entries (easy6502's core,
+  cpu6502, mini65-sim — vendoring barred, and the oracle bench is
+  already stronger on MIT/BSD), a non-commercial-clause simulator
+  (not permissive, out entirely), NES- and Atari-shaped machines
+  (wrong system), JVM/GUI apps and on-Arduino curios (wrong runtime;
+  ksim65 noted as a second JVM reference if ever needed).
   Second in the tier: the Z80 — SDCC on OUR OWN compile service already
   targets it (the compile side is nearly free), permissive cores are
   everywhere, and the RC2014 ecosystem is the same teaching energy; its
