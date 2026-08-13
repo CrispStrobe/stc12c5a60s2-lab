@@ -530,7 +530,35 @@ seams; nothing above them changes.
   the bit-banged port lands (a clean fleet lane). OPEN verification:
   compile the emitted C with cc65/llvm-mos and run it on the
   M6502Machine against the referee — the differential that closed the
-  Nano and Pico chains; cc65 (zlib) can join the compile service. Found on the way: Symon's 6522 is an unimplemented stub —
+  Nano and Pico chains; cc65 (zlib) can join the compile service.
+  **W65C2x peripheral validation, surveyed 2026-08-13.** The CPU got a
+  vector suite; the VIA/ACIA have none, so validation is datasheet +
+  cross-implementation + (eventually) silicon. Of the 14 surveyed 6502
+  repos exactly ONE helps — Symon's Acia6551 (MIT, real if partial:
+  baud-delayed TDRE/RDRF, overrun, programmed reset; wall-clock
+  timebase). ksim65 has no VIA/ACIA (generic Timer/ParallelPort only);
+  everything else is CPU-only or wrong-system silicon. The REAL find
+  is elsewhere: **MAME's 6522via.cpp and mos6551.cpp are BSD-3-Clause**
+  (checked in the file headers) — decades of regression against real
+  VIC-20/PET/arcade boards, permissive, citable, vendorable with
+  attribution. Adopted as the VIA/ACIA reading-reference and
+  differential oracle. First cross-read already paid: **MAME and the
+  WDC datasheet DISAGREE on T2 pulse-count** — MAME
+  (counter2_decrement) interrupts on UNDERFLOW, the N+1th PB6 pulse;
+  WDC figure 2-5 asserts IRQB when the count REACHES zero, the Nth.
+  Possibly MOS-vs-WDC silicon divergence (MAME's device is the
+  MOS/Rockwell lineage). Our model keeps the WDC reading (our part IS
+  the W65C22); the discrepancy is DOCUMENTED as an expected diff in
+  any MAME differential, and is the first probe for a silicon rig.
+  **VR65C02 (MIT, assessed on owner's pointer):** a REAL 6502 with an
+  ATmega4809 virtualizing the whole bus — no VIA, a 6551-LIKE UART
+  only, so useless for chip-model validation, but valuable twice
+  over: its cc65 config/crt0 for a bare custom machine is a working
+  reference for exactly the compile-service target the differential
+  needs, and its MCU-drives-the-bus pattern INVERTED (a real W65C22
+  on a scripted bus) is the design for the silicon oracle rig — the
+  retro tier's version of the campaign's hw-oracle suites, and the T2
+  question above is its first test case. Found on the way: Symon's 6522 is an unimplemented stub —
   Symon stays a CPU/machine referee, the W65C22 datasheet is the
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
