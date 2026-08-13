@@ -867,6 +867,26 @@ seams; nothing above them changes.
   tests for say/ask/operators/pen/motion/multi-WHEN/stop with named
   degradations, and the licensing labels are being applied to the
   deploy lane.
+  **The Acorn ROM question, chased to the root (owner's question,
+  2026-08-14): there is NO license anywhere in the chain.** BeebEater
+  (MIT) credits J.G. Harston; Harston's site ships the ROMs with no
+  stated permission; jsbeeb documents nothing either. The scene's
+  entire practice rests on the informal late-1990s Pace Micro
+  Technology permission for emulator use ("by kind permission of
+  Pace" in BeebEm-era credits) — never rescinded, never renewed,
+  rightsholders since moved (Pace → Arris → CommScope). How they
+  "manage": tolerated abandonware plus one traceable informal
+  permission. It is not a license. Three postures for BrickWright:
+  (a) CONSERVATIVE (current doctrine) — local-only; costs nothing,
+  since the shippable slots are filled (MS BASIC/MIT on the 6502,
+  Russell/zlib on the Z80 and Pico); (b) SCENE-STANDARD — ship with
+  a ROMS-NOTICE citing the Pace permission, defensible by precedent
+  not by document, an OWNER decision given commercial posture;
+  (c) BRING-YOUR-OWN-ROM — the app ships the BeebEater machine with
+  an empty ROM slot the user fills (upload/URL), 100% clean,
+  standard emulator practice. RECOMMENDED: (c) as the built default,
+  (b) as an owner-flippable option later. The BYOR slot is app-lane
+  work (goes to the fleet with the VDU/terminal wiring).
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
