@@ -751,6 +751,25 @@ seams; nothing above them changes.
   (HB6502, CC-BY facts, banked-ROM gap to be reported not hacked);
   the MS BASIC port session was found crashed at launch (wrong cwd)
   and relaunched; PicoBB still in flight.
+  **The third executor and the day's best catch (sb3-creator
+  fcd77af).** BBCSDL's console edition (zlib) built locally and now
+  serves as the HOST oracle: generated numbered BASIC stored over
+  stdin, RUN, printed values compared to the referee — values only
+  (host time is wall time), hardware-gated (host pokes would hit the
+  interpreter's own memory). Its FIRST run caught two bugs at once:
+  the oracle script treated a refusing referee as passing (fixed —
+  refusal is a blocked comparison), and behind that, the referee had
+  NO custom-block support: Russell's interpreter printed the
+  procedure's result and took the right branch while the referee
+  skipped the call and took the wrong one. The referee now binds
+  parameters per frame (nested calls shadow); regression-locked.
+  Three executors print the same values: referee, BBC BASIC 4 on the
+  machine, BBCSDL on the host. CI: sb3-creator was red on ONE lint
+  error — fixed, green (run 31745330598); brickwright-lite and
+  emu8051 were already green (the bundle's EATER6502 wiring merged
+  with a passing build); bw-board/ucsim/bw-parts have no workflows.
+  The GUI BASIC tab + remaining CI + GH Pages/Vercel deploys are
+  delegated with a full spec (owner directive).
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
