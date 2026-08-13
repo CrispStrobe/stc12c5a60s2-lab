@@ -834,6 +834,25 @@ seams; nothing above them changes.
   paced entry, BeebEater's lesson by another mechanism). Next: the
   composable Z80 machine proper (serial console, interrupt delivery)
   and the app experience.
+  **Naming & licensing policy for the shipped interpreters
+  (adjudicated 2026-08-14, owner's question).** Two separate regimes:
+  zlib governs the CODE (ship/modify/fork freely; mark alterations;
+  keep notices), the BBC's trademark governs the NAME — Russell's
+  permission to call his work "BBC BASIC" does NOT transfer to forks.
+  BrickWright's rules: (1) ship his interpreters VERBATIM and keep
+  every adaptation in OUR layer (shims, machine, terminal — already
+  the architecture; PicoBB's SOUND=NONE is his own build option, not
+  a patch); (2) UI describes, never brands: "BASIC console — runs
+  BBC BASIC (Z80), © R.T. Russell, unmodified"; the tab is plain
+  "BASIC" with the dialect in the profile toggle; (3) if his source
+  is ever patched, mark it altered (zlib) AND rename it (trademark) —
+  avoid by design; (4) the same discipline for the MS port: MIT code,
+  but our ca65 derivation ships as basic-m6502-bw "derived from
+  Microsoft's MIT-licensed 6502 BASIC source", never as "Microsoft
+  BASIC" the product; (5) NOTICE/LICENSES entries in the shipping
+  repos carry the attributions — added to the deploy lane's
+  checklist. (Engineering policy reading, not legal advice; product
+  naming can get counsel before launch.)
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
