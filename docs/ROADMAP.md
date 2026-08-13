@@ -606,7 +606,19 @@ seams; nothing above them changes.
   with stronger adopted pieces; an unlicensed Java Ben-Eater emulator
   is research-tier only; a CBM emulator needs non-redistributable
   C64 ROMs — the flat-RAM twin-run approach avoids ROM entanglement
-  entirely. ehBASIC (NC license):
+  entirely.
+  **MILESTONE 2026-08-13 (part 5): the DECLARED machine works end to
+  end.** sb3-creator — MAP RAM/ROM ranges and CHIP <name> = W65C22/
+  W65C51 AT $addr parse (overlap, duplicate-kind and wrong-device
+  refusals), decompile, survive the @bw header, and rebuild through
+  the C reader; generateC moves the register bases with the declared
+  addresses and warns when a declared machine lacks the W65C22
+  timebase. The differential proves it: a machine with the VIA
+  renamed and moved to $7000 and the ACIA at $4400 AGREEs with the
+  referee through cc65 exactly like the Eater preset. Config source
+  #2 of 3 is real; the wired-breadboard extractor (#3) emits exactly
+  these lines, and the ld65 cfg generated from MAP ranges is the
+  remaining piece of full memory-shape freedom. ehBASIC (NC license):
   never vendored, never shipped — but "boots to the READY prompt over
   the ACIA" is a legitimate LOCAL validation milestone on the mike42
   preset, the retro tier's deepest whole-system smoke test, feasible
