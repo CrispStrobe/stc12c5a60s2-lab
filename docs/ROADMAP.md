@@ -424,6 +424,27 @@ seams; nothing above them changes.
   but the SoC peripheral layer would be ours to build from the TRM — a
   bw-board-scale project. Revisit when a permissive peripheral model
   appears. ESP8266: aging, LX106, nothing permissive — skip outright.
+* **The retro tier — adjudicated 2026-08-13, queued behind the AVR
+  widening.** The 6502 is the standout candidate in the whole field, and
+  it is permissive END TO END: llvm-mos (Apache 2.0 w/ LLVM exceptions,
+  actively maintained, strong codegen) or cc65 (zlib — small enough to
+  vendor outright) for C; MIT-licensed 6502 cores in JS/TS are abundant
+  and tiny. The BOARD story is the W65C02 + W65C22 VIA breadboard
+  computer (the Ben-Eater-class build): the VIA's two 8-bit ports are the
+  GPIO pins boundary A wants, its T1 timer is the millisecond tick the
+  scheduler wants, and the whole peripheral model is a ~200-line 65C22 we
+  write ourselves from a simple datasheet — no SoC, no bootloader, no
+  closed cores anywhere. Pedagogy nothing else offers: PURE memory-mapped
+  I/O on a bus you can see. And the bench session is the best of any
+  target: WDC still manufactures both chips NEW in DIP-40 — breadboard
+  silicon at 1 MHz with an EEPROM programmer, no SMD, no USB stack.
+  Second in the tier: the Z80 — SDCC on OUR OWN compile service already
+  targets it (the compile side is nearly free), permissive cores are
+  everywhere, and the RC2014 ecosystem is the same teaching energy; its
+  peripheral story (PIO/CTC) mirrors the VIA build. Third, the modern
+  counterpoint: CH32V003 (ten-cent RISC-V silicon, RV32EC is trivial to
+  emulate permissively, simple documented peripherals) — worth a
+  feasibility note when the tier opens.
 * **Deferred:** STM32 (Renode, MIT, covers it as a CI oracle; a browser
   runner could reuse rp2040js's MIT Cortex-M0 core with our own peripheral
   layer — possible, big, not scheduled), micro:bit (behavioral simulator,
