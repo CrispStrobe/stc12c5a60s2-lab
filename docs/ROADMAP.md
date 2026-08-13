@@ -626,7 +626,21 @@ seams; nothing above them changes.
   $FFFA). The differential AGREEs on three shapes including an 8K-RAM
   / 16K-ROM-at-$C000 machine with chips at $A000/$A400. What remains
   of the composable tier: the wired-breadboard extractor (source #3)
-  and the mike42 preset.
+  and the mike42 preset. **The extractor landed the same day
+  (bw-board 31e8a35): config source #3 is REAL.** The designer netlist
+  — real DIPs plus 74HC00 glue, wired by hand — has its decode solved
+  by evaluating every chip's select condition at all 65536 addresses
+  through the NAND network; out come the SAME MAP/CHIP lines the
+  grammar takes, and the canonical two-gate-package decode ran the
+  full differential (cc65 → machine → referee) and AGREED. Refusals
+  with addresses named: bus contention, open vectors, floating
+  selects, permuted address buses, shorts, non-contiguous windows;
+  mirrors and open-bus holes are notes. Wire the decode wrong and the
+  machine is wrong exactly as the bench would be — now demonstrably.
+  All three config sources are one. The fleet meanwhile wired
+  eater6502 into the app (bw-board e14d226: factory route, adapter,
+  debug target, board kind, 7 oracle tests). Remaining: the mike42
+  preset, and the designer-UI face for the wired flow.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
