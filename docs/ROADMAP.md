@@ -538,10 +538,31 @@ How the micro:bit/Calliope world ships programs, and what we adopt:
     the TL866/Arduino-programmer paths in the getting-started docs).
   - Tethering everywhere: resident firmware + WebSerial is our
     generalization of their model, without a helper app.
-* micro:bit/Calliope as TARGETS stay deferred (behavioral-sim fidelity
-  class; nRF52 emulation is Renode-as-CI-oracle only), but if ever added
-  they enter as upload+tether targets with the capability matrix saying
-  exactly that — no in-browser core, stated.
+* micro:bit — REASSESSED 2026-08-13, now a REAL candidate (owner found
+  the key): the Foundation's official V2 simulator is MIT — MicroPython
+  compiled to WASM with CODAL simulated in JS, full V2 board peripherals
+  (5x5 display, buttons A/B, accelerometer, light, microphone, touch
+  pins, radio), embeddable via iframe + postMessage (flash a script,
+  script sensor values, serial both ways). Our path is unusually short:
+  DEVICE MICROBIT already parses (core micropython, P0-P20 + buttons),
+  generatePython exists and needs a microbit FLAVOR (from microbit
+  import *; the cooperative multi-WHEN structure becomes a polled main
+  loop); the app embeds the sim in an iframe and drives it over
+  postMessage. Capability row, stated honestly: behavioral simulation
+  with on-board peripherals and serial - NO electrical bench (its pins
+  are not our MNA nets), NO boundary-D debugger (no position protocol
+  in MicroPython) - run + watch + print, which for this board is the
+  authentic experience. Real-hardware upload rides microbit-fs (MIT,
+  universal hex with the script appended) and WebUSB DAPLink - both
+  permissive, both browser-native. Self-hosting a pinned build is
+  MIT-clean; the Foundation asks to be told, so we tell them.
+  Additionally the nRF52840 model in the MIT engine below is
+  silicon-verified, so a REGISTER-level micro:bit-class path (CODAL
+  binaries under emulation) stops being unthinkable - behavioral first,
+  it ships this decade.
+  Calliope: NOT covered by the micro:bit sim (different board); its
+  MicroPython story could ride the same flavor later - separate
+  assessment when asked for.
 
 **Division of labour:** coordinator writes the two contract-bearing pieces
 (the avr8js boundary-A adapter and the debugger port); the fleet takes the
