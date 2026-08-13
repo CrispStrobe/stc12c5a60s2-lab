@@ -770,6 +770,24 @@ seams; nothing above them changes.
   with a passing build); bw-board/ucsim/bw-parts have no workflows.
   The GUI BASIC tab + remaining CI + GH Pages/Vercel deploys are
   delegated with a full spec (owner directive).
+  **PicoBB BOOTS (verified, ucsim-stc 6a33d2c): BBC BASIC on the
+  Pico tier.** The fleet booted Memotech-Bill's PicoBB (zlib) under
+  rp2040js to the banner and PRINT 2+2 — with three fixes that
+  improve the whole RP2040 stack: the real B1 bootrom must be staged
+  (PC otherwise slides through zeroed ROM), rp2040js's unimplemented
+  SIO reads return 0xFFFFFFFF which makes FIFO_ST.VLD stick and
+  multicore polls spin (stub: RDY=1/VLD=0), and PicoBB blocks on an
+  ANSI cursor-position probe (answer ESC[24;80R). Build with
+  SOUND=NONE: the SDL sound module launches core 1, which deadlocks
+  single-core emulation. The owed labwired validation rows landed in
+  the same handoff (nRF52840 deep/silicon-verified; ESP32-C3
+  reset-state only, needs a runtime differential before oracle use).
+  The corpus campaign also advanced quietly: layer-5 RP2040 sweep,
+  and simavr vs avr8js AGREE on the AVR self-timestamping
+  differential. Meanwhile the mike42 lane already shows an ehBASIC
+  'Ready' prompt computing sums, and the MS BASIC translation is
+  mid-flight. BBC BASIC now runs on BOTH tiers: the 1 MHz 6502
+  machine and the 125 MHz Pico.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
