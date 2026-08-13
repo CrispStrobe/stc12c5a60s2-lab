@@ -655,6 +655,36 @@ seams; nothing above them changes.
   real breadboard would (the briefed HD44780 part model will replace
   the port-B-low workaround); and post-CR keystrokes need pacing or
   BeebEater's line handling drops characters.
+  **Graphics without video hardware, proven 2026-08-14: the VDU
+  stream.** The owner asked about a BBC-Micro square-drawing tutorial;
+  its whole technique is the MOS OSWRCH byte protocol (MOVE/DRAW/PLOT
+  are layers over VDU 25 sequences). Our machine already speaks it:
+  BBC BASIC's own DRAW commands, typed at the BeebEater prompt, emit
+  the exact 6-byte PLOT sequences over the ACIA, and a 20-line decoder
+  recovered the closed square path. So the graphics lane for the whole
+  BBC family is a CLIENT-SIDE VDU TERMINAL (canvas interpreter for the
+  documented VDU codes) — no video-hardware emulation, and the same
+  pane renders BASIC programs and assembly tutorials alike. The
+  tutorial page itself is unlicensed (technique is fact, code stays
+  unread-for-implementation).
+  **Microsoft BASIC-M6502 is MIT — the SHIPPABLE BASIC (adjudicated
+  2026-08-14).** Microsoft's archival release of the 1976-78 BASIC 1.1
+  source (6,955 lines, conditional targets: Apple/PET/OSI/KIM) is MIT
+  — unlike the BBC BASIC 4 ROM (Acorn heritage, local-only) and
+  ehBASIC (NC). Port lane: adapt the source to ca65 with OUR OWN tiny
+  ACIA I/O shim → a BrickWright-buildable BASIC ROM that can be
+  VENDORED AND SHIPPED. The product options, in order of leverage:
+  (a) ship the MIT BASIC machine in the app — breadboard-wired 8-bit
+  BASIC computer with terminal pane, fully permissive end to end;
+  (b) the VDU terminal above, giving that machine (and BeebEater
+  locally) real graphics; (c) an assembly lane — editor card +
+  ca65/vasm on the compile service → ROM → machine → debugger, with
+  tutorials as guided examples; (d) a blocks→BASIC bridge: generate
+  BASIC from single-script block programs and TYPE it into the booted
+  interpreter over the ACIA — your blocks executing inside a 1977
+  interpreter (multi-WHEN refused honestly: BASIC is single-
+  threaded); (e) the BASIC interpreter as a twin-run CPU workload,
+  millions of real-code instructions of differential.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
