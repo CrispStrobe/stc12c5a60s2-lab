@@ -809,6 +809,20 @@ seams; nothing above them changes.
   pattern) so bbcbasic.com boots to its prompt over the ACIA-
   equivalent. Vector suite cloning; the core is the coordinator's
   next contract.
+  **DONE THE SAME DAY (bw-board 620b9c7): the Z80 core is
+  VECTOR-COMPLETE — 1,604/1,604 files, 1.6 MILLION vectors, zero
+  failures.** Scaffold to complete in one arc (180 → 252 → 508 → 588
+  → 1,604): main page with the precise MEMPTR rules, CB first-grind
+  green, ED including the interrupted-repeat flag rules DERIVED FROM
+  THE VECTORS and pre-validated 3,990/3,990 in a throwaway script
+  before touching the core, DD/FD substitution pages with the
+  undocumented index halves and the DDCB no-M1 sub-opcode, and one
+  last vector-established subtlety: a DD/FD prefix clears the Q
+  consideration for SCF/CCF. Two cores now stand vector-verified end
+  to end (W65C02 2.54M; Z80 1.6M). Interrupt delivery is the machine
+  layer's job, next — along with the CP/M console shim and
+  bbcbasic.com: Russell's own BBC BASIC, zlib and shippable, on our
+  second retro machine.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
