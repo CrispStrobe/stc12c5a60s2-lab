@@ -618,7 +618,29 @@ seams; nothing above them changes.
   referee through cc65 exactly like the Eater preset. Config source
   #2 of 3 is real; the wired-breadboard extractor (#3) emits exactly
   these lines, and the ld65 cfg generated from MAP ranges is the
-  remaining piece of full memory-shape freedom. ehBASIC (NC license):
+  remaining piece of full memory-shape freedom.
+  **The display leg, adjudicated 2026-08-14 (owner's third survey).**
+  Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
+  canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
+  data on PB0-PB7, i.e. a BOARD part wired to VIA pins through the
+  netlist, not a bus chip — one-board-one-truth already owns this
+  shape). bw-board has neopixel/bargraph and an I2C-backpack LCD but
+  no parallel HD44780: the model is written from the HD44780 datasheet
+  (4-bit and 8-bit modes, busy flag, DDRAM addressing), reusing the
+  I2C part's character logic; a cycle-level MIT JS emulator that
+  models the same LCD (diodesign) serves as cross-reference, never as
+  source. (2) THEN the TFT tier the owner wants (a 6502+TFT
+  breadboard project exists but is UNLICENSED): clean-room again —
+  the controller (ILI9341-class) is modeled from its public
+  datasheet, wiring facts may be read, the project's BIOS/game code
+  stays unread by implementing agents; the LED-cube precedent is the
+  procedure. Also from the survey: a fresh MIT modular C++ emulator
+  (Z80 + 6502/6507, headless CLI + Qt host) is NOTED as a candidate
+  Z80 twin-run peer for when the Z80 core starts — young (2 stars),
+  assess maturity at adoption time, not now. A 6502 wristwatch (no
+  license) is a curio; BBC/Electron sprite routines (AGPL) and two
+  unlicensed game/project repos join the LOCAL research corpus as
+  twin-run inputs, never redistributed. ehBASIC (NC license):
   never vendored, never shipped — but "boots to the READY prompt over
   the ACIA" is a legitimate LOCAL validation milestone on the mike42
   preset, the retro tier's deepest whole-system smoke test, feasible
