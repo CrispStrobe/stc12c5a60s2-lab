@@ -618,7 +618,15 @@ seams; nothing above them changes.
   referee through cc65 exactly like the Eater preset. Config source
   #2 of 3 is real; the wired-breadboard extractor (#3) emits exactly
   these lines, and the ld65 cfg generated from MAP ranges is the
-  remaining piece of full memory-shape freedom.
+  remaining piece of full memory-shape freedom. **DONE the next day:**
+  generate6502LinkerCfg(machine) emits the config from declared
+  regions (preset for null; preset output tested equal to the
+  checked-in eater.cfg numbers), with the 6502's own constraints as
+  refusal reasons (RAM at $0000 through $02FF minimum; ROM covering
+  $FFFA). The differential AGREEs on three shapes including an 8K-RAM
+  / 16K-ROM-at-$C000 machine with chips at $A000/$A400. What remains
+  of the composable tier: the wired-breadboard extractor (source #3)
+  and the mike42 preset.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
