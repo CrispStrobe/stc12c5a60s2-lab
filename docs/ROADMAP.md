@@ -823,6 +823,17 @@ seams; nothing above them changes.
   layer's job, next — along with the CP/M console shim and
   bbcbasic.com: Russell's own BBC BASIC, zlib and shippable, on our
   second retro machine.
+  **AND IT BOOTS, the same hour (bw-board): BBC BASIC (Z80) v5.00 —
+  "(C) Copyright R.T.Russell 2025" — on our vector-complete core over
+  a minimal CP/M BDOS shim.** Banner, PRINT 2+2 → the right-aligned
+  4, a stored FOR program RUNs: 55.9M cycles of real interpreter
+  code as the core's first whole-system workout. Zlib from
+  interpreter to core: the SHIPPABLE BBC BASIC the owner asked
+  about, on our own retro machine. Findings: BDOS returns must land
+  in A and L both; BASIC flushes type-ahead after Enter (prompt-
+  paced entry, BeebEater's lesson by another mechanism). Next: the
+  composable Z80 machine proper (serial console, interrupt delivery)
+  and the app experience.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
