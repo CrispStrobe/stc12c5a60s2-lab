@@ -592,7 +592,21 @@ seams; nothing above them changes.
   (lib6502/run6502 MIT, or py65 BSD), lockstep state comparison,
   instruction-capped so machine-specific busy-waits bound instead of
   hang; C64/NES-specific I/O reads open-bus identically on both sides.
-  That harness is the corpus lane's next build. ehBASIC (NC license):
+  That harness is the corpus lane's next build. That harness EXISTS the same day
+  (bw-board, twinrun-6502.mjs + a small C peer): our core vs vrEmu6502
+  — the MIT, W65C02-capable emulator library adopted from the owner's
+  second survey (it also powers an MIT homebrew machine whose display
+  chip library, a TMS9918A model, is noted for the tier's future video
+  peripheral). Both Dormann suites AGREE in lockstep over 52.6M
+  instructions including per-instruction cycle counts, under three
+  documented exemptions each adjudicated by the vector suite: the B/U
+  in-register convention, BBR/BBS taken cycles (vectors 6, peer 5),
+  and $5C (vectors 4, peer models the folklore 8). Rest of that
+  survey: a WTFPL python 6502 and the C#/TS/C emulators are redundant
+  with stronger adopted pieces; an unlicensed Java Ben-Eater emulator
+  is research-tier only; a CBM emulator needs non-redistributable
+  C64 ROMs — the flat-RAM twin-run approach avoids ROM entanglement
+  entirely. ehBASIC (NC license):
   never vendored, never shipped — but "boots to the READY prompt over
   the ACIA" is a legitimate LOCAL validation milestone on the mike42
   preset, the retro tier's deepest whole-system smoke test, feasible
