@@ -463,6 +463,26 @@ seams; nothing above them changes.
   counterpoint: CH32V003 (ten-cent RISC-V silicon, RV32EC is trivial to
   emulate permissively, simple documented peripherals) — worth a
   feasibility note when the tier opens.
+* **labwired-core — FOUND 2026-08-13, evaluation seeded.** An MIT, Rust,
+  in-repo simulation engine (no open-core split: the hosted playground
+  "runs the same models") covering Cortex-M0+/M3/M4/M7/M33, RISC-V and
+  Xtensa, with modeled boards including nRF52840/nRF54L15, STM32s,
+  RP2040 and ESP32-C3 paths — and, remarkably, OUR OWN fidelity
+  doctrine: a ledger classifying every model as Modeled / Smoke-tested /
+  Hardware-compared, with silicon-diff validation reports. Three
+  consequences, in order of certainty:
+  1. **RP2040 second executor** (immediate): an independent MIT
+     implementation for layer 5 of the oracle pyramid — run our compiled
+     Pico artifacts under its CLI, emit the canonical trace, diff against
+     rp2040js and the referee. Evaluation seeded to the oracle lane.
+  2. **nRF52-class reopens**: at minimum a CI oracle for micro:bit v2 /
+     Calliope-class boards; since the engine demonstrably compiles for
+     their browser playground, an in-browser nRF52 path stops being
+     unthinkable — pending a read of their per-board validation matrix.
+  3. **The ESP32 assessment softens at the edges**: their ESP32-C3
+     (RISC-V) path in an MIT engine may be the "permissive peripheral
+     model emerging" that our deferral said to watch for. Xtensa depth
+     unverified; the validation matrix decides, not the README.
 * **Deferred:** STM32 (Renode, MIT, covers it as a CI oracle; a browser
   runner could reuse rp2040js's MIT Cortex-M0 core with our own peripheral
   layer — possible, big, not scheduled), micro:bit (behavioral simulator,
