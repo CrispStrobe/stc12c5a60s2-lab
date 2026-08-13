@@ -853,6 +853,20 @@ seams; nothing above them changes.
   repos carry the attributions — added to the deploy lane's
   checklist. (Engineering policy reading, not legal advice; product
   naming can get counsel before launch.)
+  **MICROSOFT BASIC V1.1 IS ALIVE ON THE 6502 MACHINE (verified
+  2026-08-14): the fully shippable 6502 BASIC.** The fleet's ca65
+  port (basic-m6502-bw — named per the trademark policy, THIRD-PARTY
+  attribution in place) boots on M6502Machine to the 1978 dialogue:
+  MEMORY SIZE? / WIDTH? / 15871 BYTES FREE / OK — answers PRINT 2+2
+  and runs stored programs, all six smoke checks green, verified by
+  the coordinator locally. The interpreter roster is now complete
+  across the stack: 6502 = Acorn BBC BASIC (local-only) + Microsoft
+  BASIC 1.1 (MIT, SHIPPABLE); Z80 = Russell BBC BASIC (zlib,
+  shippable); Pico = PicoBB (zlib, shippable); host oracle = BBCSDL.
+  Meanwhile the full-Scratch-surface translator carries acceptance
+  tests for say/ask/operators/pen/motion/multi-WHEN/stop with named
+  degradations, and the licensing labels are being applied to the
+  deploy lane.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
