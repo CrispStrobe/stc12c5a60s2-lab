@@ -641,6 +641,20 @@ seams; nothing above them changes.
   eater6502 into the app (bw-board e14d226: factory route, adapter,
   debug target, board kind, 7 oracle tests). Remaining: the mike42
   preset, and the designer-UI face for the wired flow.
+  **MILESTONE 2026-08-14: BBC BASIC IS ALIVE ON THE MACHINE.** The
+  owner pointed at BeebEater (MIT) — a BBC BASIC port targeting
+  byte-for-byte the EATER6502 preset — and it boots on our machine to
+  its banner, answers PRINT 2+2 with the BBC's right-aligned 4, and
+  stores and RUNs a FOR loop typed over the ACIA
+  (bw-board 6978656, scripts/beebeater-smoke.mjs; the BBC BASIC 4 ROM
+  is Acorn heritage — run locally, never vendored, the ehBASIC rule).
+  Real software, written for real silicon, indifferent to which it is
+  on: the strongest whole-system evidence the tier can produce short
+  of the bench. Two honest findings: without an LCD the boot hangs
+  polling the HD44780 busy flag on a floating PB7 — exactly as the
+  real breadboard would (the briefed HD44780 part model will replace
+  the port-B-low workaround); and post-CR keystrokes need pacing or
+  BeebEater's line handling drops characters.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
