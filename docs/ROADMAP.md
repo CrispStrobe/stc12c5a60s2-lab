@@ -503,9 +503,22 @@ seams; nothing above them changes.
   matrix, BRK/IRQ/NMI clearing D — all vector-verified. Two facts the
   suite settled against folklore: 0x5C is 3-byte/4-cycle, and WAI/STP
   ship as empty vector files (covered behaviorally in the repo tests).
-  Next: the W65C22 VIA (T1/T2, ports, IFR — bw_now hangs off T1
-  rollover), the W65C51 ACIA, then the machine model with the three
-  config sources above.
+  **MILESTONE 2026-08-13 (same day): the MACHINE exists.** bw-board
+  d189244 — W65C22 (T1 free-run LATCH+2 per datasheet fig 2-4, T2
+  pulse-count IFR on reaching zero per fig 2-5, IFR/IER, DDR-masked
+  ports, CA/CB edges; SR storage-only by scope), W65C51 (datasheet
+  TDRE, real-silicon TDRE bug documented — generated C will pace TX by
+  delay, correct on both), and M6502Machine: a machine is a CONFIG
+  {clockHz, regions, chips}; EATER6502 is preset #1; overlapping
+  decode refuses loudly; shared level-triggered IRQB; pin edges
+  surface as {tMs, via1.PA0, level} — the canonical trace shape.
+  Verified: hand-assembled ROM blinks PA0 on the exact 1 ms T1 grid,
+  serial prints through the ACIA, a T1 interrupt wakes WAI through
+  IRQB. Found on the way: Symon's 6522 is an unimplemented stub —
+  Symon stays a CPU/machine referee, the W65C22 datasheet is the
+  peripheral authority. Next: generateC '6502' core in sb3-creator
+  (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
+  bus extractor over the designer netlist.
   **Ecosystem triage 2026-08-13 (owner's survey of 13 more
   implementations):** none displaces the own-core-plus-vector-suite
   plan, two join the stack: run6502/lib6502 (MIT, headless C CLI) as a
