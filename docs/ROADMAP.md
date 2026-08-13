@@ -558,7 +558,20 @@ seams; nothing above them changes.
   needs, and its MCU-drives-the-bus pattern INVERTED (a real W65C22
   on a scripted bus) is the design for the silicon oracle rig — the
   retro tier's version of the campaign's hw-oracle suites, and the T2
-  question above is its first test case. Found on the way: Symon's 6522 is an unimplemented stub —
+  question above is its first test case.
+  **MILESTONE 2026-08-13 (part 4): the 6502 chain is CLOSED under
+  emulation.** sb3-creator 3c538c3 — blocks → generateC → cc65 → 32 KB
+  ROM → M6502Machine → canonical trace, AGREE against the referee on a
+  three-task program with mid-run button stimulus and paced serial.
+  The compile target lives in reference/6502-target/ (cc65 -t none
+  --cpu 65C02 + our cfg/crt0 + none.lib; the compile service adopts it
+  verbatim when the 6502 lane opens); scripts/diff-6502.mjs is the
+  runnable differential. Compilation caught two emitter bugs tests
+  could not: 8051 SFRs leaked into the 6502 scheduler tail, and cc65
+  -O DISCARDS (void)-cast volatile reads — the T1 harvest now stores
+  through a volatile sink. compareTraces gained per-device physics
+  budgets (driftPerSecMs, startupMs) for slow machines; order and
+  levels stay exact. All six device axes now have a closed chain. Found on the way: Symon's 6522 is an unimplemented stub —
   Symon stays a CPU/machine referee, the W65C22 datasheet is the
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
