@@ -494,6 +494,18 @@ seams; nothing above them changes.
      the way the real breadboard would be. Execution still runs inside
      the emulator at instruction speed (the bus-inside rule stands);
      the wiring is the CONFIG source, not the simulation substrate.
+  **MILESTONE 2026-08-13: the core EXISTS and passes everything.**
+  bw-board 12edbd6 — our own W65C02 (dependency-free, bus-agnostic,
+  instruction-stepped), 2,540,000/2,540,000 vectors across all 254
+  testable opcodes of the WDC suite, ground by scripts/grind-w65c02.mjs
+  (the 1.1 GB suite stays out-of-repo; clone recipe in the script).
+  Decimal ALU, page-cross timing, the WDC bit ops, the undefined-NOP
+  matrix, BRK/IRQ/NMI clearing D — all vector-verified. Two facts the
+  suite settled against folklore: 0x5C is 3-byte/4-cycle, and WAI/STP
+  ship as empty vector files (covered behaviorally in the repo tests).
+  Next: the W65C22 VIA (T1/T2, ports, IFR — bw_now hangs off T1
+  rollover), the W65C51 ACIA, then the machine model with the three
+  config sources above.
   **Ecosystem triage 2026-08-13 (owner's survey of 13 more
   implementations):** none displaces the own-core-plus-vector-suite
   plan, two join the stack: run6502/lib6502 (MIT, headless C CLI) as a
