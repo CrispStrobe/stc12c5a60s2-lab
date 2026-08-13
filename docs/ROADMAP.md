@@ -424,8 +424,26 @@ seams; nothing above them changes.
   but the SoC peripheral layer would be ours to build from the TRM — a
   bw-board-scale project. Revisit when a permissive peripheral model
   appears. ESP8266: aging, LX106, nothing permissive — skip outright.
-* **The retro tier — adjudicated 2026-08-13, queued behind the AVR
-  widening.** The 6502 is the standout candidate in the whole field, and
+* **The retro tier — ACCEPTED 2026-08-13 (owner), all three chips on the
+  roadmap, queued behind the AVR widening.** Architecture decision for
+  the 6502 breadboard computer, settled now so nobody re-litigates it
+  when the tier opens: **the bus stays inside the emulator.** The real
+  build (W65C02S + W65C22 VIA + 28C256 EEPROM + 62256 SRAM + 74HC00
+  address glue + 1 MHz can oscillator + HD44780 LCD) is simulated as a
+  COMPUTER, not as a netlist: CPU, memory map and address decoding run
+  internally at instruction speed the way emu8051/avr8js do — an MNA
+  solve per bus cycle at 1 MHz would be both infeasible and pointless.
+  Only the VIA's PA/PB pins surface to the electrical bench through
+  boundary A, and in the canonical build the LCD hangs off those very
+  ports (PB0–7 data, PA5–7 control) — so the LCD is a BENCH PART. We
+  already own the HD44780 state machine (char_lcd_i2c decodes one
+  behind a PCF8574 backpack); a parallel-mode variant reuses it. The
+  EEPROM, SRAM and decoder are the memory map, never electrical parts.
+  A "bus inspector" (logic-analyzer view of A0–15/D0–7 with the decode
+  boundaries drawn) is a TEACHING feature for later, not simulation
+  plumbing. The Eater build's single-step clock button is our debug
+  target's insn step — we get his best demo for free, with position
+  reporting on top.** The 6502 is the standout candidate in the whole field, and
   it is permissive END TO END: llvm-mos (Apache 2.0 w/ LLVM exceptions,
   actively maintained, strong codegen) or cc65 (zlib — small enough to
   vendor outright) for C; MIT-licensed 6502 cores in JS/TS are abundant
@@ -472,6 +490,38 @@ device lists are COMPUTED from dry-runs and test-enforced). Remaining in
 flight: the app's "switch device" affordance, the pull-down PinMode
 (mna-gated), the simavr differential oracle — and the bench session that
 puts the first chain on real silicon.
+
+**Upload & tethering (the bench era's other half) — surveyed 2026-08-13.**
+How the micro:bit/Calliope world ships programs, and what we adopt:
+
+* The micro:bit's editors compile IN THE BROWSER (a typed-blocks language
+  compiled to native ARM against a precompiled MIT runtime blob — CODAL),
+  emit a universal .hex, and upload three ways: (a) drag-drop onto the
+  DAPLink mass-storage drive — the friendliest flash path ever shipped;
+  (b) WebUSB CMSIS-DAP direct flashing from the editor, with PARTIAL
+  flashing (only the changed program region) for speed; (c) BLE partial
+  flashing. Direct control runs through a resident firmware exposing
+  sensors/actuators over BLE/serial to the browser — the same
+  architecture as our stc12live tethered mode.
+* The Calliope mini is the same DAPLink lineage; the Fraunhofer block
+  environment compiles SERVER-SIDE (their NEPO blocks → C++ → .hex, our
+  own hosted-compiler pattern), then drag-drop or a small watcher app
+  copies the hex; the mini 3 added one-click WebUSB.
+* What we adopt, per device, when the bench era opens:
+  - Pico: UF2 mass-storage drag-drop (the service grows elf2uf2 output —
+    the format IS the friendliness) + WebSerial picotool later.
+  - AVR Nano/Uno: WebSerial STK500v1 in the browser — permissive JS
+    implementations exist; no native helper needed.
+  - STC12/15: a WebSerial port of the stcgal protocol (the cold-boot
+    handshake is the only hard part, and we know that protocol cold).
+  - 6502: an EEPROM programmer story (out-of-browser initially; document
+    the TL866/Arduino-programmer paths in the getting-started docs).
+  - Tethering everywhere: resident firmware + WebSerial is our
+    generalization of their model, without a helper app.
+* micro:bit/Calliope as TARGETS stay deferred (behavioral-sim fidelity
+  class; nRF52 emulation is Renode-as-CI-oracle only), but if ever added
+  they enter as upload+tether targets with the capability matrix saying
+  exactly that — no in-browser core, stated.
 
 **Division of labour:** coordinator writes the two contract-bearing pieces
 (the avr8js boundary-A adapter and the debugger port); the fleet takes the
