@@ -720,7 +720,23 @@ seams; nothing above them changes.
   differential. caterpillar-assembler (a 1983 type-in rewritten in
   6502 asm) checked: MIT — PUBLISHABLE corpus, not just research.
   Next in the lane: basicToPseudocode (PROC and FN both, per the
-  owner's chapter-16/17 directive).
+  owner's chapter-16/17 directive). **DONE the same day (sb3-creator
+  6f51cb8): both directions exist and close.** The reader takes
+  numbered or structured BASIC; maps assignments, PRINT, FOR/NEXT,
+  REPEAT/UNTIL (BBC's post-check kept honestly — first pass
+  duplicated ahead of a pre-check loop, with the comment saying why),
+  WHILE/ENDWHILE, IF forms, DEF PROC with parameters, and single-line
+  DEF FN by macro-expansion at call sites; NAMES everything else as a
+  `# BASIC:` comment plus warning. Round trip: structured emit → read
+  → emit is BYTE-IDENTICAL. En route the emitter's own repeat_until
+  was found POST-check where Scratch's contract is pre-check — fixed
+  (WHILE NOT structured, guarded GOTO numbered). Corpus: the CC0
+  examples repo is the fixture set (three programs vendored with
+  attribution; the full 35-file corpus reads at 64% of ~2000
+  statements, rest named — the gaps are graphics/CASE/DIM, i.e. the
+  VDU-terminal and arrays lanes). Two unlicensed example repos and
+  the chibiakumas sources joined the LOCAL research corpus with
+  provenance notes.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
