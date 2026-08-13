@@ -788,6 +788,27 @@ seams; nothing above them changes.
   'Ready' prompt computing sums, and the MS BASIC translation is
   mid-flight. BBC BASIC now runs on BOTH tiers: the 1 MHz 6502
   machine and the 125 MHz Pico.
+  **Russell-on-6502, adjudicated honestly (owner's question,
+  2026-08-14): NO — and the reason starts the Z80 tier.** Russell
+  never wrote a 6502 BBC BASIC: his lineage is Z80 assembly, x86,
+  and the portable C interpreter (PicoBB is that C interpreter — so
+  the Pico boot already IS Russell's BBC BASIC on our stack). On the
+  6502, BBC BASIC means Acorn's ROM: running today via BeebEater,
+  local-only forever. The C interpreter cannot fit a 64K 6502 and a
+  hand-port of 16K of Z80 assembly is months of expert work — so the
+  shippable-BASIC slot on the 6502 stays with the MS BASIC port (in
+  flight), and the shippable BBC BASIC slot on a RETRO machine is
+  the Z80 TIER, where BBCZ80/next-bbc-basic (zlib) run natively.
+  Provisioning verified: SingleStepTests/z80 is MIT (the same
+  vector-suite lineage, undocumented flags included) and BBCZ80
+  ships prebuilt CP/M binaries beside its zlib source. The plan is
+  the 6502 playbook verbatim: own Z80 core ground against the
+  vectors, twin-run peer (the MIT multi-arch C++ emulator noted
+  earlier gets its maturity look now), composable machine, and a
+  minimal CP/M console shim (BDOS at $0005 — BeebEater's mini-MOS
+  pattern) so bbcbasic.com boots to its prompt over the ACIA-
+  equivalent. Vector suite cloning; the core is the coordinator's
+  next contract.
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
