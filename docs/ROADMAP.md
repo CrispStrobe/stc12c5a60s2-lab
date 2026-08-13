@@ -704,6 +704,23 @@ seams; nothing above them changes.
   The coordinator's next contract: generateBASIC (bbc + ms profiles,
   single-script programs, honest multi-WHEN refusal) and
   basicToPseudocode — the AST bridge the owner named.
+  **generateBASIC SHIPPED the same day (sb3-creator fedf31f) — and it
+  runs TRUE inside the interpreter.** Blocks → line-numbered BASIC,
+  typed live into BBC BASIC on the 6502 machine: prints 1,2,3,99 and
+  blinks PA0 at 500 ms ±2 through a DEF PROC call with a parameter
+  (the chapter-16 contract; DEF FN is the reader's obligation, stated
+  in the contract). Profiles: bbc (TIME waits, EOR toggles, ?& VIA
+  pokes from the machine config) and ms (POKE/PEEK, GOTO loops,
+  two-significant-char names with a REM legend, delay-calibration
+  constant). Empirical toolchain fact that shaped naming: BeebEater
+  UPPERCASES serial input and BBC's conditional tokenizer eats exact
+  keyword matches — count= broke as COUNT=, COUNTX ran fine — so
+  names collide against the full keyword set case-blind, measured on
+  the live machine. scripts/diff-basic.mjs is the standing live
+  differential. caterpillar-assembler (a 1983 type-in rewritten in
+  6502 asm) checked: MIT — PUBLISHABLE corpus, not just research.
+  Next in the lane: basicToPseudocode (PROC and FN both, per the
+  owner's chapter-16/17 directive).
   **The display leg, adjudicated 2026-08-14 (owner's third survey).**
   Order of battle: (1) the HD44780 CHARACTER LCD first — it is the
   canonical breadboard build's own hello-world (RS/RW/E on PA5-PA7,
