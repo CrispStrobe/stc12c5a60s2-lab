@@ -1215,6 +1215,23 @@ seams; nothing above them changes.
   wants DS1302 + DS18B20 + 7-seg scan first. All clean-room from
   datasheets, golden-tested against expectations, cross-checked only
   if a golden disagrees — the owner's stated procedure.**
+* **treideme/stc89c52-demos — the APACHE-LICENSED 8051 board corpus
+  (owner's find, 2026-08-14).** Apache-2.0 with NOTICE, per-file
+  headers, SDCC + meson, targeting the HC6800-ES learning board (same
+  class as the PRECHIN A2; the repo carries the HC6800-ES schematic
+  PDF — wiring facts freely extractable; the PDF itself is the board
+  vendor's, do not redistribute). Sixteen demos that map ONE-TO-ONE
+  onto today's device models: DS18B20 on P3.7 (1-Wire, SKIP ROM +
+  CONVERT + READ SCRATCHPAD), AT24C02 on P2.0/P2.1 (bit-banged I2C),
+  HD44780, ST7920 text AND graphics (the LCD12864 tier-3 reference
+  firmware, permissive!), 74HC595, LED matrix, dynamic 7-seg with
+  digit select on P2.2-P2.4, buttons on P3.2/P3.3, IR. THE CROSS-CHECK
+  THE PROCEDURE CALLS FOR: build these with SDCC (our own toolchain),
+  run them on the STC89 emulation with the new devices wired per the
+  schematic, and the goldens meet real third-party firmware —
+  shippable as examples with attribution. Also seeds an HC6800-ES
+  board preset with an exact schematic-grade port map. Fleet lane
+  briefed to bw-board (RIOT lane complete).**
 * **Serial-telemetry survey, 2026-08-14 (owner's pointer; product is a
   dual-licensed GPL/commercial dashboard tool — name and details in
   stc-research/serial-dashboard-survey.md, LOCAL, per the naming
