@@ -1149,6 +1149,46 @@ seams; nothing above them changes.
   not parts: address/data LED banks, the clock-source selector.
   Lineage note: 6507SBC continues as Nielsen's 65uino — same
   architecture on a PCB, assess when the tier lands.**
+* **The module armada + the PRECHIN A2 dev board, triaged 2026-08-14
+  (owner's parts list + board photo + compliance PDF).** The PDF is
+  CE-paperwork only — no schematic — so the board is modeled from its
+  physical facts, which is all we need and all we may use (vendor code
+  and schematics stay research-corpus). THE BOARD: PRECHIN 普中51 A2, an
+  STC89C52/STC12C5A60S2 ZIF learning board — 8-digit scanned 7-seg,
+  8 LEDs, 4x4 matrix + 4 keys, buzzer, DS1302, DS18B20, IR, pot/ADC,
+  LCD1602 + LCD12864 headers, NRF24L01 header, USB-TTL. It becomes the
+  FLAGSHIP BOARD PRESET of the original 8051 lane — the chip we started
+  with, on the board people actually buy — and nearly all its parts
+  exist or sit in the tiers below.
+  TIER 0, ALREADY REGISTERED (verified against the device registry):
+  HC-SR04 (ultrasonic), WS2812 (neopixel), LCD1602 (hd44780 +
+  char_lcd_i2c), 4x4 keypad, LM7805, AMS1117-class (ld1117v33),
+  generic h-bridge, IR pair, 74HC595 (shift_register), stepper, servo,
+  PCF8574. TIER 1, PARAMETER/PINOUT VARIANTS: LM7809/LM7812, AMS1117-5,
+  LCD2004 (same HD44780, 20x4), TB6612FNG and L9110/HG7881 as
+  part-accurate faces over the h-bridge core. TIER 2, EASY + HIGH
+  VALUE: KY-040 rotary encoder (quadrature + detents + push — the
+  missing human-input dial), SN74HC165 (PISO, completes the '595
+  pair), CD74HC4067 16-ch mux, DS1302 (3-wire RTC), DS18B20 (1-Wire),
+  HX711 (load-cell ADC, 2-wire clocked), MCP3008 (SPI ADC — the bridge
+  from MNA-analog to SPI MCUs), HC-05/HC-06 (behaviorally a UART
+  bridge peer + a small AT subset — pairs with the tethering story),
+  TCS230/TCS3200/GY-31 (light-to-frequency square wave), and the level
+  shifters (8-ch MOSFET + BSS138 I2C module) — near-trivial to model,
+  PEDAGOGICALLY LOAD-BEARING: they make 3.3V/5V mixing a designer DRC
+  lesson instead of a silent assumption. TIER 3, MEDIUM: LCD12864
+  (ST7920), SSD1306 OLED, GY-521/MPU-6050 (I2C register model +
+  scripted motion stimulus), TCS34725/GY-33 (I2C color), NRF24L01
+  (SPI register model + a VIRTUAL AIR CHANNEL — two simulated boards
+  talking is the payoff and nobody else's simulator does it), PS/2
+  (coordinator coding now — the Vectron/KiT capture chain). TIER 4,
+  PARKED AS THE AUDIO LEG: INMP441, ICS-43434, PCM1802 — I2S needs
+  infrastructure only the Pico's PIO emulation could honestly carry;
+  one design note, no models, until that lane opens. Tiers 1-2 are a
+  natural bw-parts follow-on after the retro DIPs; the A2 board preset
+  wants DS1302 + DS18B20 + 7-seg scan first. All clean-room from
+  datasheets, golden-tested against expectations, cross-checked only
+  if a golden disagrees — the owner's stated procedure.**
 * **labwired-core — FOUND 2026-08-13, evaluation seeded.** An MIT, Rust,
   in-repo simulation engine (no open-core split: the hosted playground
   "runs the same models") covering Cortex-M0+/M3/M4/M7/M33, RISC-V and
