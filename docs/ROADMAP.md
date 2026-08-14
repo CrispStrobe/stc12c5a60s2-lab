@@ -1232,24 +1232,15 @@ seams; nothing above them changes.
   shippable as examples with attribution. Also seeds an HC6800-ES
   board preset with an exact schematic-grade port map. Fleet lane
   briefed to bw-board (RIOT lane complete).**
-* **Serial-telemetry survey, 2026-08-14 (owner's pointer; product is a
-  dual-licensed GPL/commercial dashboard tool — name and details in
-  stc-research/serial-dashboard-survey.md, LOCAL, per the naming
-  policy; ideas only, nothing vendored, name in no outgoing file).**
-  Three takes: (1) A LIVE TELEMETRY PANEL — the instruments panel's
-  scope widgets fed from the TETHERED serial stream instead of the
-  simulator; the dialect's print output carries a trivial
-  one-line frame convention we define ourselves (we control both
-  ends, so no generic parser IDE is needed — that is their complexity,
-  not ours). (2) CSV export of scope/timeline/instrument traces —
-  small, generic, high value. (3) A CONCRETE TETHERING TRAP from
-  their own closed-unresolved issue tracker: their disconnect
-  power-glitches the PRECHIN A2's CH340C (LED flash + buzzer, as if
-  power-cycled) while stc-isp and simple tools behave — DTR/RTS
-  handling on open/close. Our stc12live/live-monitor.py must open
-  ports without toggling DTR/RTS, restore line state on close, and
-  the tethered-mode docs must name the CH340C trap; verify on the A2
-  at the next bench session.**
+* **Telemetry TO-DOs (2026-08-14; background in
+  stc-research/serial-dashboard-survey.md, LOCAL):** (1) live
+  telemetry panel — feed the instruments-panel scope widgets from the
+  tethered serial stream; the dialect's print output carries a fixed
+  one-line frame convention of our own. (2) CSV export of
+  scope/timeline/instrument traces. (3) serial ports open WITHOUT
+  toggling DTR/RTS and restore line state on close (CH340C boards
+  power-glitch otherwise; live-monitor.py fixed 4ec9849, stc12live
+  driver must match; verify on the A2 at the next bench session).**
 * **labwired-core — FOUND 2026-08-13, evaluation seeded.** An MIT, Rust,
   in-repo simulation engine (no open-core split: the hosted playground
   "runs the same models") covering Cortex-M0+/M3/M4/M7/M33, RISC-V and
