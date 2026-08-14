@@ -1247,6 +1247,21 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **Controller panel — DESIGNED 2026-08-14 (owner's Mindstorms-app
+  reference), lane briefed to bw-blocks.** A composable input surface:
+  place named widgets — joystick (x/y -100..100), D-pad, momentary/
+  toggle buttons, sliders (range), dial — in an edit mode, use them in
+  a play mode; persisted with the project. EVERY WIDGET BINDS TWO
+  WAYS: (1) PROGRAM-FACING, the Mindstorms mode — a Controller palette
+  extension (reporters controller [joy1] x, hats when [btnA] pressed)
+  plus the same names in generated Py/JS via RUNTIME_EXTENSIONS;
+  (2) WORLD-FACING — bound to a PART PARAMETER (slider → pot position
+  or DHT11 temperature, joystick widget → joystick part x/y, button →
+  keypad key), which works for EVERY target including compiled C on
+  the emulated MCU, because firmware reads real simulated hardware.
+  The panel is a stage-view mode beside circuit/debugger; widget
+  values flow through board.setControl — the interactive face of the
+  environment-stimulus blocks.**
 * **Hardware steering per language — SETTLED 2026-08-14 (owner's
   question): no interpreter is ever forked.** Three mechanisms by
   target class: (1) COMPILED targets (C on 8051/AVR/6502/Pico):
