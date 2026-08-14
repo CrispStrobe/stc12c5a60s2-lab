@@ -887,7 +887,26 @@ seams; nothing above them changes.
   standard emulator practice. RECOMMENDED: (c) as the built default,
   (b) as an owner-flippable option later. The BYOR slot is app-lane
   work (goes to the fleet with the VDU/terminal wiring).
-  ****Blinkenrocket, adjudicated 2026-08-14 (owner's question): YES,
+  ****The assembler lane, designed 2026-08-14 (owner's question).**
+  Key fact: every target's assembler is ALREADY in the compile
+  service (sdas8051 + sdasz80 ship inside sdcc; GNU as inside
+  avr-gcc / arm-none-eabi; ca65 is the 6502 chain) — this lane is
+  wiring, not toolchain work. Rungs: R1 read-only Assembly tab
+  showing the toolchain's asm of the generated C (one -S flag,
+  source-interleaved listing — the missing rung between the C tab
+  and the debugger); R2 the asm INPUT editor — assemble via the
+  service, load the raw binary onto the machines we already boot
+  (every smoke this week used exactly that loader path), serial and
+  pins out; R3 the asm debugger — .lst PC↔line mapping into the
+  existing debug-target factory, registers + stepping the cores
+  already expose; R4 inline ASM: blocks in the dialect lowering to
+  each C emitter's native inline assembly (sdcc __asm / gcc asm
+  volatile / cc65 asm()) — the replace-one-block teaching bridge;
+  R5 BeebAsm dialect compatibility (GPL-3, service-side) and the
+  harvested asm corpora as loadable examples with the twin-run
+  harnesses as oracle. R1+R2 are fleet-sized; R3 rides the debugger
+  contract; R4 touches the emitters (coordinator).
+  **Blinkenrocket, adjudicated 2026-08-14 (owner's question): YES,
   and it is a gem.** The congress badge — ATtiny88 @ 8 MHz, 8×8 LED
   matrix, two buttons, animations loaded through the AUDIO JACK by a
   Hamming-FEC modem, stored in EEPROM. The firmware (the owner's
