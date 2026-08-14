@@ -1362,6 +1362,25 @@ seams; nothing above them changes.
   MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
   inductive proximity as a param switch, CH340G as the tethering
   story it already is. Kit PDF/instructables text: research-only.**
+* **Calliope adjudication (owner's pxt-calliope pointer, 2026-08-14).**
+  microsoft/pxt-calliope is MIT with a sim/ folder — but that sim is a
+  MakeCode-framework citizen: state machines + visuals bound through
+  dalboard.ts to the pxtsim RUNTIME, which executes MakeCode's
+  compiled TS, not MicroPython. ADOPTING THE RUNTIME IS REJECTED — we
+  emit Python, and pulling in the MakeCode compile stack buys nothing.
+  WHAT WE TAKE (MIT permits, with attribution): (1) the visuals/ BOARD
+  ARTWORK as the Calliope face; (2) state/ peripheral behaviors as
+  reference (gesture thresholds, RGB handling — legally copyable,
+  practically read-and-adapt since they are pxtsim-coupled); (3) the
+  pin-map/config tables as facts. THE TARGET PATH: Calliope mini 3 is
+  nRF52833 — the SAME chip class as micro:bit V2 — and runs
+  MicroPython with the microbit module plus Calliope extras, so the
+  ENTIRE micro:bit lane (generateMicroPython, the WASM sim, the
+  flash/serial bridge) carries over with a stated delta: RGB LED,
+  speaker/touch differences, and mini 1/2's motor driver are Calliope
+  extras the official micro:bit sim will not render — the pxt-calliope
+  artwork + our own state rendering covers the gap when the lane
+  opens. Sequencing: AFTER the micro:bit app wiring lands.**
 * **micro:bit lane — SPIKED 2026-08-14, brief ready for the next free
   session.** The official V2 simulator re-verified: MIT (SPDX headers),
   WASM MicroPython with the full board (5x5 display, buttons, touch
