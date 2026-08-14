@@ -1078,6 +1078,77 @@ seams; nothing above them changes.
   counterpoint: CH32V003 (ten-cent RISC-V silicon, RV32EC is trivial to
   emulate permissively, simple documented peripherals) — worth a
   feasibility note when the tier opens.
+* **The 6502 breadboard-scene survey, adjudicated 2026-08-14 (owner's
+  sixteen-source round: awsh, Cornell KiT, skrasser, Wilson primer,
+  cool-web.de, two hackaday builds, Booth's blogmywiki series, Hamann,
+  Vectron 64, sixty5o2, the single-breadboard Reddit build).** Four
+  research agents read everything including repo LICENSE files. THE
+  LICENSE LANDSCAPE IS NEAR-UNIFORM: one shippable item in sixteen
+  sources. **sixty5o2 (Jan Roesner, MIT, clean) SHIPS VERBATIM** — a
+  1.5 KB bootloader/monitor for exactly the EATER6502 shape (VIA $6000,
+  LCD 8-bit on port B, user programs at $0200, upload = Arduino drives
+  PORTB + pulses /IRQ 30 µs/byte, VIA interrupts off — the IRQ is a
+  bare wire). It becomes the EATER6502 preset's payload ROM, the
+  tethered-upload reference, and a 1.5 KB IRQ/LCD-timing compat test.
+  Everything else: no license (KiT, Vectron, Booth, awsh, 8bitflynn,
+  Wilson, 6502Nerd's breadboard ROM), CC BY-NC (Nielsen's 6507SBC —
+  blocks files, not facts), or expressly forbidden (cool-web.de's
+  Impressum). Research-only; memory maps and decode equations are
+  uncopyrightable facts we encode freely. dflat's Oric branch is MIT —
+  the language could port to our machines someday; the kit-emu Java
+  emulator is an unlicensed read-and-compare oracle.
+  **MACHINE VERDICTS:** five of the sources ARE EATER6502 (awsh,
+  8bitflynn, Hamann, Booth's base machine, sixty5o2's host) — the
+  preset is confirmed as the community's canonical shape, no action.
+  Wilson's primer is EATER'S ANCESTOR (Eater credits it): a WILSON6502
+  preset is a rename-plus-extras (74HC132 decode, multi-VIA/ACIA
+  expansion at $5000/$4800/$4400..., anti-555 clock doctrine, RAM CS
+  qualified by Φ2); his alternate config ≈ HB6502 — zero new parts,
+  cheap win. KIT1 (Cornell Tomlinson) is the third preset: RAM
+  $0000-$6FFF, VIA $7800, 16C550 UART $7820 (chosen over the 6551 for
+  the ACIA transmit bug — the one new high-reuse part), ROM
+  $8000-$FFFF, 1 MHz; its dual-port VRAM + MC6847 video and PS/2
+  shift-register chain are parked big-ticket. **THE GEM: Nielsen's
+  6507SBC** — four ICs (R6507, 6532 RIOT at $0080, W27C512, one 74HC04
+  gate: A12 = the ENTIRE decode), the ideal stage-0.5 machine between
+  free-run and EATER6502. Needs the 6532 RIOT model (128 B RAM, two
+  ports+DDRs, ÷1/8/64/1024 timer, PA7 edge detect) and a 6507 mask on
+  the core (A13-A15 amputated, no IRQ/NMI pins, NMOS opcode surface);
+  clean-room from schematic facts. Vectron 64 (research-only) is the
+  "I/O without an I/O chip" curriculum: LCD-on-databus with
+  address-strobe E, PS/2 via 595/161/244 capture chain, 74HCT688
+  full-address decode. 6502Nerd's maximal machine (TMS9918A +
+  AY-3-8910 + banking) and skrasser's FPGA hybrid stay research-only;
+  salvage from the latter: the bare memory-mapped LED port and the
+  VIA-timer marquee exercise.
+  **THE LADDER, REFINED** (Booth's series + cool-web's 25 rungs + KiT's
+  stages independently converge on our design; merged order): E0 clock
+  module alone (555 astable + single-step; clock-source selector as a
+  simulator control) → E1 CPU-alive: straps + status LEDs
+  (clock/RW/SYNC/VPB) + address-nibble LEDs, free-run $EA, watch $EAEA
+  climb → E1.5 static-clock register-retention (the cool-web
+  genuine-vs-counterfeit W65C02 story) → E2 ROM-only + data-bus LEDs,
+  single-step verifying every byte; the write-to-unmapped-$6000
+  visible-then-vanishing store is the teachable moment (Booth) → E2.5
+  alt-track: the 6507SBC four-chip machine → E3 latch LED port
+  (74HC374 pre-VIA output, cool-web) → E4 +VIA blink → E5 +HD44780;
+  RAM/stack/JSR; the crystal upgrade beat ("the clock was the bug" —
+  Booth) → E5.5 CA1 IRQ button → E6 monitor: the sixty5o2 ROM as
+  shipped payload; the 74C922 keypad encoder (16 keys → 4-bit code +
+  DA strobe → CA1, debounce built in) upgrades it to the KIM-1
+  experience Booth built. A FAULT LIBRARY falls out of the reports:
+  loose RAM wire (subroutine never returns), bit-reversed EEPROM
+  image, sampling-edge timing — real builders' real failures, worth
+  simulating as teachable faults.
+  **NEW PARTS RANKED:** 6532 RIOT + 6507 mask (unlocks the 6507SBC
+  tier) > 74C922 keypad encoder > 74HC374/574 write-only latch port >
+  16C550 UART (completes KIT1) > 74HC688 comparator (qualified-decode
+  teaching; Vectron/cool-web both use it). Parked: PS/2 capture chain,
+  MC6847+IDT7132, TMS9918A, AY-3-8910, ST7036 LCD (NOT an HD44780 —
+  model it or skip cool-web's LCD stage, no stand-ins). Instruments,
+  not parts: address/data LED banks, the clock-source selector.
+  Lineage note: 6507SBC continues as Nielsen's 65uino — same
+  architecture on a PCB, assess when the tier lands.**
 * **labwired-core — FOUND 2026-08-13, evaluation seeded.** An MIT, Rust,
   in-repo simulation engine (no open-core split: the hosted playground
   "runs the same models") covering Cortex-M0+/M3/M4/M7/M33, RISC-V and
