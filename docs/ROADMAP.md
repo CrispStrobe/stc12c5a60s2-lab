@@ -887,7 +887,32 @@ seams; nothing above them changes.
   standard emulator practice. RECOMMENDED: (c) as the built default,
   (b) as an owner-flippable option later. The BYOR slot is app-lane
   work (goes to the fleet with the VDU/terminal wiring).
-  **The Z80 breadboard-scene survey + THE MACHINE (2026-08-14, owner's
+  ****The staged-build ladder, adjudicated 2026-08-14 (owner's
+  three-article question).** The makerhacks stages, assessed:
+  (1) FREE-RUN (Z80, data bus tied low = NOP, LEDs on address lines):
+  runnable TODAY — the extractor can even DERIVE the tied bus from
+  the wiring; needs only a small adapter exposing the address lines
+  as pin states so the LEDs count. (2) PICO-AS-MEMORY (Pico serves
+  ROM/RAM/clock to the Z80 over GPIO): fully REPRESENTABLE in the
+  designer; runnable today in SEMANTIC form (the memory the Pico
+  serves IS the machine's RAM array — same behavior, stated
+  honestly); true pin-level two-CPU co-simulation (we emulate both
+  sides!) is the parked supervisor-pattern moonshot, beside the
+  SAP-1 — our instruction-stepped Z80 core does not expose T-states,
+  which is the real boundary. (3) OUT-TO-LCD (Z80 OUT snooped to a
+  1602 I2C LCD): runnable today via a port-write hook driving the
+  existing I2C-LCD part; the Uno-snooping full-fidelity form joins
+  the two-CPU moonshot. THE PRESET LADDERS for the circuit designer
+  (each stage a saved circuit, Couch-To-64k/Eater pedagogy):
+  Z80: free-run counter → Pico-memory hello → OUT→LCD → ROM+RAM+
+  latched LED port → SEARLE serial → CP/M machine. 6502: Eater
+  free-run ($EA tied) → ROM blink → +VIA blink → +HD44780 hello →
+  +ACIA serial (BeebEater via BYOR slot) → full machine. Honorable
+  mentions for later stages: TEC-1-style hex keypad + 7-seg (parts
+  exist), KIM-1-style. Preset circuits = bw-circuit-ui lane once the
+  Z80/MC6850 DIPs land; the address-line adapter + port-write LCD
+  hook = small bw-board additions.
+  The Z80 breadboard-scene survey + THE MACHINE (2026-08-14, owner's
   two rounds of pointers).** The lineage is singular: nearly every
   breadboard Z80 — the makerhacks free-run, the PainfulDiodes BeanZee
   (whose MIT examples we already carry), hackaday builds, Fort
