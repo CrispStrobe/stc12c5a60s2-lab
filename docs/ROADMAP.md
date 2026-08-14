@@ -1362,6 +1362,22 @@ seams; nothing above them changes.
   MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
   inductive proximity as a param switch, CH340G as the tethering
   story it already is. Kit PDF/instructables text: research-only.**
+* **The AIR generalized (owner's modularity call, 2026-08-14;
+  bw-board 946585f).** src/air.js is the shared-medium engine: spaces
+  are kind:band, members {addr(), deliver(), state}, range/loss/
+  airtime deliberately per-kind. Citizens: bt (hc05, re-seated,
+  behavior unchanged) and rf433 OOK (tx/rx as the wireless wire,
+  OR-of-carriers jam semantics, a bit-banged byte crosses the air in
+  the golden). NEXT CITIZENS on the same contract: nRF24 packet pipes
+  (channel + 5-byte addrs), LoRa (freq+SF, airtime in its kind
+  layer), IR BEAM pairs (emitter LED → receiver with direct
+  addressing, the 37-in-1 pair upgraded from param stubs; room as
+  band, line-of-sight in kind layer), FPV (video = app-level payload),
+  micro:bit radio (bridging the sim's radio_output between iframes
+  through the same registry). HOUSEKEEPING for any agent: the device
+  files grew by heritage (thirtyseven.js, kit-sensors.js...) —
+  re-sort by CATEGORY (input/output/comm/analog/display) in a pure
+  file-move refactor, registry kinds unchanged.**
 * **HC-05 completeness + HID (owner's firmware-reference round,
   2026-08-14).** The complete DOCUMENTED INTERFACE is now modeled
   (bw-board ec9093d): the full 2.0-20100601 AT set with real state
