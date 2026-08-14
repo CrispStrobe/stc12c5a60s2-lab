@@ -1247,7 +1247,13 @@ seams; nothing above them changes.
   MICROBIT routes the right pane to the sim iframe, run = flash
   message, serial into our terminal, referee stays the logic oracle;
   (4) LATER: radio_output/radio_input between TWO sim iframes = two
-  boards talking — pairs with the NRF24L01 virtual-air-channel idea.**
+  boards talking — pairs with the NRF24L01 virtual-air-channel idea.
+  ARCHITECTURE DECIDED for (1): multiple WHEN scripts on single-
+  threaded MicroPython use the settled cooperative-scheduling
+  contract in its Python-native form — each script a GENERATOR
+  yielding at every wait and loop back-edge, a round-robin driver
+  loop with running_time() as the tick; same semantics as the C
+  state machines, one tenth the machinery.**
 * **Tier-2 status (2026-08-14 end of day): CLOSED except HC-05.**
   Landed golden-tested on bw-board master: DS1302, DS18B20, AT24C02
   (+ the reusable I2C slave engine), XPT2046, KY-040, 74HC165,
