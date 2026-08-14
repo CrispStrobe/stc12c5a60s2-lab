@@ -906,6 +906,27 @@ seams; nothing above them changes.
   serving both. (Live ARM disasm later via capstone-wasm if wanted;
   AVR is not in capstone, so the objdump path is the right one
   there.)
+  **Source-level debugging for C and BASIC, designed 2026-08-14
+  (owner's question).** One shape everywhere: a source map plus a
+  position signal, and every language already has both unharvested.
+  C: sdcc's .cdb (the format ucsim itself consumes) for the 8051;
+  cc65 -g + ld65 --dbgfile line/span records for the 6502 (pairs
+  with symbolsFromLd65Labels — one build, three artifacts); gcc -g +
+  objdump --dwarf=decodedline for AVR/ARM — an EXTENSION of the
+  already-queued objdump service lane, not a new one. Shared
+  mechanism: LineTable {addr→(file,line)} + stepLine / lineBreakpoint
+  helpers over the existing PC breakpoints. BASIC: TRACE ON / TRON
+  print executed line numbers INTO the serial stream we already
+  capture — a version-robust position signal with zero interpreter
+  surgery (the verbatim-ship rule holds); breakpoints = watch the
+  stream for the marker, halt the machine. The crown: generateBASIC
+  records a line↔block map during emission (the @bw-yield-map move),
+  so the TRACE stream drives BLOCK highlighting — Scratch blocks
+  lighting up as a 1981 interpreter executes them. Maps COMPOSE:
+  block-level position works uniformly across the C scheduler and
+  the BASIC interpreters; the user picks altitude — blocks, source
+  line, or disassembly. Lanes: line-table parsers ×3 fleet-sized;
+  the generateBASIC line↔block map is coordinator (emitter) work.
   **The assembler lane, designed 2026-08-14 (owner's question).**
   Key fact: every target's assembler is ALREADY in the compile
   service (sdas8051 + sdasz80 ship inside sdcc; GNU as inside
