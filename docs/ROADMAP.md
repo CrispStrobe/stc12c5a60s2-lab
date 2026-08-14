@@ -1168,10 +1168,18 @@ seams; nothing above them changes.
   8x8 dot matrix off a 74HC595; 4x4 matrix + 1x4 keys; passive buzzer;
   DS1302; DS18B20 header; AT24C02 I2C EEPROM; ADC/DAC = XPT2046 +
   LM358; IR receiver; 5-wire stepper module; NRF24L01 header; LCD1602
-  and LCD12864 headers; CH340C USB-TTL; AMS1117-3.3. Gap list for the
-  full preset is therefore exactly: DS1302, DS18B20, XPT2046, AT24C02
-  (registry eeprom is the parallel 28C-class), 74HC138/245 as designer
-  parts — everything else already exists. The per-module PORT MAP is
+  and LCD12864 headers; CH340C USB-TTL; AMS1117-3.3. The SILICON GAP
+  LIST IS CLOSED (2026-08-14, coordinator, bw-board 217e10a): DS1302 +
+  DS18B20 (dallas-parts.js — CH powers up halted, the classic trap,
+  kept; 1-Wire with real presence timing and Dallas CRC8), AT24C02 on
+  a NEW FULL I2C SLAVE ENGINE (i2c-slave.js — drives ACKs and data,
+  reusable for MPU-6050/TCS34725 later; page-write commit-on-STOP and
+  in-page wrap kept), XPT2046 as the plain ADC the boards wire (null
+  bit on the command byte's own falling edge — the fact that makes the
+  canonical word>>3 driver arithmetic work). All golden-tested by
+  bit-banging the protocols over real pullups/dividers through the MNA
+  solver. Remaining for the preset: 74HC138/245 as designer parts
+  (bw-parts lane) and the board-preset assembly itself. The per-module PORT MAP is
   in the vendor manual (prechin.cn /danganxiazai/, /fanli/) — marked
   for a later stc-research harvest; pin assignments are facts we may
   read, vendor code stays research-only. It becomes the FLAGSHIP BOARD
