@@ -270,7 +270,17 @@ class LiveTarget:
     def __init__(self, port, baud=115200, timeout=1.0):
         import serial  # imported lazily: --selftest must not need pyserial
 
-        self.ser = serial.Serial(port, baud, timeout=timeout)
+        # Open WITHOUT asserting DTR/RTS. pyserial raises both on open by
+        # default, and on CH340C learning boards (PRECHIN A2 class) those
+        # lines reach the power/reset circuitry: a dashboard tool's
+        # open/close glitches the board into an apparent power-cycle (LED
+        # flash + buzzer chirp) — observed in the wild, avoided here by
+        # configuring the lines low before the port opens.
+        self.ser = serial.Serial(baudrate=baud, timeout=timeout)
+        self.ser.port = port
+        self.ser.dtr = False
+        self.ser.rts = False
+        self.ser.open()
         self.dec = Decoder()
         self.pending_halts = []
 
