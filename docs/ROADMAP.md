@@ -1392,10 +1392,10 @@ seams; nothing above them changes.
   (+ the reusable I2C slave engine), XPT2046, KY-040, 74HC165,
   74HC138, 74HC245, ST7920, MCP3008, HX711, TCS3200, CD74HC4067,
   level_shifter4 (initiator-tracked bidirectional — highs never cross
-  domains, proven against a real LDO rail). Remaining: HC-05 as a
-  serial peer (stimulus-level, pairs with the telemetry panel work),
-  regulator parameter variants (trivial), and the sidecar artwork in
-  bw-parts' running lane.**
+  domains, proven against a real LDO rail). Remaining: NOTHING — HC-05 landed
+  (bw-board 04e10a0, on a reusable pin-level UART edge engine that
+  DFPlayer/ZE08-class devices ride next); regulators landed 7c50523;
+  sidecars in bw-parts' lane. Tier-2: FULLY CLOSED.**
 * **Arduino-drivers TO-DOs (2026-08-14):** the goal is stock Arduino
   library sketches running unmodified on the emulated AVR against our
   device models. (1) Bit-banged libraries (OneWire+DallasTemperature,
