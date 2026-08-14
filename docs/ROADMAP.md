@@ -1476,6 +1476,34 @@ seams; nothing above them changes.
   python3 compile(), gallery sweep included. REMAINING: (2) self-host
   the sim, (3) app wiring (flash/serial postMessage bridge) — the
   next free app-capable session.**
+* **micro:bit ASM adjudicated 2026-08-14 (owner request): the ARM
+  Thumb / Thumb-2 lane.** The classic university course experience —
+  bare-metal LED-matrix scanning in assembly on the V2 — splits into
+  two legs with very different costs. ASSEMBLE is near-free: the
+  hosted arm-none-eabi-gcc endpoint (the Pico chain) gains an
+  nRF52833 target (`-mcpu=cortex-m4`, a linker script, `.hex` out),
+  giving the ASM tab a micro:bit flavor whose output flashes REAL
+  hardware today via DAPLink MSD drag (the upload survey already
+  adopted it). RUN has no shortcut: the embedded official simulator
+  is a MicroPython interpreter — it cannot execute machine code, and
+  no amount of wiring changes that layer. The register-level
+  executor candidate is labwired-core (MIT, Rust→WASM): its nRF52840
+  model is silicon-verified and 52833 is the near sibling — their
+  validation matrix decides, per our doctrine; our own work on top is
+  the BOARD face (5×5 matrix on GPIO rows/cols, buttons A/B), which
+  the face contract already models. Course-style programs touch
+  GPIO+TIMER only, so the peripheral bar is low. CORPUS from the
+  owner's survey (all licenses verified via API): MIT =
+  rhubarbdog/microbit-assembly (V1, gas, the teaching reference),
+  pixelguy021 Space Invaders, itsyuxuan light-show + digital-pet;
+  Apache-2.0 = Preetish-T Visual-Display, ParasX1 Light-Show — these
+  six are usable as published references and golden-test material.
+  The other 15 (incl. Sushmit-Biswas's "educational use only" custom
+  licence) are research corpus, LOCAL ONLY, stc-research pattern.
+  Clean-room from the nRF52833 PS + Cortex-M4 TRM remains the build
+  procedure; the permissive repos are tiebreaker oracles.
+  Sequencing: after micro:bit app wiring; assemble leg can land
+  independently (cfront lane, small).**
 * **Tier-2 status (2026-08-14 end of day): CLOSED except HC-05.**
   Landed golden-tested on bw-board master: DS1302, DS18B20, AT24C02
   (+ the reusable I2C slave engine), XPT2046, KY-040, 74HC165,
