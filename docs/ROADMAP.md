@@ -1059,6 +1059,28 @@ seams; nothing above them changes.
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
   bus extractor over the designer netlist.
+  **Video tier adjudicated 2026-08-14 (owner's fourth survey — TFT /
+  VGA / Vectron), licenses API-verified.** Three rungs, in order:
+  (1) TMS9918A VDP as a MACHINE CHIP beside VIA/ACIA (CHIP vdp =
+  TMS9918 AT $addr) using vrEmuTms9918 (MIT, visrealm) — the same
+  author's pico-56 (MIT, a full HBC-56: 65C02 + TMS9918A + AY-3-8910
+  on a Pico) proves the ecosystem and doubles as a reference machine;
+  face = canvas framebuffer. This is the first real video target
+  because the chip model already exists under a good license.
+  (2) ILI9341-class SPI TFT as a BOARD part from the public datasheet
+  — covers the course-style 6502+TFT projects (the surveyed
+  6502TFTScreen repo is unlicensed → research corpus) and the Vectron
+  angle: vectron_65 is MIT (adoptable reference machine), but
+  vectron_handheld is UNLICENSED — so the deliverable is a clean-room
+  "handheld" showcase (our composable machine + TFT part + buttons),
+  reading only hardware facts, LED-cube procedure. (3) Discrete VGA:
+  gfoot/simplevga6502 is UNLICENSE (public domain — fully adoptable
+  design!); rehsd's and Eater's worst-video-card variants are
+  unlicensed (facts only); LIV2/VGA-6502 is MIT but VHDL (FPGA
+  reference). Modeling rule: the discrete counter circuit becomes ONE
+  vga_out part + a canvas monitor face decoding hsync/vsync/rgb pin
+  streams — the analog solver never ticks at pixel rate, same
+  bus-inside-emulator doctrine that settled the 6502 machine.
   **Ecosystem triage 2026-08-13 (owner's survey of 13 more
   implementations):** none displaces the own-core-plus-vector-suite
   plan, two join the stack: run6502/lib6502 (MIT, headless C CLI) as a
