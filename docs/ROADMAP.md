@@ -1232,6 +1232,22 @@ seams; nothing above them changes.
   shippable as examples with attribution. Also seeds an HC6800-ES
   board preset with an exact schematic-grade port map. Fleet lane
   briefed to bw-board (RIOT lane complete).**
+* **Arduino-drivers TO-DOs (2026-08-14):** the goal is stock Arduino
+  library sketches running unmodified on the emulated AVR against our
+  device models. (1) Bit-banged libraries (OneWire+DallasTemperature,
+  LiquidCrystal, U8g2 in SW-SPI mode) need nothing new — they speak
+  the pin-level protocols our models already decode; add their
+  canonical example sketches to the compile-service library set and
+  the oracle corpus. (2) Hardware Wire/SPI sketches need the
+  avr8js-adapter to instantiate its TWI/SPI peripherals for the
+  ATmega328P and bridge them to devices at TRANSACTION level — the
+  i2c-slave engine's onAddress/onWriteByte/onReadByte handler seam is
+  the shared face; factor device handlers so edge-level and
+  transaction-level buses drive the same object. (3) MIT/BSD driver
+  repos (LCD12864 etc. searches) are TIEBREAKER ORACLES only —
+  consulted read-and-compare when a golden disputes; clean-room from
+  datasheets stays the build procedure. Lane queued to bw-board
+  behind the 8051 corpus.**
 * **Telemetry TO-DOs (2026-08-14; background in
   stc-research/serial-dashboard-survey.md, LOCAL):** (1) live
   telemetry panel — feed the instruments-panel scope widgets from the
