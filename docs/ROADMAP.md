@@ -1263,12 +1263,25 @@ seams; nothing above them changes.
   driver loop golden-tested) + spectrum_display face (12x11 default,
   world-facing column levels); LM358 + LM3915 landed the same day, so
   the whole cheap-audio-display family is covered.
-  BIG-CORE ADJUDICATION: 68000 — YES as the retro tier's eventual
-  third pillar: SingleStepTests HAS 68000 vectors (the same suite
-  family our 6502/Z80 passed) and the rosco_m68k ecosystem is the
-  open breadboard-class machine; future lane, not now. 8086 — PARKED:
-  it pulls toward PC emulation, which established emulators own; no
-  breadboard pedagogy niche for us. MSP430 — parked, classroom
+  BIG-CORE ADJUDICATION: 68000 and 8088 — CO-CANDIDATES
+  for the retro tier's third pillar (8088 UPGRADED from parked,
+  2026-08-14, owner's evidence round). Both have SingleStepTests-
+  family vector suites (the recipe that built our 6502/Z80 cores
+  transfers); 68000 has the rosco_m68k open machine; 8088 has a real
+  MIN-MODE BREADBOARD scene (slador, GREENSHELLRAGE, the
+  breadboardinglabs 8088 PCB) and UNIQUE LESSONS neither 6502 nor Z80
+  teaches: the multiplexed AD bus demuxed by ALE + '573 latches (our
+  extractor pedagogy exactly), segment:offset addressing (how 16-bit
+  registers reach 1 MB), reset at the TOP (FFFF0), min/max mode — and
+  the lineage hook no other retro chip has: the family that still
+  boots every PC. Assets verified: 8088 vector suite; ts-c-compiler
+  (MIT, C99, TypeScript — a potential IN-BROWSER C-to-8086 pipeline,
+  unique among our targets); i8086sim (BSD-3, archived) as an oracle;
+  our NS16C550 is the 8250's sibling; ia16-gcc GPL = service-side
+  only; skiselev BIOS/xi_8088 GPL = research-only, our machines run
+  OUR clean-room monitor ROMs anyway. SCOPE GUARD unchanged: min-mode
+  breadboard machine ONLY — no BIOS, no DOS, no CGA, no PC-compat
+  promises, ever. Sequencing decided when retro round 2 opens. MSP430 — parked, classroom
   momentum moved on. STM32 — via the labwired-core (MIT) adoption
   already seeded: G0/F103 (Blue Pill, the classroom classic) before
   F4; never hand-rolled.**
