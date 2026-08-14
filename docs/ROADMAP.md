@@ -1215,6 +1215,24 @@ seams; nothing above them changes.
   wants DS1302 + DS18B20 + 7-seg scan first. All clean-room from
   datasheets, golden-tested against expectations, cross-checked only
   if a golden disagrees — the owner's stated procedure.**
+* **Serial-telemetry survey, 2026-08-14 (owner's pointer; product is a
+  dual-licensed GPL/commercial dashboard tool — name and details in
+  stc-research/serial-dashboard-survey.md, LOCAL, per the naming
+  policy; ideas only, nothing vendored, name in no outgoing file).**
+  Three takes: (1) A LIVE TELEMETRY PANEL — the instruments panel's
+  scope widgets fed from the TETHERED serial stream instead of the
+  simulator; the dialect's print output carries a trivial
+  one-line frame convention we define ourselves (we control both
+  ends, so no generic parser IDE is needed — that is their complexity,
+  not ours). (2) CSV export of scope/timeline/instrument traces —
+  small, generic, high value. (3) A CONCRETE TETHERING TRAP from
+  their own closed-unresolved issue tracker: their disconnect
+  power-glitches the PRECHIN A2's CH340C (LED flash + buzzer, as if
+  power-cycled) while stc-isp and simple tools behave — DTR/RTS
+  handling on open/close. Our stc12live/live-monitor.py must open
+  ports without toggling DTR/RTS, restore line state on close, and
+  the tethered-mode docs must name the CH340C trap; verify on the A2
+  at the next bench session.**
 * **labwired-core — FOUND 2026-08-13, evaluation seeded.** An MIT, Rust,
   in-repo simulation engine (no open-core split: the hosted playground
   "runs the same models") covering Cortex-M0+/M3/M4/M7/M33, RISC-V and
