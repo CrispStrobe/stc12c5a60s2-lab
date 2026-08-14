@@ -1232,6 +1232,21 @@ seams; nothing above them changes.
   shippable as examples with attribution. Also seeds an HC6800-ES
   board preset with an exact schematic-grade port map. Fleet lane
   briefed to bw-board (RIOT lane complete).**
+* **ELEGOO UNO kit triage (2026-08-14, owner's local kit).** The
+  33-lesson canon audited against the registry: ~24 lessons already
+  covered. DEVICE GAPS, ranked: DHT11 (single-wire timed protocol,
+  the classic), analog joystick (two pots + button, trivial), DS3231
+  (I2C, slave engine ready), MAX7219 (serial driver for the existing
+  matrix8x8), water-level + sound-module (trivial analog faces),
+  MPU-6050 (tier-3, engine ready), RC522 RFID (big SPI model,
+  parked), QMI-8658 (rare, parked). LIBRARY LICENSES from the zips:
+  LedControl MIT, MFRC522 Unlicense; IRremote/Keypad/Servo/Stepper
+  LGPL (service-side compile only, fine); the kit's DHT, DS3231 and
+  MPU6050 are OLD GPLv3 COPIES — their upstreams (Adafruit DHT,
+  RTClib, i2cdevlib) are MIT today, so the DRIVER-VALIDATION CORPUS
+  USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
+  carry no license → research-only. Kit lessons double as the
+  Arduino-drivers lane's stage-3 test list.**
 * **micro:bit lane — SPIKED 2026-08-14, brief ready for the next free
   session.** The official V2 simulator re-verified: MIT (SPDX headers),
   WASM MicroPython with the full board (5x5 display, buttons, touch
