@@ -1232,6 +1232,15 @@ seams; nothing above them changes.
   shippable as examples with attribution. Also seeds an HC6800-ES
   board preset with an exact schematic-grade port map. Fleet lane
   briefed to bw-board (RIOT lane complete).**
+* **Tier-2 status (2026-08-14 end of day): CLOSED except HC-05.**
+  Landed golden-tested on bw-board master: DS1302, DS18B20, AT24C02
+  (+ the reusable I2C slave engine), XPT2046, KY-040, 74HC165,
+  74HC138, 74HC245, ST7920, MCP3008, HX711, TCS3200, CD74HC4067,
+  level_shifter4 (initiator-tracked bidirectional — highs never cross
+  domains, proven against a real LDO rail). Remaining: HC-05 as a
+  serial peer (stimulus-level, pairs with the telemetry panel work),
+  regulator parameter variants (trivial), and the sidecar artwork in
+  bw-parts' running lane.**
 * **Arduino-drivers TO-DOs (2026-08-14):** the goal is stock Arduino
   library sketches running unmodified on the emulated AVR against our
   device models. (1) Bit-banged libraries (OneWire+DallasTemperature,
