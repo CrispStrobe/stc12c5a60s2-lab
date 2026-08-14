@@ -722,6 +722,16 @@ Auf Apple Silicon installiert `brew` nach `/opt/homebrew/bin` — das muss im
 `PATH` liegen. `stcgal` aus `pipx` landet in `~/.local/bin`: einmal
 `pipx ensurepath` ausführen und eine neue Shell öffnen.
 
+**Ein STC89C52 antwortet auf `make info`, lässt sich aber nicht flashen
+(`PROTOCOL=stc89`)**
+
+Neuere STC89C52RC-Chargen tragen eine Bootloader-Revision, die das
+`stc89`-Protokoll des Mainline-stcgal nicht kennt. Zuerst
+`PROTOCOL=stc89a` probieren; kennt das installierte stcgal `stc89a` noch
+nicht, stcgal aktualisieren (die Variante wurde erst nach einem lange
+gepflegten Fork übernommen). Der Chip ist in Ordnung — es ist reine
+Handshake-Dialektik, auch `PROTOCOL=auto` kann sie aushandeln.
+
 ---
 
 ## 7. Aufbau des Repositories

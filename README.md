@@ -692,6 +692,14 @@ active-low as in §3.4.
 your `PATH`. `stcgal` from `pipx` lands in `~/.local/bin` — run
 `pipx ensurepath` and open a new shell.
 
+**An STC89C52 answers `make info` but refuses to flash (`PROTOCOL=stc89`)**
+
+Newer STC89C52RC production batches ship a bootloader revision that mainline
+stcgal's `stc89` protocol does not recognise. Try `PROTOCOL=stc89a` first;
+if your stcgal is too old to know `stc89a`, update it (the variant was merged
+after a long-lived fork carried it). The chip is fine — it is purely a
+handshake-dialect mismatch, and `PROTOCOL=auto` may also negotiate it.
+
 ---
 
 ## 7. Repo layout
