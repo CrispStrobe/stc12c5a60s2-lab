@@ -887,7 +887,26 @@ seams; nothing above them changes.
   standard emulator practice. RECOMMENDED: (c) as the built default,
   (b) as an owner-flippable option later. The BYOR slot is app-lane
   work (goes to the fleet with the VDU/terminal wiring).
-  ****The assembler lane, designed 2026-08-14 (owner's question).**
+  ****Debugger disassembly, audited 2026-08-14 (the owner remembered
+  right): the 8051 HAS it, nothing else does.** emu_disasm in the
+  8051 debug target, held to the campaign's standard — verified
+  against stc_disasm.py's independent table, 237 instructions, 0
+  disagreements (debugger-ui.md §). The avr8js, rp2040js and
+  eater6502 debug targets have none. The fill, two mechanisms by
+  ownership: OWNED-CORE targets (6502, Z80 — and the machines built
+  on them) get LIVE client-side table disassemblers, coordinator
+  work paired with the cores; instruction LENGTHS come pre-proven by
+  the vector suites' pc-deltas (2.5M + 1.6M vectors), mnemonics
+  cross-checked against published tables — and live disasm works
+  even on hand-poked memory, which a listing cannot. TOOLCHAIN
+  targets (AVR, ARM) get SERVICE-SIDE listings: both toolchains ship
+  objdump, so the compile service returns a source-interleaved
+  disassembly map per build and the debugger fetches it once — the
+  same artifact the assembler lane's R1/R3 need, one mechanism
+  serving both. (Live ARM disasm later via capstone-wasm if wanted;
+  AVR is not in capstone, so the objdump path is the right one
+  there.)
+  **The assembler lane, designed 2026-08-14 (owner's question).**
   Key fact: every target's assembler is ALREADY in the compile
   service (sdas8051 + sdasz80 ship inside sdcc; GNU as inside
   avr-gcc / arm-none-eabi; ca65 is the 6502 chain) — this lane is
