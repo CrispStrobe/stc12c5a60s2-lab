@@ -1232,6 +1232,22 @@ seams; nothing above them changes.
   shippable as examples with attribution. Also seeds an HC6800-ES
   board preset with an exact schematic-grade port map. Fleet lane
   briefed to bw-board (RIOT lane complete).**
+* **micro:bit lane — SPIKED 2026-08-14, brief ready for the next free
+  session.** The official V2 simulator re-verified: MIT (SPDX headers),
+  WASM MicroPython with the full board (5x5 display, buttons, touch
+  pins, light/sound sensors, accelerometer, RADIO), embeddable iframe
+  with a documented postMessage protocol — host sends flash (a
+  filesystem object!), stop/reset, serial_input, sensor_set; receives
+  ready, request_flash, serial_output, radio_output. PLAN: (1)
+  generateMicroPython flavor in sb3-creator — generatePython exists,
+  the flavor maps blocks to the microbit API, and say → display.scroll
+  makes this the FIRST target where the say block means something
+  physical; (2) SELF-HOST the simulator build (MIT permits; sync
+  script like emu8051-wasm, no external hosts); (3) app: DEVICE
+  MICROBIT routes the right pane to the sim iframe, run = flash
+  message, serial into our terminal, referee stays the logic oracle;
+  (4) LATER: radio_output/radio_input between TWO sim iframes = two
+  boards talking — pairs with the NRF24L01 virtual-air-channel idea.**
 * **Tier-2 status (2026-08-14 end of day): CLOSED except HC-05.**
   Landed golden-tested on bw-board master: DS1302, DS18B20, AT24C02
   (+ the reusable I2C slave engine), XPT2046, KY-040, 74HC165,
