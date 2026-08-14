@@ -1247,6 +1247,26 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **Sensor long tail — NICE-TO-HAVE, not priority (owner 2026-08-14;
+  37-in-1 kit TA0018 + named modules).** REQUIREMENT THAT SHAPES ALL
+  OF IT: environment parameters (gas ppm, pressure, magnetic field,
+  light, pulse rate...) must be settable BOTH in Circuit Designer
+  (per-part controls — the existing params/setControl pattern) AND
+  from the BLOCKS EXTENSION — a generic "set [parameter] of [part] to
+  (value)" stimulus block wired to board.setControl, so a program can
+  script its own test environment. Triage: (a) 37-in-1 SMALL FACES
+  over existing patterns — analog/digital hall, reed, TTP223 touch,
+  IR line-tracking/obstacle pair, photo interrupter, flame, heartbeat
+  (param waveform), 7-color auto-flash LED, mic module; most are an
+  afternoon each. (b) I2C parts ON THE SLAVE ENGINE: TCS34725,
+  BMP180/GY-68, BMP280, MS5611/GY-63, AGS02MA TVOC, SSD1306 OLED
+  (framebuffer like ST7920's). (c) UART-FRAME DEVICES: DFPlayer Mini
+  (command set + now-playing state; audible audio is app-level),
+  ZE08-CH2O (periodic frame emitter) — both pair with the HC-05
+  serial-peer architecture. (d) NAMED FACES over existing models:
+  MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
+  inductive proximity as a param switch, CH340G as the tethering
+  story it already is. Kit PDF/instructables text: research-only.**
 * **micro:bit lane — SPIKED 2026-08-14, brief ready for the next free
   session.** The official V2 simulator re-verified: MIT (SPDX headers),
   WASM MicroPython with the full board (5x5 display, buttons, touch
