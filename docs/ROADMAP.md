@@ -1362,6 +1362,19 @@ seams; nothing above them changes.
   MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
   inductive proximity as a param switch, CH340G as the tethering
   story it already is. Kit PDF/instructables text: research-only.**
+* **HC-05 completeness + HID (owner's firmware-reference round,
+  2026-08-14).** The complete DOCUMENTED INTERFACE is now modeled
+  (bw-board ec9093d): the full 2.0-20100601 AT set with real state
+  (settings/ORGL/bonding), the inquiry/pair/link family against the
+  scripted radio neighborhood (params.nearby — the radio itself stays
+  out of scope by doctrine), STATE? and the STATE pin high-while-
+  linked. The CSR BlueCore internals remain a black box deliberately
+  — cited firmware pages join the research corpus as version-quirk
+  references (3.x and HC-06 1.x dialects = future profiles on the
+  same machine). HID: the reflash mod's documented citizen is the
+  RN-42 with Microchip's datasheet + HID app note — a FUTURE rn42
+  part whose HID reports land in state (and someday drive the app);
+  not an HC-05 mutation.**
 * **Calliope adjudication (owner's pxt-calliope pointer, 2026-08-14).**
   microsoft/pxt-calliope is MIT with a sim/ folder — but that sim is a
   MakeCode-framework citizen: state machines + visuals bound through
