@@ -906,6 +906,20 @@ seams; nothing above them changes.
   serving both. (Live ARM disasm later via capstone-wasm if wanted;
   AVR is not in capstone, so the objdump path is the right one
   there.)
+  **The ASM tab, designed 2026-08-14 (owner's question): a view-and-
+  run lane, not a sixth generator.** A client-side blocks-to-asm
+  emitter would LIE (not the asm that runs); the tab instead shows
+  the TOOLCHAIN'S OWN output for the generated C, via the compile
+  service: sdcc's .asm/.rst carries C lines natively (8051 + Z80),
+  avr/arm use objdump -dS of the ELF already built — the SAME
+  artifact as the queued disassembly lane and the C line tables,
+  one service change wearing three hats — and cc65 -T -S for the
+  6502. Client: thin async tab, cache-by-hash, read-only, current-PC
+  highlight when the debugger runs. The asymmetry is deliberate and
+  STATED in the UI: no ASM-to-blocks arrow — the import direction is
+  'assemble & run on the machine' (the R2 editor lane). Service
+  response shape v1 sent to the queued cfront lane:
+  { asm, lineMap, format, v }.
   **Source-level debugging for C and BASIC, designed 2026-08-14
   (owner's question).** One shape everywhere: a source map plus a
   position signal, and every language already has both unharvested.
