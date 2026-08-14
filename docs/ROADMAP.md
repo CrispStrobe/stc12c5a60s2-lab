@@ -1256,8 +1256,13 @@ seams; nothing above them changes.
   comparators exist but no op-amp yet), XR2206 function generator
   (wave-pattern precedent exists; pairs with the instruments story),
   GL5528 as an ldr param face, EC11-class bare rotary encoder as a
-  ky040 variant minus module pullups. WD201211: unidentified — owner
-  to clarify (suspected relay module; relay exists).
+  ky040 variant minus module pullups. WD201211: IDENTIFIED (owner) as the
+  132-SMD-LED music-spectrum kit ASIC — black box, no datasheet;
+  ANSWERED by its documented citizens (bw-board c85b9e3): MSGEQ7
+  seven-band equalizer (reset/strobe/multiplexed-out, canonical
+  driver loop golden-tested) + spectrum_display face (12x11 default,
+  world-facing column levels); LM358 + LM3915 landed the same day, so
+  the whole cheap-audio-display family is covered.
   BIG-CORE ADJUDICATION: 68000 — YES as the retro tier's eventual
   third pillar: SingleStepTests HAS 68000 vectors (the same suite
   family our 6502/Z80 passed) and the rosco_m68k ecosystem is the
