@@ -1160,14 +1160,24 @@ seams; nothing above them changes.
   — the minimum-system board people actually solder first, as a
   one-click preset. Both boards are modeled from physical facts only
   (vendor code and schematics stay research-corpus). THE SECOND,
-  MAXIMAL BOARD: PRECHIN 普中51 A2, an
-  STC89C52/STC12C5A60S2 ZIF learning board — 8-digit scanned 7-seg,
-  8 LEDs, 4x4 matrix + 4 keys, buzzer, DS1302, DS18B20, IR, pot/ADC,
-  LCD1602 + LCD12864 headers, NRF24L01 header, USB-TTL. It becomes the
-  FLAGSHIP BOARD PRESET of the original 8051 lane once its tier-2 parts
-  (DS1302, DS18B20) land — the chip we started with, on the boards
-  people actually buy, minimum system first, full learning board
-  second.
+  MAXIMAL BOARD: PRECHIN 普中51 A2 — bill of materials now VERIFIED
+  from the vendor's own module-legend table (prechin.cn/51/91.html,
+  archived with provenance in stc-research/corpus/prechin-a2, LOCAL):
+  STC89C52-class ZIF with all IO broken out; 2×4-digit common-anode
+  7-seg driven by 74HC245 (segments) + 74HC138 (digit select); 8 LEDs;
+  8x8 dot matrix off a 74HC595; 4x4 matrix + 1x4 keys; passive buzzer;
+  DS1302; DS18B20 header; AT24C02 I2C EEPROM; ADC/DAC = XPT2046 +
+  LM358; IR receiver; 5-wire stepper module; NRF24L01 header; LCD1602
+  and LCD12864 headers; CH340C USB-TTL; AMS1117-3.3. Gap list for the
+  full preset is therefore exactly: DS1302, DS18B20, XPT2046, AT24C02
+  (registry eeprom is the parallel 28C-class), 74HC138/245 as designer
+  parts — everything else already exists. The per-module PORT MAP is
+  in the vendor manual (prechin.cn /danganxiazai/, /fanli/) — marked
+  for a later stc-research harvest; pin assignments are facts we may
+  read, vendor code stays research-only. It becomes the FLAGSHIP BOARD
+  PRESET of the original 8051 lane once that gap list lands — the chip
+  we started with, on the boards people actually buy, minimum system
+  first, full learning board second.
   TIER 0, ALREADY REGISTERED (verified against the device registry):
   HC-SR04 (ultrasonic), WS2812 (neopixel), LCD1602 (hd44780 +
   char_lcd_i2c), 4x4 keypad, LM7805, AMS1117-class (ld1117v33),
