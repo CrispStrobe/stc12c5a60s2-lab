@@ -1247,6 +1247,24 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **Hardware steering per language — SETTLED 2026-08-14 (owner's
+  question): no interpreter is ever forked.** Three mechanisms by
+  target class: (1) COMPILED targets (C on 8051/AVR/6502/Pico):
+  PIN/PART declarations lower to register code in generateC — done.
+  (2) RUNTIME targets (generated Python/JS): the RUNTIME_EXTENSIONS
+  registry — the same drivers the blocks use, including stc12live for
+  tethered real/emulated hardware (settled 2026-08-08, zero emitter
+  changes); plus the MicroPython flavor, where the board's own API IS
+  the language (display.scroll, pin0.write_digital). (3) MACHINE
+  targets (BBC/6502 BASIC on the retro machines): memory-mapped I/O
+  IS the API — BBC BASIC's ?& indirection and POKE/PEEK reach the
+  VIA/ACIA registers, generateBASIC already lowers pin blocks to
+  exactly that, and it is period-authentic pedagogy. Convenience
+  comes as BASIC PROC/FN LIBRARIES shipped as plain source (our own,
+  clean) — libraries in the language, never patches to the verbatim
+  zlib interpreters. Environment-stimulus blocks (the long-tail
+  entry) are the complement: those steer the WORLD, this steers the
+  MCU.**
 * **Sensor long tail — NICE-TO-HAVE, not priority (owner 2026-08-14;
   37-in-1 kit TA0018 + named modules).** REQUIREMENT THAT SHAPES ALL
   OF IT: environment parameters (gas ppm, pressure, magnetic field,
