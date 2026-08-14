@@ -1287,11 +1287,10 @@ seams; nothing above them changes.
   (per-part controls — the existing params/setControl pattern) AND
   from the BLOCKS EXTENSION — a generic "set [parameter] of [part] to
   (value)" stimulus block wired to board.setControl, so a program can
-  script its own test environment. Triage: (a) 37-in-1 SMALL FACES
-  over existing patterns — analog/digital hall, reed, TTP223 touch,
-  IR line-tracking/obstacle pair, photo interrupter, flame, heartbeat
-  (param waveform), 7-color auto-flash LED, mic module; most are an
-  afternoon each. (b) I2C parts ON THE SLAVE ENGINE: TCS34725,
+  script its own test environment. Triage: (a) 37-in-1 SMALL FACES —
+  DONE (bw-board e9c66a5, ten models in one idiom: analog/digital
+  hall, reed, TTP223, IR reflect pair, photo interrupter, flame,
+  sound, heartbeat waveform, 7-color LED; all world-facing params). (b) I2C parts ON THE SLAVE ENGINE: TCS34725,
   BMP180/GY-68, BMP280, MS5611/GY-63, AGS02MA TVOC, SSD1306 OLED
   (framebuffer like ST7920's). (c) UART-FRAME DEVICES: DFPlayer Mini
   (command set + now-playing state; audible audio is app-level),
