@@ -1261,8 +1261,9 @@ seams; nothing above them changes.
   stc-research/serial-dashboard-survey.md, LOCAL):** (1) live
   telemetry panel — feed the instruments-panel scope widgets from the
   tethered serial stream; the dialect's print output carries a fixed
-  one-line frame convention of our own. (2) CSV export of
-  scope/timeline/instrument traces. (3) serial ports open WITHOUT
+  one-line frame convention of our own. (2) CSV export — DONE for the
+  debugger's execution trace (brickwright-lite b35ba4d, traceToCsv +
+  drawer button); scope/instrument channels can reuse the same lib. (3) serial ports open WITHOUT
   toggling DTR/RTS and restore line state on close (CH340C boards
   power-glitch otherwise; live-monitor.py fixed 4ec9849, stc12live
   driver must match; verify on the A2 at the next bench session).**
