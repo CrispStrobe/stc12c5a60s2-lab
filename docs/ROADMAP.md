@@ -1324,7 +1324,7 @@ seams; nothing above them changes.
   filesystem object!), stop/reset, serial_input, sensor_set; receives
   ready, request_flash, serial_output, radio_output. PLAN: (1)
   generateMicroPython flavor in sb3-creator — generatePython exists,
-  the flavor maps blocks to the microbit API, and say → display.scroll
+  the flavor maps blocks to the microbit API — with the VERB SPLIT: say = stage (degrades by name on the board), display = LEDs, print = serial
   makes this the FIRST target where the say block means something
   physical; (2) SELF-HOST the simulator build (MIT permits; sync
   script like emu8051-wasm, no external hosts); (3) app: DEVICE
@@ -1335,7 +1335,7 @@ seams; nothing above them changes.
   (1) IS DONE (coordinator, sb3-creator b75f129):
   generateMicroPython with generators AS the scheduler (yield ms at
   waits, 0 at back-edges, round-robin driver on running_time(),
-  broadcasts spawning receiver tasks), say → display.scroll, key a/b
+  broadcasts spawning receiver tasks), display → display.scroll / print → serial (say degrades: stage semantics), key a/b
   → buttons, play-note → music.pitch, named degradations for
   everything else — and every emitted program must parse under
   python3 compile(), gallery sweep included. REMAINING: (2) self-host
