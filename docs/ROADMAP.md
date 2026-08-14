@@ -1247,6 +1247,23 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **Snap-together function-block kits — ADJUDICATED 2026-08-14
+  (owner's question; NICE-TO-HAVE tier).** The kit brand is
+  trademarked: describe, never name, in anything committed. Manual
+  schematics are research-only; block BEHAVIOR is unprotectable
+  function; the mechanical snap connector's patents are irrelevant
+  (we do not simulate connectors). THE METHOD: never open their
+  black-box ICs — model the DOCUMENTED GENERIC EQUIVALENT instead:
+  music IC → UM66T (real datasheet; OUR OWN or public-domain tunes,
+  never theirs), alarm/space-sound ICs → behavioral sweep/noise
+  oscillators (KD9561-class parts have datasheets; synthesis is the
+  TCS3200 wave-generator pattern driving the speaker part, audio
+  rendered from the buzzer edge stream), recording IC → ISD1820
+  (real Nuvoton-lineage datasheet: REC/PLAYE/PLAYL), FM block →
+  parked, no honest sim. Passives (reed, lamp, motor, speaker) all
+  exist as of e9c66a5. SECOND IDEA WORTH KEEPING: the kits' chunky
+  module granularity as a BEGINNER BLOCK TIER — function-block faces
+  over existing models in the designer.**
 * **Controller panel — DESIGNED 2026-08-14 (owner's Mindstorms-app
   reference), lane briefed to bw-blocks.** A composable input surface:
   place named widgets — joystick (x/y -100..100), D-pad, momentary/
