@@ -1362,6 +1362,29 @@ seams; nothing above them changes.
   MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
   inductive proximity as a param switch, CH340G as the tethering
   story it already is. Kit PDF/instructables text: research-only.**
+* **DEVICE FACES — DOCTRINE, 2026-08-14 (owner).** Every supported
+  target gets a VIRTUAL DEVICE FACE: a picture of the board/module
+  with live elements — LEDs that blink, displays that show content,
+  pins with high/low state, actuators moving, sensor affordances.
+  DUAL MODE, one face: in SIMULATED mode the elements bind to
+  emulator state (what WOULD happen); in LIVE mode they bind to the
+  tethered telemetry stream (what IS happening on the real device) —
+  the same element-binding interface, two data sources, sibling to
+  the controller panel's dual binding. COVERAGE (faces to draw):
+  the 8051 boards (YL-39 minimum, PRECHIN A2, HC6800-ES), Arduino
+  Uno/Nano/Mega, Pico, micro:bit (the official sim IS the face; our
+  pin-state overlay around it), Calliope (pxt-calliope MIT artwork,
+  already adjudicated), the breadboard retro machines (the circuit
+  designer IS their face), module faces continue in bw-parts' lane —
+  and IN THE END the LEGO hubs: SPIKE Prime / Robot Inventor (5x5
+  matrix, buttons, ports, IMU) as the platform's namesake heritage.
+  ARTWORK POLICY: our own stylized vector art from datasheet
+  mechanical drawings — no photos, no logos, NO TRADE DRESS (the
+  LEGO faces especially: schematic our-own-style renderings,
+  describe-never-brand per standing policy); Fritzing art is
+  CC-BY-SA — reference only, never vendored. LIVE-MODE data source:
+  the tethering drivers (stc12live exists; the telemetry-panel frame
+  convention feeds the rest).**
 * **The AIR generalized (owner's modularity call, 2026-08-14;
   bw-board 946585f).** src/air.js is the shared-medium engine: spaces
   are kind:band, members {addr(), deliver(), state}, range/loss/
