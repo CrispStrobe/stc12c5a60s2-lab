@@ -1247,6 +1247,27 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **MakeCode-extension survey (owner's Calliope list, 2026-08-14).**
+  The ecosystem's extension list read as a PRIORITY SIGNAL. (1)
+  CONFIRMATIONS — servo, neopixel, ky-040, dht11 exist as of today;
+  ssd1306 + tcs34725 are in bw-board's active lane; the MIT pxt-*
+  repos join the read-and-compare oracle set for those models. (2)
+  NEW I2C GAPS the list ranks for us (all on the slave engine, all
+  world-facing params): PCA9685 16-ch PWM/servo driver (the most
+  popular robotics part not yet modeled), SCD30/SCD40 CO2 (pairs
+  directly with the environment-parameter story), MPR121 12-ch touch,
+  HM3301 dust, SI1145 UV/light. (3) FEATURE ADOPTIONS, the real
+  finds: DATALOGGER blocks — log value X as series Y from any
+  language into the app's timeline/CSV (the trace-CSV lib is the
+  backend; a palette block is the front) — the strongest teaching
+  feature in their list; RADIO blocks — confirms the two-sim
+  radio/virtual-air-channel priority; TURTLE-ON-DISPLAY — a LOGO
+  turtle over the framebuffer displays (ssd1306/st7920) as a
+  drawing-blocks family; faces/animation packs as example content.
+  (4) SCRIPTED VISION SENSOR idea from huskylens: a camera whose
+  detections are world-facing params (user scripts what it "sees") —
+  behaviorally trivial, pedagogically rich, park with the long tail.
+  BLE/IoT-upload/kit-specific boards: parked.**
 * **Snap-together function-block kits — ADJUDICATED 2026-08-14
   (owner's question; NICE-TO-HAVE tier).** The kit brand is
   trademarked: describe, never name, in anything committed. Manual
