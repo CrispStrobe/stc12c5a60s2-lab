@@ -1375,6 +1375,11 @@ seams; nothing above them changes.
   MQ-2..-9/-135 over gas_sensor with per-gas curves, LJ12A3-4-Z/BX
   inductive proximity as a param switch, CH340G as the tethering
   story it already is. Kit PDF/instructables text: research-only.**
+* **Examples per language (owner 2026-08-14, NOT urgent): the example
+  gallery is pseudocode-first — every language view (Python, JS, C,
+  BASIC, ASM, MicroPython) deserves proper idiomatic examples, not
+  only generated views. Feed for the examples/cfront lane when it
+  reopens.**
 * **DEVICE FACES — DOCTRINE, 2026-08-14 (owner).** Every supported
   target gets a VIRTUAL DEVICE FACE: a picture of the board/module
   with live elements — LEDs that blink, displays that show content,
