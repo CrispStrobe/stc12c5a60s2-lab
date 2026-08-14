@@ -1247,6 +1247,26 @@ seams; nothing above them changes.
   USES UPSTREAM, never the kit zips; ELEGOO's own lesson sketches
   carry no license → research-only. Kit lessons double as the
   Arduino-drivers lane's stage-3 test list.**
+* **Parts audit round (owner's list, 2026-08-14) — deltas only; the
+  bulk already exists.** NEW ENTRIES: STC15F104W + STC15F204EA as
+  STC_PARTS deltas (small STC15 siblings; the delta-doc pattern of
+  PINOUT-STC15 applies), AT89C2051 (classic 20-pin 8051 — core ✓,
+  needs the pin subset P1/P3-only in the parts table), LM358 op-amp
+  (MNA ideal-op-amp-with-rails model — the A2 carries one; lm339/393
+  comparators exist but no op-amp yet), XR2206 function generator
+  (wave-pattern precedent exists; pairs with the instruments story),
+  GL5528 as an ldr param face, EC11-class bare rotary encoder as a
+  ky040 variant minus module pullups. WD201211: unidentified — owner
+  to clarify (suspected relay module; relay exists).
+  BIG-CORE ADJUDICATION: 68000 — YES as the retro tier's eventual
+  third pillar: SingleStepTests HAS 68000 vectors (the same suite
+  family our 6502/Z80 passed) and the rosco_m68k ecosystem is the
+  open breadboard-class machine; future lane, not now. 8086 — PARKED:
+  it pulls toward PC emulation, which established emulators own; no
+  breadboard pedagogy niche for us. MSP430 — parked, classroom
+  momentum moved on. STM32 — via the labwired-core (MIT) adoption
+  already seeded: G0/F103 (Blue Pill, the classroom classic) before
+  F4; never hand-rolled.**
 * **MakeCode-extension survey (owner's Calliope list, 2026-08-14).**
   The ecosystem's extension list read as a PRIORITY SIGNAL. (1)
   CONFIRMATIONS — servo, neopixel, ky-040, dht11 exist as of today;
