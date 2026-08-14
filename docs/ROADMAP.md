@@ -887,7 +887,26 @@ seams; nothing above them changes.
   standard emulator practice. RECOMMENDED: (c) as the built default,
   (b) as an owner-flippable option later. The BYOR slot is app-lane
   work (goes to the fleet with the VDU/terminal wiring).
-  ****The staged-build ladder, adjudicated 2026-08-14 (owner's
+  ****Blinkenrocket, adjudicated 2026-08-14 (owner's question): YES,
+  and it is a gem.** The congress badge — ATtiny88 @ 8 MHz, 8×8 LED
+  matrix, two buttons, animations loaded through the AUDIO JACK by a
+  Hamming-FEC modem, stored in EEPROM. The firmware (the owner's
+  fork of blinkenrocket-firmware) is dual LGPL-3 OR 3-CLAUSE BSD —
+  the BSD option makes the whole experience vendorable and shippable.
+  The build plan rides entirely on existing patterns: (1) an ATtiny88
+  config for the chip-parameterized avr8js adapter (the fleet already
+  did ATtiny85/ATmega2560 this way; tiny88 is a 328-family core —
+  EEPROM peripheral required, storage.cc lives on it); (2) a
+  matrix8x8 board part with persistence-of-vision duty integration
+  (the behavioral-display pattern: neopixel/bargraph/HD44780 all
+  exist); (3) the badge as a preset circuit in the ladder lane;
+  (4) the crown, stage 2: the MODEM — V2 firmware samples sine audio
+  via ADC, and our stimulus system speaks volts-over-time, so the
+  blinkenrocket.de web editor's own encoding can drive animation
+  uploads INTO the simulated badge. avr-gcc -mmcu=attiny88 joins the
+  compile-service bundle trivially. Queued as a fleet lane when a
+  session frees.
+  **The staged-build ladder, adjudicated 2026-08-14 (owner's
   three-article question).** The makerhacks stages, assessed:
   (1) FREE-RUN (Z80, data bus tied low = NOP, LEDs on address lines):
   runnable TODAY — the extractor can even DERIVE the tied bus from
