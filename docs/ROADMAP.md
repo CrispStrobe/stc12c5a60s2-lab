@@ -1797,3 +1797,30 @@ Open items, in fleet or deliberately parked:
   is its own effort and pretending otherwise would falsify benchmarks.
 - **EAR-level tape** (turbo loaders) — the $0556 trap covers ROM-standard
   loading; custom loaders need bit-level playback, parked.
+
+### Spectrum clone-repo adjudications (2026-08-15, owner-pointed)
+
+Three repos surveyed (clones in `../stc-research/spectrum-clones/`, though two
+of the three turn out NOT to need the local-only cage):
+
+- **STECCY (ukw100, MIT)** — STM32 Spectrum emulator, 48K+128K, TAP/TZX,
+  ILI9341/VGA output. THREE wins: (1) **128K ROM provenance SOLVED** — the
+  repo ships `128.rom` under the Amstrad permission, and its `48.rom` is
+  md5-identical to our independent zxs-rom source build, cross-validating
+  both sourcings. Behaviorally verified same day: our banked machine boots
+  the pair to the real 1986 menu, ENTER navigates, and the ROM's own code
+  drives our $7FFD banking (bw-board ffbcceb). Stance: shippable-with-notice,
+  the 48K stance extended; local copy at `../zxs-rom/128.ROM`.
+  (2) `src/z80/z80.c` is an **MIT tiebreaker oracle** for our Z80 core.
+  (3) `src/tape` is an **MIT TZX reference implementation** — TZX support is
+  hereby unblocked as ADOPTION, not clean-room, when we want turbo loaders.
+- **karabas-128 (andykarpov, WTFPL)** — real-hardware 128K clone (CPLD +
+  Z80 + SRAM). Schematics + errata are ground truth for 128K bus/decode
+  details; the CPLD ships compiled (.pof), so it documents rather than
+  discloses logic. Reference for contention work, when that opens.
+- **Leningrad-2-128k-SRAM "Aurora" (Alex-2-Graf, MIT)** — the Soviet
+  discrete-TTL Spectrum lineage, modernized (SRAM, twin YM2149 TurboSound).
+  The long-game prize: a Spectrum WITHOUT a ULA, built from 74-series
+  logic — the natural far-future target for the wired-extractor teaching
+  arc ("build a Spectrum from TTL in the designer"). Its ROM/ holds
+  TR-DOS/clone ROMs of separate provenance — NOT our ROM path.
