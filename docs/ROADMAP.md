@@ -1059,6 +1059,33 @@ seams; nothing above them changes.
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
   bus extractor over the designer netlist.
+  **320x240 + the input question, adjudicated 2026-08-15 (owner's
+  fifth video survey).** Two honest routes to 320x240: (1) BITMAP —
+  parameterize the simplevga card (H/2,V/2, stride 512, 128K VRAM, two
+  PORTB bank bits); faithful to gfoot's own 320_xxx schematic variants
+  but the banking gymnastics are why real designs went tiles. (2)
+  TILES — rene6502/6502-vga-prop is UNLICENSE and is the better
+  design: 320x240 as 40x30 tiles, 16-of-64 colors, 256 user-defined
+  8x8 chars + funscii font, 16K DUAL-PORT VRAM on the bus (no
+  write-only overlay needed), double buffering. Adopt as the second
+  machine-level video card; educationally it teaches how consoles
+  actually worked and bridges to the TMS9918's name/pattern tables.
+  The co-processor tier (marobi/Pico_6502_v4 = NEO6502-style, GPL-3
+  — reading only; picocomputer RIA pattern) is the third architecture:
+  modern MCU as video/IO servant behind a register protocol — we
+  already embody that tier as MCU+ILI9341, and an RIA-like register
+  face can come later without new doctrine. INPUT, both halves:
+  simulation-side we already own the pieces — VIA-port buttons are
+  boundary A today (gfoot's snake expects PA0-3 active-low buttons +
+  VGA_V on PA4, i.e. designer buttons just work), src/ps2.js awaits
+  wiring (PS/2 clock to CA1 IRQ, data to PA), the ACIA is the serial
+  path the BASIC runners already use, and m74c922 covers matrix
+  keypads. User-interaction-side: the machine face (VdpScreen/
+  terminal) takes keyboard FOCUS and routes real keystrokes to PS/2
+  model / ACIA rx / the BASIC runners' input queue (upgrading them
+  from scripted inputs[] to live typing); on-canvas buttons are
+  already clickable. That focus-routing contract is the one new
+  design piece and belongs in the face doctrine.**
   **simplevga6502 contract MEASURED 2026-08-15 (VGA rung unblocked).**
   gfoot/simplevga6502 is Unlicense — fully adoptable, and the design is
   now read from src/lib/vga.s + hardware notes, not guessed: dedicated
