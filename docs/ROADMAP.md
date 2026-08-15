@@ -1753,3 +1753,47 @@ Near-term implementation order:
 This keeps the teaching content reusable without pretending that all MCUs are
 electrically interchangeable. The gallery is a catalog of concepts plus
 explicit portability evidence, not merely a list of firmware files.
+
+## Spectrum arc: STATE OF PLAY (2026-08-15, coordinator session)
+
+The 48K story is COMPLETE and the 128K memory model is BUILT. What runs today,
+all verified by tests in bw-board (1774 green at e32c286):
+
+- **48K machine**: byte-perfect original ROM (zxs-rom source build), ULA
+  (video + FLASH + keyboard matrix + beeper edges + audioTone face), TAP
+  loading via the $0556 trap, typed LOAD "" on the emulated keyboard,
+  zxScreenText (screen bitmap → strings against the ROM font — the decoder
+  that turned all Spectrum acceptance into string assertions).
+- **The acceptance game**: tron-0xf (GPL, local-only) — Abersoft fig-Forth
+  boots from tape, LOADT 1 LOAD compiles the whole game from source (116
+  blocks, ~7 emulated minutes), the menu takes its option-initial keys, riders
+  draw light walls, the beeper carries engine sound. Snapshot-cached: 0.34 s
+  per run after the first (7.6 s full — the Z80 runs ~60x realtime).
+- **Snapshots**: our own machine saveState/loadState (cycle-lockstep tested),
+  .SNA both directions, .z80 all three header generations with ED-ED
+  compression (write v1). One loadSnapshot on the debug target takes either.
+- **Input**: ULA setKeys (key names, matrix-true) + Kempston joystick on the
+  standard decode, driven by the same setButtons face mask as the 6502
+  machines — VdpScreen's arrows/WASD play archive games unchanged.
+- **Debug**: disasm, step-over/out (SP-depth, call-class-armed), TRUE write
+  watchpoints (core write-callback wrap) — emu8051 parity on our own cores.
+- **128K memory model** (config.zx128): $7FFD banking over 8×16K pages with
+  pages 5/2 as views pinned in the flat 64K (aliasing tested), dual ROM
+  slots, shadow screen (ULA renders a switchable 16K view), lock bit, 70908
+  T-state frames, snapshots carrying pages + bank. 48K MODE VERIFIED: the
+  original ROM boots on the banked bus with ROM 1 + lock (USR0 semantics) —
+  the tape trap correctly fires only when the 48 BASIC ROM is mapped.
+
+Open items, in fleet or deliberately parked:
+
+- **AY-3-8912 + 128K snapshot loading + 128K .SNA** — briefed to the bw-board
+  lane with the register/port contract (clean-room from the GI datasheet).
+- **128K ROM pair provenance** — zxs-rom builds only the 48K ROM from source.
+  Options to adjudicate: Amstrad-permission redistribution with notice (the
+  48K stance, applied to the 128 ROMs from a checksummed archive) vs a source
+  build from a community disassembly (license per project — survey needed).
+  Until then the 128K machine runs 48K-mode and RAM-loaded software only.
+- **Memory contention** — still deliberately out; timing-honest contended RAM
+  is its own effort and pretending otherwise would falsify benchmarks.
+- **EAR-level tape** (turbo loaders) — the $0556 trap covers ROM-standard
+  loading; custom loaders need bit-level playback, parked.
