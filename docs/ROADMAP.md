@@ -1059,6 +1059,23 @@ seams; nothing above them changes.
   peripheral authority. Next: generateC '6502' core in sb3-creator
   (bw_now off T1 IFR polling), the MAP/CHIP declaration grammar, the
   bus extractor over the designer netlist.
+  **simplevga6502 contract MEASURED 2026-08-15 (VGA rung unblocked).**
+  gfoot/simplevga6502 is Unlicense — fully adoptable, and the design is
+  now read from src/lib/vga.s + hardware notes, not guessed: dedicated
+  32K video RAM (71256) scanned by 74HC590 counters; the CPU sees it at
+  VRAM_BASE $8000; 640x480@60 timing divided H/4, V/2 → 160x240
+  effective pixels; VRAM_STRIDE 256 bytes/row (H_STRIDE 1024 / 4), so
+  rows beyond 128 need the ZP_BANK bank switch; pixel = LOW NIBBLE of
+  each byte (BITS_PIXELDATA %00001111, RGBI-style), and THE SYNC LIVES
+  IN VRAM — BIT_VSYNC %01000000 / BIT_HSYNC %00100000 are written into
+  the porch bytes by vram_init, the counters just shift bytes out. The
+  faithful model therefore: a machine-level simplevga card (own 32K,
+  CPU window at $8000 + bank), renderer reads the low nibbles at stride
+  256, and a monitor face that shows NO SIGNAL when the sync bits are
+  missing or mistimed — a program that skips vram_init earns exactly
+  the black screen the real monitor shows, which is the whole
+  educational point. Implementation queued on the coordinator lane;
+  the three .sch variants (320_100/200/400) become params later.
   **Video tier adjudicated 2026-08-14 (owner's fourth survey — TFT /
   VGA / Vectron), licenses API-verified.** Three rungs, in order:
   (1) TMS9918A VDP as a MACHINE CHIP beside VIA/ACIA (CHIP vdp =
