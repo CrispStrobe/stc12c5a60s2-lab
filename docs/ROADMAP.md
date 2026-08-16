@@ -2376,3 +2376,52 @@ almost-fullscreen modal: rendered markdown, EN/DE toggle, the
 example's difficulty/devices row, and one primary action ("Open on
 the bench"). The same modal is the station reader the Lehrpfad will
 reuse — build once.
+
+## 2026-08-16, later: the sweep instrument EXISTS; the VDP example lied twice
+
+**The sweep instrument is BUILT (coordinator, both halves).** Engine
+core `bw-board src/sweep.js` (aca0786): `runDcSweep` steps a vsource
+control and reads the delivered current per point (curve-tracer sign
+convention pinned by test); `runAcSweep` steps `params.freq` on a sine
+vsource and lock-in-correlates two nets over integer cycles — no probe
+arrays, the loop advances and reads `nodeVoltage` at its own cadence.
+Tests are ORACLES, not demos: resistor line at 1/R within 2%, diode
+knee inside the silicon region, and the RC low-pass within 1 dB / 6°
+of analytic |H| and phase across two decades, including −3.01 dB/−45°
+at fc — all green on first run, which is a statement about the
+transient MNA's accuracy as much as about the instrument. Face:
+`SweepPanel` in bw-circuit-ui (7ee379a) — Kennlinie + Bode modes
+beside Scope/Meter; every run happens on an OFFLINE COPY of the board
+(sweep-runner.js), because a sweep mutates source and time and
+teleporting the live circuit mid-experiment is not a measurement.
+This unlocks Kennlinien (German canon cluster 6a), impedance levels
+18/23, and RLC resonance. Charge pumps (6b) remain.
+
+**The VDP example failed for two independent reasons — both mine to
+find, both fixed.** The deployed "6502 + VDP Video" refused to build:
+"no retro CPU found" with the W65C02 seated in plain sight. (1) The
+lite host injected `setEngine({BoardImpl, inferNetlist, checkWiring,
+hasDevice})` — the machine extractors were wired into the DRC at the
+top of the same file but never into the engine object, so EVERY
+machine build on the deployed app was impossible, ever, for any
+circuit. (2) The example itself contained no TMS9918 — the program
+declared `CHIP vdp1 = TMS9918 AT $4000` over a circuit that was the
+plain Eater build. Fixed by seating the tms9918 plus a third 74HC00
+and giving it the decode the program already assumed (invert the
+$4000–$5FFF window select, NAND with /A12 → /CSR·/CSW low exactly in
+$4000–$4FFF, below the ACIA, no contention; MODE on A0), verified
+against `extract6502Machine` before pushing. Two standing lessons
+made into code: the refusal message now distinguishes "no CPU" from
+"extractor not injected" (a refusal that misdiagnoses the app's own
+wiring as the student's circuit teaches a lie — regression-tested),
+and cui's explicit test list turned out to have two dormant test
+files, now enrolled (418 passing, was 406).
+
+**Displays scoreboard:** matrix PROVEN · LCD I²C PROVEN · 7-seg PROVEN
+on deploy (one segment at 0.41, chase cycling — my probe and cui2's
+independent one agree) · SSD1306 face SHIPPED by cui2 (needs on-deploy
+proof) · VDP fixes deployed, machine-aware probe in flight · ILI9341
+driver+example building in cfront under a signed-off plan (separate
+tft opcode prefix — the round-trip argument) · framebuffer last mile
+pending. The Codex shell brief is with the cui lane (CodexBrowser as a
+second lens over the same examples; prop contract before styling).
