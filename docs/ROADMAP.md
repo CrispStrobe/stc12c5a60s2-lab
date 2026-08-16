@@ -2037,6 +2037,14 @@ chip family — 74LS173/161/189/157/107 are engine devices now.
   not), and a 5 MHz preset (trivial). When those close, the machine
   plays Bad Apple — the loudest possible fidelity demo.
 
+- **hransom528/6502 (MIT)** — a personal Eater-lineage 65C02 build:
+  assembly programs (VASM oldstyle syntax), own schematics/PCB, BOM.
+  Modest but clean: MIT assembly programs are CORPUS material for the
+  6502 acceptance sweep (vendorable if useful, assembled run-local
+  with vasm or hand-translated to ca65 — a third dialect, noted), and
+  one more independent BOM to cross-check the fidelity pass against.
+  No new capability implied; filed proportionately.
+
 ## Importers: the ad-hoc converters become a module family (2026-08-16)
 
 The owner's read is right: we keep writing one-off translators (the
