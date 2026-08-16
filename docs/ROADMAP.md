@@ -2680,3 +2680,22 @@ z80 ladder on Bread80's five stages; (3) the 4-IC MBC-style minimal
 as its own example once the AVR-serves-Z80 bridging fits the engine.
 Assignment: transcription = coordinator (schematic fidelity work);
 ladder = cui/blocks lanes with the existing generator.
+
+**Z80 survey addendum — the RC2014 ecosystem (owner links):** RC2014
+Mini/Classic II, SC114, LinC80 SBC1, SC118/Z50Bus are the MODULAR
+Z80 world — a backplane bus standard with plug-in cards, the dominant
+real-world Z80 hobby form. Licenses: the RC2014Z80 org's core repos
+carry NO license (commercial kits; z88dk NOASSERTION; only picoterm
+is BSD-3) — so RC2014 is READ-FOR-FACTS only: the BUS-AND-CARDS
+paradigm, not the artifacts. The paradigm itself maps directly onto
+machinery we already have (the extractor's bus-riding cards — tilevga
+rides a 'bus' ribbon today): a future "backplane bench" where module
+cards plug a shared bus is the RC2014-shaped tier, built clean-room
+against the publicly documented bus pinout. The CANONICAL discrete
+bench remains PainfulDiodes (MIT, cloned to corpus: kicad/ is
+MODULAR — z80_breadboard + clock_reset + glue_logic + memory +
+UM245R USB-FIFO serial — and the .kicad_sch files are TEXT
+(s-expression, 586 symbol/pin entries in the main sheet): the
+transcription is a parse, not a squint. Coordinator's opening move
+next session: parse the sheets into a netlist table like
+RETRO-CONSOLE-RBS15667.md, then the 3-board faithful bench.
