@@ -155,3 +155,14 @@ polarity (P5.5 low-side drive through the PNP). If the bar sweeps in a
 scrambled column order, that is the provisional column mapping — note
 the actual order, fix the tables in both program generators, and the
 simulator inherits the truth.
+
+**HOLD on 11-console-pong (2026-08-16, late):** executing both builds
+(local SDCC and the hosted compiler) under the STC15-configured
+emulator shows the pong firmware WEDGES before its first port write —
+a startup/reset cycle consistent with execution escaping valid code
+(suspect: large switch dispatch; ~50 task states vs the self-test's
+~25, which runs perfectly in the same harness). Under investigation by
+the emulator lane with a ucsim cross-check to split emulator-bug from
+codegen-bug. Flash 10-console-selftest with confidence; hold
+11-console-pong until the verdict — flashing a wedging image teaches
+nothing but confusion.
