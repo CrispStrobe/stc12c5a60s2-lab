@@ -1883,6 +1883,14 @@ References, adjudicated:
   example's canonical peripheral wiring — the same circuit then serves
   the shippable MS-BASIC ROM when that port lands.
 
+- **eater.net/6502 (official)** — Ben Eater's own 6502 kit page with
+  the authoritative parts list and schematics for the 4-board build the
+  owner's photo shows. The parts list is the canonical cross-check for
+  the fidelity pass (what DutchMaker lists for the 8-bit, this is for
+  the 6502): W65C02S, W65C22S, 28C256, 62256, 74HC00, 1 MHz can
+  oscillator, HD44780 16x2, plus the LEDs/resistors/caps/buttons that
+  make the photo look like the photo.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
