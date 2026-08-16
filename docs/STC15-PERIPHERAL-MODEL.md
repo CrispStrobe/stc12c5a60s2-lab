@@ -153,12 +153,17 @@ pin 19**. Port modes work like every other port (`P5M1`/`P5M0`, reset
 default quasi-bidirectional). This is not a corner: the RBS15667 retro
 console (docs/RETRO-CONSOLE-RBS15667.md) drives its buzzer transistor
 from **P5.5**, so any toolchain or emulator that wants to run console
-firmware must know P5 exists. Current gaps, all three deliberate
-refusals today: `sb3-creator`'s PIN grammar accepts only `P[0-4]`;
-`stc12.h` declares no P5 (the generated C would need
-`__sfr __at(0xC8) P5;` plus the mode registers); and neither emulator
-fork models 0xC8 as a port. Widening is contract-first: this paragraph
-is the contract, implementations cite it.
+firmware must know P5 exists. Status (2026-08-16, all landed):
+SDCC 4.5.0's `stc12.h` turned out to ALREADY declare `P5`/`P5M0`/
+`P5M1` at these addresses (and sbits `P5_0..P5_3` — an LQFP-48 STC12
+note); what it lacks, `sb3-creator` now emits as a complete "STC15
+supplement" for every STC15 program (88c38318b): sbits `P5_4..P5_7`,
+Timer 2, `P_SW2`, the wake-up timer, the third PCA channel, and the
+STC15 names `P_SW1`/`INT_CLKO`. The PIN grammar accepts `P5.x` with
+truthful refusals (no P5 on an STC12 part; unbonded-bit warning on
+the DIP-40), the C reader parses P5 back, and emu8051-stc models the
+port (182/0 assertions); ucsim-stc in flight. Owner directive stands:
+header gaps get fixed TOTALLY, never per-feature.
 
 **In the family map but NOT on this part** — a model for the STC15F2K60S2 must refuse these, not
 implement them. This is the same rule Stage 0 applies to STC8 registers in an STC12 model:
