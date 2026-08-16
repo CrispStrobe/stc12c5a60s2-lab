@@ -1969,3 +1969,19 @@ kind exists today and it must blink under the engine before it ships)
 and runs the eater6502-full-build fidelity pass (4 boards, decoupling
 caps, reset button, bus LEDs, can-oscillator annotation, HD44780 on the
 VIA) against the owner's photo.
+
+**MILESTONE 2026-08-16: G-PASCAL IS ALIVE AND ANSWERS.** The vendored
+MIT ROM boots on the GPASCAL preset, banners over BIT-BANGED VIA serial
+("G-Pascal compiler, version 4.07 ... Type H for help"), and a typed H
+comes back with the help text — the receive path running through the
+CB2 edge interrupt and the firmware's cycle-counted sampling loop
+against pin events scheduled in machine cycles (bw-board 38fccfa,
+test/gpascal.test.mjs). The W65C22 model needed NO changes — the
+machine grew a bit-bang serial codec and per-chip initial input levels.
+Two traps recorded where they bit: floating-high port inputs make the
+LCD busy-poll burn 255 retries per write (banner at 2.5 s instead of
+0.3 s — the preset pins inputs.b low), and GETLN discards CR and ends
+lines on NL, so a CR-only sender waits forever. This is the first
+SHIPPABLE interactive retro machine: MIT end to end, compiler and
+editor on the 6502 itself. The same push carried the lane's SAP-1 TTL
+chip family — 74LS173/161/189/157/107 are engine devices now.
