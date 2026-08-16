@@ -2619,3 +2619,13 @@ hardcoded benches; (d) the pong-display runtime split as the
 showcase. Acceptance: pick any device on the blink card, the bench
 shows that device's board correctly seated, Run blinks it — same
 program file, zero per-device authoring.
+
+**WORE amendment (owner, verbatim):** "you then must change the
+examples selector, both in Circuit Designer Selectors Panel, and in
+separate (full screen) examples mode" — the device picker ships in
+BOTH surfaces: a compact selector on every multi-device card, choice
+persisted, loading retargeted program + that device's generated
+bench together; until per-device benches exist for an example the
+picker still retargets the program and uses the role-inferred bench,
+never a wrong hardcoded one. UI = cui lane (briefed with the
+generator seed sb3 60ca43d); catalog-build half = coordinator.
