@@ -144,6 +144,21 @@ principle applied to the on-chip monitor).
 | **Peripheral switch** | `AUXR1`/`P_SW1` 0xA2, `P_SW2` 0xBA — UART1 remaps to (P3.6,P3.7) or (P1.6,P1.7), UART2 to (P4.6,P4.7) |
 | **Bus speed** | `BUS_SPEED` 0xA1 |
 | **Clock output / extra interrupts** | `INT_CLKO`/`AUXR2` 0x8F — `EX4 EX3 EX2 – T2CLKO T1CLKO T0CLKO` |
+| **Port 5** | `P5` 0xC8 (bit-addressable — the 8052's T2CON slot), `P5M1` 0xC9, `P5M0` 0xCA |
+
+**P5 in practice (added 2026-08-16, for the retro-console work):** on the
+PDIP-40 only two P5 bits reach pins — **P5.4 on pin 17** (shared with RST;
+an ISP option byte decides whether the pin is reset or I/O) and **P5.5 on
+pin 19**. Port modes work like every other port (`P5M1`/`P5M0`, reset
+default quasi-bidirectional). This is not a corner: the RBS15667 retro
+console (docs/RETRO-CONSOLE-RBS15667.md) drives its buzzer transistor
+from **P5.5**, so any toolchain or emulator that wants to run console
+firmware must know P5 exists. Current gaps, all three deliberate
+refusals today: `sb3-creator`'s PIN grammar accepts only `P[0-4]`;
+`stc12.h` declares no P5 (the generated C would need
+`__sfr __at(0xC8) P5;` plus the mode registers); and neither emulator
+fork models 0xC8 as a port. Widening is contract-first: this paragraph
+is the contract, implementations cite it.
 
 **In the family map but NOT on this part** — a model for the STC15F2K60S2 must refuse these, not
 implement them. This is the same rule Stage 0 applies to STC8 registers in an STC12 model:
