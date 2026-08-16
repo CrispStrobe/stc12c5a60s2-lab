@@ -2639,3 +2639,44 @@ example…" switches to the code examples whose `devices` list includes
 that device — retargeted on load where the device differs from the
 example's DEVICE line. And a search/filter box in that list, because
 it will be plenty (230+ and growing).
+
+## Z80 status + the real-build fidelity question (owner survey, 2026-08-16)
+
+**Where our Z80 stands tonight:** z80-bench boots via Build Machine
+(RAM $8000-$FFFF, ROM $0000-$7FFF, MC6850 ACIA at port $0080; control
+pins tied high as of 119cc92); the machine loader ships a BBC BASIC
+preset + hex/bin file door (this session; on-deploy acceptance = the
+BASIC prompt in the serial console, pending the current deploy's
+verification); the Code tab lists Z80-compatible catalog examples;
+the Spectrum arc (zx48, tron plays) is separate and complete. What
+the bench is NOT yet: faithful to any real build — 2 breadboards and
+6 ICs is an idealized minimum that matches nobody's desk, and the
+owner is right that documented physical builds take 3+ boards.
+
+**The survey, licenses first:**
+- PainfulDiodes/z80-breadboard-computer — MIT, WITH KiCad schematics
+  in-repo, terminal-over-USB design. This is the Ben-Eater-of-Z80s:
+  the natural CANONICAL build to transcribe faithfully (the same
+  doctrine as the RBS15667 transcription: their schematic is the
+  authority, our bench matches it board-for-board, 3 breadboards).
+- Bread80/Couch-To-64k — MIT, and it is a LADDER by construction:
+  Part1 pins+LEDs, Part2 ROM, Part3 LCD, Part4 keyboard, Part5 RAM.
+  Maps one-to-one onto our example-ladder pedagogy (cui already has
+  a gen-z80-ladder.mjs); adopt the staging as the z80 ladder's
+  narrative spine, with attribution.
+- makerhacks / ericjessee / fortcollins builds — read-for-facts
+  corroboration of the 3+-board reality; no license clarity, nothing
+  copied.
+- The 4-IC exception (hackaday 19000, Z80-MBC style: Z80 + RAM +
+  MCU-as-ROM/glue/IO): a genuinely one-breadboard build BECAUSE a
+  microcontroller replaces ROM+glue — pedagogically gold as a
+  SEPARATE "minimal tier" example (and a cross-family bench: an AVR
+  serving a Z80), not a reason to pretend the discrete build is small.
+
+**Plan:** (1) transcribe PainfulDiodes' KiCad into the canonical
+curated z80-bench (3 boards, faithful; current idealized bench
+becomes the ladder's mid-rung, honestly labeled); (2) re-author the
+z80 ladder on Bread80's five stages; (3) the 4-IC MBC-style minimal
+as its own example once the AVR-serves-Z80 bridging fits the engine.
+Assignment: transcription = coordinator (schematic fidelity work);
+ladder = cui/blocks lanes with the existing generator.
