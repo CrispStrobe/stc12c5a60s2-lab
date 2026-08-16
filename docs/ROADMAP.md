@@ -1865,6 +1865,16 @@ References, adjudicated:
   debounce behaviors are worth MODELING in the 74xx devices, because a
   simulation that cannot exhibit the real failure cannot teach the fix.
 
+- **wmvanvliet/8bit (NO license)** — Python SAP-1 assembler +
+  SUBCYCLE-ACCURATE simulator (both clock edges, curses UI, microcode
+  generator; four short files). Reference-only and run-locally-only,
+  like ucsim: nothing vendored, but a second referee for differential
+  traces — with vrcpu's MIT emulator that makes our-engine-vs-two-
+  referees possible, the 2-of-3 tiebreak the 8051 tier proved out. Its
+  subcycle standard (rising AND falling edges) is the fidelity bar the
+  74xx device models must meet, since real SAP-1 bugs live on the
+  falling edge.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
