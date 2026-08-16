@@ -1934,6 +1934,21 @@ References, adjudicated:
   the app renders it beside the editor. Every assembler we host (8051,
   6502, Z80, AVR, ARM) gets the same window.
 
+- **Lennart4711/CustomProcessor (NO license)** — gate-level Python
+  SAP-1 (gates → latches → registers → ALU → the machine, clockless)
+  with a demo-video visualization the owner flagged. Reference-only;
+  the adopted IDEA is the **graphical debugger mode**: a live
+  architecture view. Two paths, one already free: (1) for the SAP-1
+  TTL tier the circuit IS the diagram — device-level simulation with
+  bus/register LEDs lighting in the designer, the Eater pedagogy
+  reproduced natively; (2) for the emulated cores, an ARCHITECTURE
+  FACE: per-core SVG block diagram (registers, flags, buses, PC/SP)
+  fed live from the existing debug surface (registers/memory/step per
+  DEBUG-CONTROL-MODEL), with the executed instruction's data path
+  highlighted per step (opcode class → path map; disassembly already
+  flows through the debugger). v1 scope: the 6502, whose data paths
+  are the best documented and whose tier carries the teaching arc.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
