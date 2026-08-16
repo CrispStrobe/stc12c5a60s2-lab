@@ -50,14 +50,19 @@ U7=74HC245 bus transceiver gating D0-D7 to U8=UM245R USB FIFO
 ~WR_PORT_1 reaching the FIFO write side. Full raw table:
 corpus/z80-breadboard-computer/netlist-z80_breadboard.txt.
 
-**Known defect, stated:** a handful of control nets (~MREQ, ~IORQ,
-A15, ~WR_PORT_1) come out OVER-MERGED — the same U1 pins appear in
-several of them, which is physically impossible; some symbol
-orientation cases in the parser land distinct pins on coincident
-coordinates. The module sheets (glue_logic, memory, clock_reset)
-extracted CLEANLY with labels, so the two-source rule resolves it:
-the per-module netlists + README-DETAILED are the authority for the
-control signals; the flat sheet is authoritative for everything
-else. Fix the parser's orientation math before the next design, but
-do not block the bench authoring on it — the machine is fully
-determined by the two sources together.
+**Defect RESOLVED (same night):** the over-merge had two real causes,
+neither rotation: (1) multi-unit symbols contributed every unit's
+pins to every instance, and the 74LS04's pin children are body-style
+0, which a style!=1 filter then dropped entirely; (2) the UPSTREAM
+schematic reuses refdes — its U1 is both the Z80 and a 74LS32
+package, its U5 both the RAM and more gates. The tool now keeps the
+lowest body style per unit, places only an instance's own unit plus
+commons, qualifies refdes collisions (U1@74LS32), and carries two
+soundness validators (no coinciding pins, no pin in two nets). The
+flat sheet extracts 67 nets, zero warnings, and the control logic
+reads as the design intends: ~RD -> both memories' ~OE + port gate;
+~MREQ and ~IORQ into the LS32 OR-decode. Chip identities corrected:
+U5 = AS6C62256 (32K RAM), U6 = AT28C64B (8K ROM), U7 = 74LS244
+buffer, U2 = 74LS04 inverters, plus the LS32s under shared refdes.
+The netlist is authoritative end to end; bench authoring proceeds on
+it.

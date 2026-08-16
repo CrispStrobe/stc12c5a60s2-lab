@@ -63,7 +63,6 @@ def main(path):
             m = re.match(re.escape(childbase) + r'_(\d+)_(\d+)$', cname)
             if not m: continue
             unit, style = int(m.group(1)), int(m.group(2))
-            if style != 1: continue  # body style 1 only (no DeMorgan variants)
             pins = []
             for pin in walk(child, 'pin'):
                 at = next(walk(pin, 'at'), None)
@@ -71,8 +70,14 @@ def main(path):
                 nam = next(walk(pin, 'name'), None)
                 if at and num:
                     pins.append((num[1], nam[1] if nam else '', float(at[1]), float(at[2])))
-            if pins: units.setdefault(unit, []).extend(pins)
-        libpins[name] = units
+            if pins:
+                # Keep the LOWEST body style per unit (style 0/1 = normal
+                # body; higher = DeMorgan alternates). The 74LS04's pin
+                # children are style 0 — a !=1 filter dropped every gate.
+                cur = units.get(unit)
+                if cur is None or style < cur[0]:
+                    units[unit] = (style, pins)
+        libpins[name] = {u: p for u, (st, p) in units.items()}
     # 2. Points registry with union-find.
     parent = {}
     def find(a):
@@ -82,6 +87,7 @@ def main(path):
     def union(a, b): parent[find(a)] = find(b)
     def key(x, y): return (round(x * 100), round(y * 100))
     pin_at = {}   # point -> [(ref, pinnum, pinname)]
+    ref_lib = {}  # refdes -> first lib base seen (collision detection)
     label_at = {} # point -> label
     # Instances: (symbol (lib_id "X") (at x y rot) [mirror] … (property "Reference" "U1"))
     for inst in walk(sexp, 'symbol'):
@@ -91,6 +97,13 @@ def main(path):
         if not at: continue
         ref = next((n[2] for n in walk(inst, 'property') if len(n) > 2 and n[1] == 'Reference'), '?')
         if ref.startswith('#'): continue
+        # The upstream schematic REUSES refdes across different parts (its
+        # U1 is both the Z80 and a 74LS32 package). Qualify collisions so
+        # the netlist tells the truth instead of merging two chips.
+        base_l = libid.split(':')[-1]
+        prev = ref_lib.setdefault(ref, base_l)
+        if prev != base_l:
+            ref = f"{ref}@{base_l}" 
         ox, oy, rot = float(at[1]), float(at[2]), float(at[3]) if len(at) > 3 else 0.0
         mir = next((n[1] for n in walk(inst, 'mirror') if len(n) > 1), None)
         base = libid.split(':')[-1]
