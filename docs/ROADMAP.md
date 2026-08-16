@@ -2492,3 +2492,29 @@ AT89C2051-Uhr (2K-flash 8051 sibling — emu8051 runs the core; needs a
 chip config + part). Authoring: bw-blocks continues the pc-series;
 parts gaps: bw-parts; NxM matrix generalization: bw-board lane with
 my review; console transcription + games: coordinator.
+
+## STC15 ecosystem survey (owner-flagged repos, 2026-08-16)
+
+- **mogoreanu/8x16 (MIT)** — same console family as the RBS15667, same
+  chip, DIFFERENT harness revision; full comparison lives in
+  RETRO-CONSOLE-RBS15667.md. Driver skeleton adoptable with
+  attribution; archived in stc-research corpus.
+- **rainbowpeee/STC15F2K60S2 (MIT)** — a whole peripheral-example
+  collection on our exact chip: DS1302+7seg, PCF8591, LCD1602,
+  LCD12864, GPS-time, frequency capture, MFRC522+OLED, dot-matrix
+  test. Archived (corpus/rainbowpeee-stc15-examples). Double value:
+  reference implementations for the German-canon MCU examples AND
+  real-world firmware for the corpus/oracle campaign — compile these
+  under SDCC-compatible fixes and diff both emulators against them.
+- **Ponyboy3/STC15F2K60S2-reference-guide (NO license)** — the Lanqiao
+  Cup (蓝桥杯) competition corpus: module code, past problems, notes.
+  Read-for-facts only. The strategic fact it reveals: China's largest
+  MCU student competition runs on an IAP15F2K61S2 platform — OUR chip
+  family. A Lanqiao-practice mode is a plausible future audience for
+  the simulator. Nothing copied, ever.
+- **AndyXie0718/STC15F2K60S2 (NO license)** — STC-B university
+  learning-board lessons incl. the board's schematic PDF. The
+  schematic is facts if we ever want an "STC-B board" bench; code
+  untouchable.
+- **huijian222/stc15 (NO license, 2016)** — an STC15 flight-controller
+  workspace (ANO ground station). Curio only; skip.
