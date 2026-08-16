@@ -2242,3 +2242,58 @@ write-once-run-everywhere strategy (this is already mostly built):**
    → compat matrix computes the device pool → one example, N devices,
    and every (example, device) pair is a corpus/oracle row for the
    parity campaign. The 13 MIT wokwi projects are the pilot batch.
+
+## The German kit canon (owner request, 2026-08-16 late)
+
+Owner supplied the classic Lernpaket/maker-kit part list + ~40 German
+electronics lessons (Kippstufen, Kennlinien, Spannungsteiler, ...).
+Adjudicated against the engine registry — the surprise is COVERAGE:
+
+**Parts already modeled (no work):** NE555 (timer_555 + 556), DIP-4
+switch (dip_switch), 1N4148 (diode), LED bar (bargraph), TTP223
+(touch_ttp223), KY-040 (ky040), KY-004/006/012 (button, piezo/buzzer),
+KY-015=DHT11 (dht11), MPU-6050, KY-019 (relay), DS18B20, WS2812
+(neopixel), HC-SR04 (ultrasonic), KY-033/FC-51 (ir_reflect), KY-037
+(sound_module/msgeq7 family), 7805 (lm7805), AMS1117-3.3 (ld1117v33),
+KY-002 (tilt_sensor/vibration family — verify exact behavior).
+74HC132 already gives quad-NAND-Schmitt.
+
+**True gaps (small):** CD4093 (CMOS 4093 = the '132's function at CMOS
+levels — chip-composer variant, cheap), MCP4725 (I2C DAC — new
+i2c-slave device, the first ANALOG-OUT i2c part), TM1637 4-digit
+(verify whether clock_display already IS it; else new serial-protocol
+device), DHT22/AM2302 (parameterize dht11: same wire protocol,
+different scaling/range).
+
+**Lessons mapping:** roughly 40% already exist as examples
+(Spannungsteiler → 15/37/pc02+pc07, Dioden-Richtungen → 28/42/pc08,
+Kondensator laden/entladen → 29/43/pc06, Transistor als Schalter →
+38/44/pc05/pc15, LED+Vorwiderstand family → 21/31/45, Reihenschaltung
+→ 22/35, belastete Quelle → battery internal-resistance model). The
+NEW clusters, in teaching order:
+1. **555-Kippstufen suite** (astabil exists as ttl-clock-module;
+   bistabil, monostabil, retriggerbar, Metronom, Langzeit-Timer,
+   Tongenerator — all pure-circuit, engine-ready today).
+2. **Schmitt/Negator/Komparator** (CD4093/74HC132 + lm393 lessons —
+   comparator exists as 17-comparator; the gate lessons are new).
+3. **Licht-Schaltungen** (Tag-/Nachtschaltung, helligkeitsabhängig,
+   LDR+Transistor/555 — pure-circuit, all parts exist).
+4. **Entprellen/Alarm** (prellfreier Schalter via NAND-Latch — new;
+   Alarmgeber variants — new but trivial).
+5. **Messtechnik-Reihe** (Leerlauf/Klemmenspannung, indirekte
+   Strommessung, Spannungsquellen vergleichen — meter-centric
+   pure-circuit; the battery model's internal resistance is the star).
+6. **HARD, engine-capability items — coordinator's:**
+   - **Kennlinien** (diode forward/reverse curves): needs a SWEEP
+     instrument — function generator driving X while the scope plots
+     V/I as XY. The scope has sub-step sampling; XY mode + a slow ramp
+     source is the missing piece. This is the payoff feature of the
+     whole Messtechnik tier.
+   - **Spannung verdoppeln / negative Spannung** (charge pumps):
+     switched-capacitor circuits are a TRANSIENT-SOLVER STRESS TEST
+     (diode + cap + square source interplay); must be validated
+     against hand math before shipping as lessons.
+
+Assignment: gap parts → bw-parts (bodies/sidecars) + bw-board (device
+models); lesson authoring (clusters 1-5, DE-first with EN twins) →
+bw-blocks as the pc-series continuation; cluster 6 → coordinator.
