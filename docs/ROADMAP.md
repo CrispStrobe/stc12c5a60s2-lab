@@ -2119,3 +2119,81 @@ defaults as ties with --set overrides, the splitter barrier cut to its
 parsed pin span, and Digital's overlined active-low labels. Remaining
 to the full machine: the splitter as a real bridging part, then the
 module ladder and Main.dig itself.
+
+## The ATtiny harvest (owner request, 2026-08-16)
+
+Two source lists adjudicated, plus the core that would widen the family.
+Context that makes this cheap now: the pendant chain (2026-08-16) left
+attiny85 AND attiny88 as first-class simulated targets — avr8js chip
+configs, bare-chip board models (GPIO drives, inputs read), hosted
+avr-gcc accepting both, engine-follows-example device selection.
+
+**Source A — atmega32-avr.com/attiny-based-projects-list/ (135
+projects, harvested in full).** No per-project licenses on the page —
+each project needs its upstream checked before any code is TOUCHED;
+the list itself is only a MAP of what people build on these chips.
+By class, against what we can already simulate:
+
+- **RUNNABLE NOW (author as our own MIT examples, no upstream code
+  needed):** LED effects (candle flicker, mood light, chasers, menorah,
+  fireflies — GPIO+PWM), games on LEDs/buttons (Simon, IQ puzzle,
+  Game of Life), buzzer audio (electronic cricket, piano — the buzzer
+  face renders edge trains), ADC sensor toys (LDR lux meter, NTC
+  thermometer, pot dimmers), IR remotes (ir_transmitter/ir_receiver
+  device models exist), PWM motor control + light-following robot
+  (dc_motor, h-bridge, LDR models exist), nRF24-on-3-pins (nrf24
+  device model exists — flagship candidate), HD44780 LCD interfaces.
+  This class is CORPUS FUEL: each authored example doubles as an
+  oracle program for the parity campaign.
+- **RUNNABLE AFTER ONE GAP CLOSES:** SSD1306 OLED projects on the t85
+  (the ssd1306 device model exists and speaks I2C, but the t85 has USI,
+  not TWI — the avr8js adapter needs a USI model before Wire-on-t85
+  works; the t88's real TWI already works). USI is the single highest-
+  value peripheral gap in the family.
+- **CHIP GAPS, CHEAP TO CLOSE:** the list skews heavily to ATtiny13
+  (~8 projects) and ATtiny2313 (~30!). Our avr-chips.js configs are
+  data, not code — t13 (1K flash, no UART) and t2313 (2K, real UART,
+  20 pins) are each an afternoon of datasheet transcription in the
+  attiny88 pattern. t2313 unlocks the biggest single slice of the
+  list. t24/44/84 and t26/261/461/861 after, on demand.
+- **OUT OF SCOPE, stated:** V-USB / Digispark USB gadgets (password
+  generators, CapsLockers, HID keyboards — bit-banged low-speed USB
+  needs a host model; not our teaching target), mains/power
+  electronics (chargers, inverters, 230V fan regulators — safety-
+  critical bench work our solver deliberately does not pretend at),
+  RF transmitters (FM/LowFER — no RF propagation model), and
+  megahertz-range frequency counters (need external stimulus faster
+  than the transient stepper's teaching envelope).
+
+**Source B — hackster.io Hack-star-Arduino ATtiny85 collection:
+BLOCKED (403, Cloudflare, survives UA spoofing).** Known class from
+the collection's public description: Digispark/V-USB gadgets, SSD1306
+mini-games (TinyJoypad/Attiny-Arcade family), IR toys, small sensor
+displays — i.e. the same classes as Source A's t85 subset, so the
+adjudication above covers it. Re-harvest per-project (in a browser,
+by hand) when authoring; hackster projects carry per-project licenses
+(often CC or MIT, sometimes none — check each).
+
+**ATTinyCore (SpenceKonde, LGPL-mostly) — three uses, one boundary:**
+1. **Hosted-compiler core (the real prize):** stc-compiler can add an
+   "Arduino flavor" for the tiny family by driving avr-gcc with
+   ATTinyCore's variants + core sources (pin mappings, millis on the
+   right timer, USI-Wire, tunable-oscillator clock presets). LGPL in
+   a compile SERVICE is the Arduino ecosystem's standard posture:
+   the core's source is public and unmodified, users receive hexes
+   linked against it exactly as every Arduino IDE user does. Never
+   vendored into the MIT app bundle; lives server-side beside cc65
+   and sdcc.
+2. **Behavior oracle:** its documented semantics (USI-Wire timing,
+   ADC differential/gain modes, which timer owns millis per chip,
+   PIN_Pxn mappings) are the reference our avr adapter and examples
+   should be checked against — the same role SDCC's stc12.h played
+   for the EC/ELVD trap.
+3. **Bootloader realism, later:** Micronucleus/Optiboot images could
+   run UNDER our emulator for a "how does a bootloader actually
+   work" lesson — GPL-side, so through the GPL Lab if ever, not the
+   app.
+
+Order of attack when this tier opens: USI model → t2313 + t13 configs
+→ ATTinyCore compile flavor → author the runnable-now classes as
+examples (corpus fuel) → SSD1306-on-t85 games as the showpiece.
