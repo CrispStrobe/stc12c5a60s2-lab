@@ -2087,3 +2087,19 @@ onto breadboards → DRC/extractors verify). Formats, in leverage order:
 
 Assignment: kicad-netlist importer + the registry to bw-parts (kind/
 terminal mapping is its domain); .dig stays with bw-bundle.
+
+**GPL LAB OPENED (owner proposal, 2026-08-16):**
+<https://github.com/CrispStrobe/brickwright-gpl-lab> — the answer to
+"never vendored": copyleft software/media for the machines, delivered
+as copyleft intends. Aggregation repo (per-project upstream licenses,
+provenance READMEs, fetch.sh from upstream, brickwright-media.json
+manifests carrying machine config + slot mapping + documented bench
+preconditions). The app stays MPL/MIT-clean; its media panel can OFFER
+these bundles by URL — the user's click is the distribution event.
+First projects: Bad Apple (PROVEN — the unmodified GPL player streams
+its SD image through the CA2-clocked VIA-SPI card and paints moving
+frames, bw-board 3d4a834), Steamboat Willie (GPL encoding of the 1928
+public-domain film — cleanest rights in the set), tron-0xf,
+blinkenrocket-firmware. Ship-built-artifacts-with-source can grow in
+place when wanted; GPL wasm tooling (ucsim) inside the APP remains an
+owner decision, flagged, not assumed.
