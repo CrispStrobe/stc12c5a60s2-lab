@@ -132,3 +132,26 @@ Consequences:
 3. mgoblin/STC15lib (Apache-2.0) is a clean HAL reference for the
    STC15W408AS — the OTHER STC15 entry in the emitter's chip table;
    useful when that part gets real examples.
+
+## The bench session, ready to run (2026-08-16)
+
+The firmware lives in this repo now — `pseudocode/10-console-selftest.bw`
+and `pseudocode/11-console-pong.bw` (same files as the simulator's
+console examples; the simulator ran them first). The hosted compiler
+builds both — verified against the LIVE service: self-test 3102 B,
+pong 13856 B, the STC15 supplement present in the returned C.
+
+```bash
+# 1. compile (hosted — no local SDCC needed); DEVICE line picks the STC15
+./tools/compile-remote.sh -p 10-console-selftest
+# 2. socketed chip into the USB-TTL adapter harness, then
+make PART=stc15f2k60s2 flash    # power-cycle when stcgal prompts
+```
+
+What the self-test proves on first power-up, in order: the scan bus
+(bar sweeping both matrix halves), the digit selects (8 walking across
+the score digits), the buttons (any press beeps), and the buzzer
+polarity (P5.5 low-side drive through the PNP). If the bar sweeps in a
+scrambled column order, that is the provisional column mapping — note
+the actual order, fix the tables in both program generators, and the
+simulator inherits the truth.
