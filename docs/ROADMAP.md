@@ -1911,6 +1911,17 @@ References, adjudicated:
 - **eater.net/8bit** — the 8-bit machine's own official home (parts,
   schematics, videos), companion to the /6502 page above.
 
+- **tebl/BE6502 (MIT)** — the Eater 6502 formalized into per-module
+  KiCad PCBs (SBC, clock module, Arduino Mega bus-monitor shield on a
+  39-pin backplane). MIT = adoptable. Twofold value: the schematics are
+  machine-readable ground truth for the wiring comparison (sharper than
+  transcribing videos), and the ERRATA are the teaching gold — reset is
+  unreliable at 1 MHz without a dedicated reset circuit, and control
+  lines need pull-ups. The pull-up erratum converts directly into a DRC
+  rule: FLOATING IRQB/NMIB/RDY on a seated retro CPU is a real-bench
+  failure the checker should name. The Mega bus-monitor shield is the
+  physical twin of our debug target's bus-trace surface.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
