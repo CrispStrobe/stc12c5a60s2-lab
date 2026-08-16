@@ -2569,3 +2569,53 @@ the 8051 emulators.
 Licensing: BSD-3/MIT throughout — adoptable with attribution;
 NOTICE.md discipline as with ATTinyCore. Archive-to-corpus first,
 harvest incrementally.
+
+## Write-once-run-everywhere: the BINDING architecture (owner escalation, 2026-08-16)
+
+The owner asked three times today how one example (blink to pong)
+runs on 8051/6502/Z80/ATtiny/Uno/Nano/Pico without hand-writing per
+arch, and three times the answer was deferred. This section is the
+answer, and it is binding.
+
+**Principle: roles are the portable artifact. Pins, parts and benches
+are DERIVED, never authored per device.**
+
+1. PROGRAM->TARGET already works: the dialect's per-device pin pools
+   map role declarations to each chip's conventional pins, and the
+   per-device runtimes map verbs to each family's peripherals. This
+   is the machinery behind the index's `devices` arrays and the Code
+   tab's device picker. Tested per device (device-parity suites in
+   both compilers).
+2. BENCH->TARGET is the missing 30%, built from parts we already
+   run: `bench(example, device) = seat(inferNetlist(roles, pool,
+   device_part))`. The pin-inference bench (today only a fallback,
+   lately a bug source) becomes the GENERATOR: device-true MCU parts
+   (passthrough work), the seat generator, and the pools produce a
+   correct seated circuit.json for every device in an example's
+   list. No curated circuit is written for portable-tier examples,
+   ever.
+3. CATALOG POLICY, two explicit tiers:
+   - PORTABLE tier: one program.bw, benches generated per device, a
+     device picker on the example card. Blink through pong-the-logic.
+   - ARCH tier: curated benches where the hardware IS the lesson
+     (RBS15667=STC15, VDP build=6502, PIO lab=Pico). No pretending.
+   - Split presentations honestly: pong's game logic is portable;
+     its display runtime is per family (16x8 GPIO scan on the
+     console, MAX7219 on AVR, VDP on the 6502 bench) — the same
+     mechanism as per-family print/tone runtimes today.
+4. MACHINE-CLASS (6502/Z80): portable programs arrive through their
+   compile paths (dialect->cc65 C driving the VIA; BASIC/asm doors)
+   onto the CANONICAL bench example of that machine — a bus computer
+   has one bench by nature, so bench generation does not apply.
+
+Implementation order (coordinator-owned, not a lane wish):
+(a) `benchFor(exampleId, device)` in the catalog build — generate +
+seat + validate circuit.json per (portable example x device), emit
+into the index as per-device circuit files; (b) the example-card
+device picker in the browser wiring program retarget + generated
+bench together; (c) migrate the existing portable examples (blink,
+button, pot, 7seg, chaser...) to role-form and DELETE their
+hardcoded benches; (d) the pong-display runtime split as the
+showcase. Acceptance: pick any device on the blink card, the bench
+shows that device's board correctly seated, Run blinks it — same
+program file, zero per-device authoring.
