@@ -2518,3 +2518,54 @@ my review; console transcription + games: coordinator.
   untouchable.
 - **huijian222/stc15 (NO license, 2016)** — an STC15 flight-controller
   workspace (ANO ground station). Curio only; skip.
+
+## The Pico harvest (owner-flagged repos, 2026-08-16)
+
+Three corpora, all permissive, three different values:
+
+- **raspberrypi/pico-examples (BSD-3)** — the official SDK corpus:
+  adc, blink, pwm, i2c, spi, uart, dma, pio, clocks, multicore. The
+  canonical "what a Pico does". SDK-based C, expects the bootrom and
+  pico-stdlib.
+- **pimoroni/pimoroni-pico (MIT)** — drivers + examples for Pimoroni
+  add-ons in C++/MicroPython: ST7789 displays, encoders, sensor
+  breakouts. A parts-and-faces catalog wearing an examples repo.
+- **dwelch67/raspberrypi-pico (MIT)** — BAREMETAL register-level
+  examples: blinker, uart, PIO, charlieplexing, a Nokia 5110 LCD
+  clock. No SDK, no bootrom assumptions — which is EXACTLY our
+  rp2040js path (Thumb into SRAM, no-bootrom). The closest to
+  runnable-today of the three.
+
+**Which can we do?** Sort every example by what it exercises:
+
+1. **Portable concepts** (blink, button, pwm, adc read, i2c display,
+   SPI display, charlieplex, uart print): these already exist or
+   belong as PSEUDOCODE examples — one program, every device the
+   dialect targets (STC12/15/89, AVR family, Pico, 6502 bench,
+   micro:bit). The harvest here is a COVERAGE CHECK against our
+   catalog plus German intros, not a port: reach all platforms by
+   writing the concept once in the dialect, never by porting C.
+2. **RP2040-specific silicon** (PIO above all; DMA, dual-core,
+   interpolators): nothing else has PIO, and dwelch67's pio01/pio02
+   are the natural first vectors. rp2040js emulates PIO — a "PIO
+   lab" example tier (square wave, WS2812 driver, quadrature
+   decode) would be a genuine differentiator no other teaching sim
+   offers. Pico-only by nature; reached via the existing rp2040js
+   target, program loaded the dwelch67 way.
+3. **Pimoroni add-ons**: harvest as PARTS (ST7789 round display,
+   RGB encoder wheel) with faces — overlaps the ILI9341/TFT face
+   work; their MIT drivers are adoptable references for our C
+   emission targets, with attribution in NOTICE.
+
+**How do we reach them all?** The same doctrine as the ATtiny
+harvest: concepts through the dialect (write once, every target),
+silicon-specific features through the native example tier of the
+one platform that has them, hardware add-ons through parts+faces.
+The corpus value is also oracle value: dwelch67's baremetal
+binaries are register-level ground truth for rp2040js conformance
+(corpus campaign, task #10), the way rainbowpeee's firmware is for
+the 8051 emulators.
+
+Licensing: BSD-3/MIT throughout — adoptable with attribution;
+NOTICE.md discipline as with ATTinyCore. Archive-to-corpus first,
+harvest incrementally.
