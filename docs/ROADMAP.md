@@ -1922,6 +1922,18 @@ References, adjudicated:
   failure the checker should name. The Mega bus-monitor shield is the
   physical twin of our debug target's bus-trace surface.
 
+- **mggates39/EightBitCPUSim (GPL-2.0)** — web SAP-1 simulator with a
+  Z80-flavored assembler whose LEXER-DEBUG and ASSEMBLE-DEBUG views the
+  owner singled out. GPL: local-only reference, nothing vendored — but
+  the UX idea is the prize and is ours to re-implement: the assembler
+  as a GLASS BOX. Expose the stages a real assembler hides — token
+  stream, symbol table after each pass, unresolved-then-resolved
+  addresses, final listing — as a teaching surface. Fits our stack
+  cleanly: stc-compiler's /assemble grows an optional stages payload
+  (tokens, per-pass symbols; the listing/lineMap plumbing exists), and
+  the app renders it beside the editor. Every assembler we host (8051,
+  6502, Z80, AVR, ARM) gets the same window.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
