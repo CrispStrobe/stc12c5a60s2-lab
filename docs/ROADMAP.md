@@ -1981,7 +1981,12 @@ machine grew a bit-bang serial codec and per-chip initial input levels.
 Two traps recorded where they bit: floating-high port inputs make the
 LCD busy-poll burn 255 retries per write (banner at 2.5 s instead of
 0.3 s — the preset pins inputs.b low), and GETLN discards CR and ends
-lines on NL, so a CR-only sender waits forever. This is the first
-SHIPPABLE interactive retro machine: MIT end to end, compiler and
-editor on the 6502 itself. The same push carried the lane's SAP-1 TTL
+lines on NL, so a CR-only sender waits forever. Corrected claim (owner):
+shippable interactive machines exist already — Tali Forth 2 (public
+domain, py65mon) and R.T. Russell's BBC BASIC for Z80 (zlib, CP/M).
+G-Pascal's actual firsts are narrower and better: the first shippable
+machine whose DEVELOPMENT TOOLCHAIN runs ON the machine (editor +
+65C02 assembler + Pascal compiler in ROM — the type/assemble/run/
+"Hello, world!" loop is now an acceptance test), and the first over
+PIN-LEVEL bit-banged serial rather than an ACIA/MMIO console. The same push carried the lane's SAP-1 TTL
 chip family — 74LS173/161/189/157/107 are engine devices now.
