@@ -1824,3 +1824,43 @@ of the three turn out NOT to need the local-only cage):
   logic — the natural far-future target for the wired-extractor teaching
   arc ("build a Spectrum from TTL in the designer"). Its ROM/ holds
   TR-DOS/clone ROMs of separate provenance — NOT our ROM path.
+
+## The TTL tier: the 8-bit breadboard CPU that RUNS in the engine (2026-08-16)
+
+The owner set the bar with a photo of a real multi-board 6502 build and
+three repos. The reading: seated multi-board examples are now the norm
+(catalog regenerated), and the next machine class is the **Ben Eater
+SAP-1 8-bit TTL computer** — which is qualitatively different from every
+retro tier so far. The 6502/Z80 are emulated CPUs behind a bus extract;
+the SAP-1's chips are 74-series parts, and 74-series parts are ENGINE
+DEVICES. The whole computer can run gate-by-gate in the circuit engine —
+the "wire everything" thesis taken to its conclusion: wire the CPU
+itself.
+
+References, adjudicated:
+
+- **DutchMaker/8-bit-Breadboard-Computer** — the canonical Eater 8-bit
+  parts list (parts.xlsx/pdf; the list itself is facts). Defines the
+  part-kind gap list.
+- **visrealm/vrcpu (MIT)** — Eater-lineage 8-bit with microcode EEPROMs,
+  a C emulator core (SimLib) with a WASM build, a customasm-derived
+  assembler, and a hosted web emulator. MIT means the emulator is a
+  legitimate **differential oracle** for our device-level build (the
+  ucsim/emu8051 pattern: our engine vs their referee, instruction by
+  instruction), and the assembler a reference. Snake runs on it — a
+  worthy acceptance program.
+- **michaelkamprath/eater-sap-1-improvements (CC0)** — eleven staged
+  module improvements (clock gating, RAM reliability, wider control,
+  64K memory, 8-bit IR, stack pointer, 20x4 LCD, real ALU, writable
+  flags). CC0 = adoptable outright; the stages ARE the example
+  curriculum ladder, each module one example that still runs.
+
+In flight (briefed 2026-08-16): bw-board surveys/builds the missing
+74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
+with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
+283/245/138/EEPROM/7-seg already exist). bw-bundle starts the example
+line at the CLOCK MODULE (555 astable + manual step + speed pot — every
+kind exists today and it must blink under the engine before it ships)
+and runs the eater6502-full-build fidelity pass (4 boards, decoupling
+caps, reset button, bus LEDs, can-oscillator annotation, HD44780 on the
+VIA) against the owner's photo.
