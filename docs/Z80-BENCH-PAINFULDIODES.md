@@ -38,3 +38,26 @@ question are the pedagogy.
    (FTDI-FIFO semantics = a byte pipe with RXF/TXE handshake — the
    serial face maps naturally).
 Raw label inventory: corpus/z80-breadboard-computer/pd-z80-inventory.json
+
+## Pin-level pass (tools/kicad-netlist.py, top flat sheet)
+
+85 nets extracted from z80_breadboard.kicad_sch. The machine reads
+clean off the output: U1=Z80 (all 40 pins placed), U5/U6=ROM+RAM
+sharing A0-A14/D0-D7 with ~CE from the decode, U2=glue inverters,
+U7=74HC245 bus transceiver gating D0-D7 to U8=UM245R USB FIFO
+(~RXF U8.23->U7.4-ish handshake, ~TXE U8.22), U9=oscillator can
+(CLK -> U1.6), SW1+R2+C5=the reset RC, and the port strobe
+~WR_PORT_1 reaching the FIFO write side. Full raw table:
+corpus/z80-breadboard-computer/netlist-z80_breadboard.txt.
+
+**Known defect, stated:** a handful of control nets (~MREQ, ~IORQ,
+A15, ~WR_PORT_1) come out OVER-MERGED — the same U1 pins appear in
+several of them, which is physically impossible; some symbol
+orientation cases in the parser land distinct pins on coincident
+coordinates. The module sheets (glue_logic, memory, clock_reset)
+extracted CLEANLY with labels, so the two-source rule resolves it:
+the per-module netlists + README-DETAILED are the authority for the
+control signals; the flat sheet is authoritative for everything
+else. Fix the parser's orientation math before the next design, but
+do not block the bench authoring on it — the machine is fully
+determined by the two sources together.
