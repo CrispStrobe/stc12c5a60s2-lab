@@ -1949,6 +1949,17 @@ References, adjudicated:
   flows through the debugger). v1 scope: the 6502, whose data paths
   are the best documented and whose tier carries the teaching arc.
 
+- **ngdrascal/8bitsim (MIT)** — the Eater 8-bit rebuilt in hneemann's
+  Digital logic simulator: one subcircuit per module (registers, ALU,
+  RAM, PC, control), SVG diagrams, memory images — and the circuit
+  files are MIT. Since .dig is XML, this is a MACHINE-READABLE MIT
+  NETLIST of the whole SAP-1 — the accelerant for the TTL tier: our
+  example wiring can be TRANSLATED from it (own transform code over MIT
+  data) instead of hand-transcribed from videos, then cross-checked
+  net-by-net. Digital itself (GPL) runs the same files locally —
+  referee at the module level. Their digital 555 stand-in also marks
+  where we are richer: our 555 is a real analog engine device.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
