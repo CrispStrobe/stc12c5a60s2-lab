@@ -2339,11 +2339,23 @@ per step from the transient waveform, plot Bode magnitude/phase
 core, two presentations. This single instrument unlocks the entire
 Messtechnik tier AND the impedance curriculum.
 
-**The Lehrpfad (textbook mode).** Naming: candidates were Course,
-Field Guide, Lab Notebook, Learning Trail — recommendation:
-**"Lehrpfad"** (DE) / **"Trail"** (EN). A Lehrpfad is literally a
-nature trail with numbered stations — exactly this: a curriculum-
-ordered walk where each station is a runnable bench.
+**The textbook mode — naming (owner: steelpunk, grimoire-not-
+Tafel-und-Kreide; this is also the app's FLAIR NORTH STAR: brass,
+steel, CRT glow, Neuromancer — not classroom).** Candidates:
+- **Codex** — ancient tome + code pun; short, identical EN/DE,
+  arcane-technical. Chapters read as "volumes".
+- **Wirebound** — a grimoire literally bound in hookup wire; unique,
+  ownable, on-bench. ("The Wirebound", or "Wirebound Codex".)
+- **Arcanum** — the hidden knowledge; "Das Arcanum" carries in DE.
+- **The Foundry** — pure steelpunk, but reads as a BUILD space; hold
+  it in reserve for a future project/workshop mode rather than the
+  book.
+RECOMMENDATION: **Wirebound** as the mode's proper name with
+**Codex** as the in-UI noun ("open the Codex", "Volume II: Impedance")
+— fantasy enough to feel like a grimoire, technical enough to be ours.
+The manifest keys stay technical (trails/chapters/stations); only the
+user-facing surface wears the flair. Structure: a curriculum-ordered
+walk where every station is a runnable bench.
 Architecture (schema in sb3 examples/curriculum.json):
 - **trails** → ordered **chapters** → ordered **stations**; a station
   is an example id PLUS narrative fields (lead-in text, "what you now
