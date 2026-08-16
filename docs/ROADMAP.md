@@ -1855,6 +1855,16 @@ References, adjudicated:
   flags). CC0 = adoptable outright; the stages ARE the example
   curriculum ladder, each module one example that still runs.
 
+- **space1649/8-bit-SAP-Breadboard-Computer-by-Space-Man (NO license)**
+  — reference-only, like every unlicensed repo: nothing copied, facts
+  usable. Its value is the FAILURE CATALOG: eleven documented real-build
+  problems with solutions (reversed data lines, clock debounce ~470ms RC,
+  RAM writes corrupted on mode switching, jump-circuit glitches, multi
+  reset domains). Those are exactly the traps our DRC and the examples'
+  "what will go wrong" intro layer should teach — and the RAM-write and
+  debounce behaviors are worth MODELING in the 74xx devices, because a
+  simulation that cannot exhibit the real failure cannot teach the fix.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
