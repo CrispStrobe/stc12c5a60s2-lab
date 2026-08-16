@@ -105,3 +105,30 @@ P3.4, P3.5, P1.7, P5.4 (RST).
    wired exactly per the tables above.
 3. Games in pseudocode (`DEVICE STC15F2K60S2`), clean-room.
 4. Flash the real kit — the first verified-on-silicon milestone.
+
+## Cross-reference: mogoreanu/8x16 (MIT) — same family, different harness
+
+Owner-flagged 2026-08-16; sources archived at
+`../../stc-research/corpus/8x16-mogoreanu/`. It is an 8×16 game console
+on the SAME chip (STC15F2K60S2) with the SAME architecture — 16
+individually-driven playfield lines, 8 shared commons, 3 digit selects
+that continue the same scan ("the digits have to be driven in
+reverse", their comment), six buttons with semantic names (OK/Reset/
+Up/Right/Down/Left — Reset rides P3.1, which the RBS15667 leaves
+free) — but a DIFFERENT board revision: the pin harness is permuted
+relative to our transcription (their commons {P2.4,P2.6,P4.4,P2.1,
+P4.2,P2.2,P3.5,P1.7} vs our bus {P1.5,P4.1,P2.4,P2.2,P2.1,P2.0,P4.4,
+P1.4}; their digit selects P2.3/P2.5/P4.1 vs our P2.3/P2.5/P4.2).
+
+Consequences:
+1. **The architecture reading is confirmed** by an independent working
+   firmware; the exact harness must come from each board's own
+   schematic — never assume across kit revisions.
+2. **MIT means their driver is adoptable with attribution**: the
+   framebuffer + Timer-0 interrupt column scan (16-bit mode, ~4.5 ms
+   reload), the push-pull PxM0 mask pattern, and the button debounce
+   structure are the natural skeleton for our game firmware's C
+   emission targets.
+3. mgoblin/STC15lib (Apache-2.0) is a clean HAL reference for the
+   STC15W408AS — the OTHER STC15 entry in the emitter's chip table;
+   useful when that part gets real examples.
