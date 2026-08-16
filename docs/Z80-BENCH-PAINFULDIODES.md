@@ -392,6 +392,30 @@ prose, not a design question.
 
 ## 10. What was built from this
 
-`examples/z80-pd-bench/` in sb3-creator — the bench example, seated on
-three breadboards. What it models faithfully and what it approximates
-is stated in that directory's `EXPECTED.md`, not here.
+`examples/z80-pd-bench/` in sb3-creator (2026-08-16) — the bench
+example, seated by the generator onto two breadboards. It extracts
+with zero refusals to `MAP RAM $8000-$FFFF` / `MAP ROM $0000-$7FFF`,
+and its own `check-extract.mjs` asserts that map **and** the absence
+of a `CHIP` line.
+
+Three approximations, all named in that directory's `EXPECTED.md`
+rather than here:
+
+- a 32K `28c256` stands in for the 8K AT28C64B (no 8K part exists in
+  the engine; the decode is identical and only the four-fold ROM
+  aliasing of §6 is lost — which is exactly the swap the upstream
+  author says would "drop straight in");
+- 74HC00 NAND stands in for the 74LS32 + 74LS04 glue, because the
+  app's Z80 extractor understands one glue family and treats every
+  other chip as absent. Same logic, different packages, and the gate
+  count goes from nine to fourteen — worth showing, not hiding;
+- no oscillator part exists, so `clk` is left unwired rather than
+  faked.
+
+**The UM245R and its 74LS244 are absent, not substituted.** An MC6850
+was available and was deliberately not used: it would have turned this
+design into a copy of the catalog's other Z80 bench and erased the one
+difference this example exists to show. The three port strobes are
+generated and correct and end at unconnected gate outputs — the
+machine boots from ROM and cannot speak. §8's part spec is what closes
+that gap.
