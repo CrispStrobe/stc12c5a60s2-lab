@@ -176,3 +176,10 @@ the emulator's call/return above the boundary. Silicon is expected to
 run pong fine, but the flash HOLD stands until the emulator verdict is
 implemented and pong verified end-to-end under emulation — unverified-
 but-probably-fine is not a standard this project flashes.
+
+**HOLD LIFTED (same night):** emulator fixed (emu8051-stc 2f1855a —
+flash size was used as a code-fetch bit mask; 0xEFFF stripped bit 12),
+fix vendored with two-source SHA verification, and 11-console-pong
+VERIFIED EXECUTING under the fixed STC15 emulator: full scan activity
+on every port, buzzer silent as designed. Both console firmwares are
+now flash-ready; the game is real before it touches silicon.
