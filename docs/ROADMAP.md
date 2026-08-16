@@ -1990,3 +1990,40 @@ machine whose DEVELOPMENT TOOLCHAIN runs ON the machine (editor +
 "Hello, world!" loop is now an acceptance test), and the first over
 PIN-LEVEL bit-banged serial rather than an ACIA/MMIO console. The same push carried the lane's SAP-1 TTL
 chip family — 74LS173/161/189/157/107 are engine devices now.
+
+## Reference sweep #2 (2026-08-16, owner batch): more oracles, one demo target
+
+- **tomwhite/8-bit-computer (NO license)** — the Eater 8-bit in
+  CircuitJS1 (text-format circuit file) + Python assembler/microcode
+  generators. Reference-only; a third netlist dialect and a microcode
+  table cross-check.
+- **ScarraxX/32Bit-CPU (NO license)** — Logisim .circ of the Eater
+  8-bit, EXTENDED to 16- and 32-bit with FP. Unlicensed, so unlike
+  8bitsim its files cannot seed vendored circuits — run-local Logisim
+  referee only. The widening ladder (8→16→32) is a fact worth
+  remembering for the far end of the TTL curriculum.
+- **MeadeRobert/sap1 (NO license)** — Logisim + real TTL breadboards +
+  the RMX assembler, with a JLZ instruction extension. Reference-only;
+  a second Logisim oracle and a clean example of extending the
+  instruction set (the kamprath stage-7 idea from another angle).
+- **TheSUPERCD/8bit_MicroComputer_Verilog (MIT)** — the Eater 8-bit in
+  Verilog WITH a testbench and Python assembler, MIT. Vendorable
+  referee: iverilog + CPU_tb.v joins the roster (vrcpu instruction-
+  level, wmvanvliet subcycle, Digital/8bitsim module-level, and now a
+  second RTL referee that we may vendor rather than merely run).
+- **stuenkels/6502Rev2 (NO license)** — PCB variant of the Eater 6502:
+  TWO VIAs + a serial chip, RAM $0000-3FFF, VIA $4010, VIA $4020,
+  serial $4040, ROM high. Reference-only, but the memory map is facts —
+  a ready-made MAP/CHIP declaration exercise proving the composable
+  machine swallows real-world variants ("only port definitions change"
+  is their own porting claim; our retarget story should make that one
+  edit).
+- **NormalLuser/Ben-Eater-Bad-Apple (GPL-3)** — Bad Apple on the Eater
+  6502 at 5 MHz: worst-video-card VGA with vsync wired to NMI, video
+  streamed from SD over VIA bit-bang. GPL = run-local demo target,
+  never vendored (the tron-tape stance). As an acceptance program it
+  names our machine-side gaps precisely: an SD-card model on the VIA
+  (bit-banged SPI — G-Pascal's SPI docs cover the same bus), NMI wired
+  from the vga frame pulse (simplevga's pulse exists, NMI routing does
+  not), and a 5 MHz preset (trivial). When those close, the machine
+  plays Bad Apple — the loudest possible fidelity demo.
