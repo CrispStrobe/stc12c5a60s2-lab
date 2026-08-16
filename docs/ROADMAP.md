@@ -2350,9 +2350,8 @@ steel, CRT glow, Neuromancer — not classroom).** Candidates:
 - **The Foundry** — pure steelpunk, but reads as a BUILD space; hold
   it in reserve for a future project/workshop mode rather than the
   book.
-RECOMMENDATION: **Wirebound** as the mode's proper name with
-**Codex** as the in-UI noun ("open the Codex", "Volume II: Impedance")
-— fantasy enough to feel like a grimoire, technical enough to be ours.
+DECIDED (owner, 2026-08-16): the mode is **the Codex**. Chapters are
+Volumes; stations open on the bench. Steelpunk register throughout.
 The manifest keys stay technical (trails/chapters/stations); only the
 user-facing surface wears the flair. Structure: a curriculum-ordered
 walk where every station is a runnable bench.
