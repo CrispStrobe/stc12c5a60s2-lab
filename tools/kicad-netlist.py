@@ -46,19 +46,33 @@ def walk(node, name):
 
 def main(path):
     sexp = parse(tokenize(open(path).read()))
-    # 1. Library pin geometry: lib_id -> [(number, name, x, y)]
+    # 1. Library pin geometry, PER UNIT: lib_id -> unit -> [(num, name, x, y)]
+    # KiCad lib symbols nest child symbols named "<name>_<unit>_<bodystyle>";
+    # unit 0 = common pins, and a multi-unit part (a hex inverter) has one
+    # child per gate. Collecting ALL children's pins for every instance is
+    # how the first extraction placed six gates' pins on each gate and
+    # over-merged the control nets.
     libpins = {}
-    for lib in walk(sexp, 'symbol'):
-        if not (len(lib) > 1 and isinstance(lib[1], str)): continue
-        pins = []
-        for p in walk(lib, 'pin'):
-            at = next(walk(p, 'at'), None)
-            num = next(walk(p, 'number'), None)
-            nam = next(walk(p, 'name'), None)
-            if at and num:
-                pins.append((num[1], nam[1] if nam else '', float(at[1]), float(at[2])))
-        if pins and '.' not in str(lib[1]):  # top-level lib defs only… keep all
-            libpins.setdefault(lib[1], pins)
+    lib_section = next(walk(sexp, 'lib_symbols'), [])
+    for lib in (n for n in lib_section if isinstance(n, list) and n and n[0] == 'symbol'):
+        name = lib[1]
+        childbase = name.split(':')[-1]
+        units = {}
+        for child in (n for n in lib if isinstance(n, list) and n and n[0] == 'symbol'):
+            cname = child[1]
+            m = re.match(re.escape(childbase) + r'_(\d+)_(\d+)$', cname)
+            if not m: continue
+            unit, style = int(m.group(1)), int(m.group(2))
+            if style != 1: continue  # body style 1 only (no DeMorgan variants)
+            pins = []
+            for pin in walk(child, 'pin'):
+                at = next(walk(pin, 'at'), None)
+                num = next(walk(pin, 'number'), None)
+                nam = next(walk(pin, 'name'), None)
+                if at and num:
+                    pins.append((num[1], nam[1] if nam else '', float(at[1]), float(at[2])))
+            if pins: units.setdefault(unit, []).extend(pins)
+        libpins[name] = units
     # 2. Points registry with union-find.
     parent = {}
     def find(a):
@@ -80,16 +94,27 @@ def main(path):
         ox, oy, rot = float(at[1]), float(at[2]), float(at[3]) if len(at) > 3 else 0.0
         mir = next((n[1] for n in walk(inst, 'mirror') if len(n) > 1), None)
         base = libid.split(':')[-1]
-        pins = libpins.get(libid) or libpins.get(base) or next((v for k, v in libpins.items() if k.endswith(base)), [])
+        units = libpins.get(libid) or libpins.get(base) or next((v for k, v in libpins.items() if k.endswith(base)), {})
+        inst_unit = int(next((n[1] for n in walk(inst, 'unit') if len(n) > 1), 1))
+        pins = list(units.get(0, [])) + list(units.get(inst_unit, []))
+        seen_coords = {}
         for num, nam, px, py in pins:
+            # Transform order (KiCad 7): mirror in LIB space, rotate CCW in
+            # LIB space, THEN flip Y into sheet space (Y grows down). The
+            # first version composed the flip before the rotation, which is
+            # rot(-theta) -- correct at 0/180, wrong at 90/270, and the
+            # cause of the over-merged nets (rotated gates' pins landed on
+            # foreign junctions).
             x, y = px, py
             if mir == 'y': x = -x
             if mir == 'x': y = -y
             r = math.radians(rot)
-            # schematic Y grows down; symbol pin Y is up-positive -> negate.
-            rx = x * math.cos(r) + y * math.sin(r)
-            ry = -(-x * math.sin(r) + y * math.cos(r))
-            k = key(ox + rx, oy + ry)
+            lx = x * math.cos(r) - y * math.sin(r)
+            ly = x * math.sin(r) + y * math.cos(r)
+            k = key(ox + lx, oy - ly)
+            if k in seen_coords:
+                print(f"WARN: {ref} pins {seen_coords[k]} and {num} coincide -- transform bug", file=sys.stderr)
+            seen_coords[k] = num
             pin_at.setdefault(k, []).append((ref, num, nam))
     for w in walk(sexp, 'wire'):
         pts = [key(float(p[1]), float(p[2])) for p in walk(w, 'xy')]
@@ -108,6 +133,15 @@ def main(path):
         nets[find(k)]['pins'].extend(pl)
     for k, name in label_at.items():
         nets[find(k)]['labels'].add(name)
+    owner = {}
+    dup = 0
+    for root, n in nets.items():
+        for pin in set(n['pins']):
+            if pin in owner and owner[pin] != root:
+                dup += 1
+            owner[pin] = root
+    if dup:
+        print(f"WARN: {dup} pins appear in more than one net -- extraction unsound", file=sys.stderr)
     named = 0
     for root, n in sorted(nets.items(), key=lambda kv: -len(kv[1]['pins'])):
         if not n['pins']: continue
