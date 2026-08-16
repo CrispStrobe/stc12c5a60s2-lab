@@ -1,0 +1,633 @@
+# ATtiny project harvest — atmega32-avr.com/attiny-based-projects-list/
+# Fetched 2026-08-16. TITLES AND LINKS ONLY (facts/pointers). Each
+# upstream needs its own license check before any code is read.
+# 314 deduplicated entries.
+
+Complete Projects List
+  https://atmega32-avr.com/projects/
+AVR Projects by Application
+  https://atmega32-avr.com/avr-projects/
+Proteus simulation based avr projects
+  https://atmega32-avr.com/proteus-simulation-based-avr-projects/
+AVR atmega8 microcontroller based projects list
+  https://atmega32-avr.com/avr-atmega8-microcontroller-based-projects-list/
+AVR Atmega16 based Projects List
+  https://atmega32-avr.com/avr-atmega16-based-projects-list/
+Atmega328 avr based projects list
+  https://atmega32-avr.com/atmega328-avr-based-projects-list/
+ATTiny85 ATTiny45 and ATTiny13 based projects list
+  https://atmega32-avr.com/attiny85-attiny45-and-attiny13-based-projects-list/
+Atmega AVR Projects in PDF
+  https://atmega32-avr.com/atmega-avr-projects/
+Proteus simulation based avr projects List Downloadable
+  https://atmega32-avr.com/proteus-simulation-based-avr-projects-list/
+AVR atmega8 microcontroller based projects list PDF Downloadable
+  https://atmega32-avr.com/avr-atmega8-microcontroller-based-projects-list-2/
+AVR Atmega16 based Projects List PDF Downloadable
+  https://atmega32-avr.com/avr-atmega16-based-projects-list-pdf-downloadable/
+Atmega328 avr based projects list PDF Downloadable
+  https://atmega32-avr.com/atmega328-avr-based-projects-list-2/
+ATTiny based projects list PDF Downloadable
+  https://atmega32-avr.com/attiny-based-projects-list/
+AVR ebooks
+  https://atmega32-avr.com/avr-ebook/
+AVR ATmega Compilers
+  https://atmega32-avr.com/avr-atmega-compilers/
+AVR ATmega Programmers
+  https://atmega32-avr.com/avr-atmega-programmers/
+ATmega AVR News
+  https://atmega32-avr.com/electronics-news-updates/atmega-avr-news/
+Advance Search
+  https://atmega32-avr.com/advance-search/
+Advance Search Result
+  https://atmega32-avr.com/advance-search-result/
+Advanced View of Atmega Microcontroller Projects List
+  https://atmega32-avr.com/advanced-view-atmega-microcontroller-projects-list/
+ATMega Weekly Newsletter
+  https://atmega32-avr.com/atmega-weekly-newsletter/
+Atmega32 Avr PDF Downloadable
+  https://atmega32-avr.com/atmega32-avr-pdf-downloadable/
+ATMega32 AVR Projects RSS Feeds
+  https://atmega32-avr.com/atmega32-avr-projects-rss-feeds/
+Categories
+  https://atmega32-avr.com/categories/
+Copyright Policy
+  https://atmega32-avr.com/copyright-policy/
+Filter testing
+  https://atmega32-avr.com/filter-testing/
+Online Courses to Learn ATMega32 AVR Programming
+  https://atmega32-avr.com/online-courses-to-learn-atmega32-avr-programming/
+Projects List Table
+  https://atmega32-avr.com/projects-list-table/
+Sitemap
+  https://atmega32-avr.com/sitemap/
+Terms of Service
+  https://atmega32-avr.com/terms-of-service/
+Terms of Use
+  https://atmega32-avr.com/terms-of-use/
+Write Us a Guest Post
+  https://atmega32-avr.com/write-us-a-guest-post/
+Atmega AVR Projects PDF
+  https://atmega32-avr.com/wp-content/uploads/2018/11/ATTiny85-ATTiny45-and-ATTiny13-based-projects-list-ATMega32-AVR.pdf
+Choosing the Right Microcontroller for Beginners in the AVR Family
+  https://atmega32-avr.com/choosing-the-right-microcontroller-for-beginners-in-the-avr-family/
+AVR ATtiny4313 in Bascom, GCC and Assembler
+  https://atmega32-avr.com/avr-attiny4313-in-bascom-gcc-and-assembler/
+Clock-Free Arduino: Maximizing ATmega328 Performance
+  https://atmega32-avr.com/clock-free-arduino-maximizing-atmega328-performance/
+Building Your Own Atmel AVR ISP Microcontroller Programmer
+  https://atmega32-avr.com/building-your-own-atmel-avr-isp-microcontroller-programmer/
+Starting AVR 8-bit Development
+  https://atmega32-avr.com/starting-avr-8-bit-development/
+ATMEGA4808: Better than ATMEGA328?
+  https://atmega32-avr.com/atmega4808-better-than-atmega328/
+Work Progress
+  https://atmega32-avr.com/work-progress/
+Embedded Programming
+  https://atmega32-avr.com/embedded-programming/
+GETTING STARTED WITH AVR MICROCONTROLLER
+  https://atmega32-avr.com/getting-started-with-avr-microcontroller/
+Attiny13A Motor Controller Board
+  https://atmega32-avr.com/attiny13a-motor-controller-board/
+XOD-powered Rechargeable Solar Lamp
+  https://atmega32-avr.com/xod-powered-rechargeable-solar-lamp/
+Multiple ATtiny85 or 13A Programmer
+  https://atmega32-avr.com/multiple-attiny85-or-13a-programmer/
+I2C Blynk Car With Attiny85 and M5StickC
+  https://atmega32-avr.com/i2c-blynk-car-with-attiny85-and-m5stickc/
+Types and Applications of ATMEL Microcontroller Programming in Embedded Systems
+  https://atmega32-avr.com/types-and-applications-of-atmel-microcontroller-programming-in-embedded-systems/
+Programming AVR Microcontrollers with Atmel Studio 7
+  https://atmega32-avr.com/programming-avr-microcontrollers-with-atmel-studio-7/
+Classic Atmel ATtiny85-20PU Stop Light
+  https://atmega32-avr.com/classic-atmel-attiny85-20pu-stop-light/
+ATTiny85 Game Timer – Get Rid of That Old Hourglass!
+  https://atmega32-avr.com/attiny85-game-timer-get-rid-of-that-old-hourglass/
+HackerBox 0044: PCB 123
+  https://atmega32-avr.com/hackerbox-0044-pcb-123/
+Updated Guide on How to Program an Attiny13a or 13 With the Arduino IDE
+  https://atmega32-avr.com/updated-guide-on-how-to-program-an-attiny13a-or-13-with-the-arduino-ide/
+ATtiny Programming With Arduino
+  https://atmega32-avr.com/attiny-programming-with-arduino/
+ATtiny85 Interrupt Barebones Example
+  https://atmega32-avr.com/attiny85-interrupt-barebones-example/
+Ghetto Development Environment
+  https://atmega32-avr.com/ghetto-development-environment/
+How to Make a Cheap Attiny Arduino Board
+  https://atmega32-avr.com/how-to-make-a-cheap-attiny-arduino-board/
+Programming the ATtiny
+  https://atmega32-avr.com/programming-the-attiny/
+ATtiny85 Mini RGB Mood Light!
+  https://atmega32-avr.com/attiny85-mini-rgb-mood-light/
+ATMEGA328P Microcontroller
+  https://atmega32-avr.com/atmega328p-microcontroller/
+Frequency Counter With Variable Gate Time
+  https://atmega32-avr.com/frequency-counter-with-variable-gate-time/
+Hello Train! ATtiny 1614
+  https://atmega32-avr.com/hello-train-attiny-1614/
+Pulse Generator
+  https://atmega32-avr.com/pulse-generator/
+BOXOI – an Open Source Miniature 3D Zoetrope DIY Kit
+  https://atmega32-avr.com/boxoi-an-open-source-miniature-3d-zoetrope-diy-kit/
+RC Controlled Rgb Led Strip
+  https://atmega32-avr.com/rc-controlled-rgb-led-strip/
+ATTiny44 Guitar Effector
+  https://atmega32-avr.com/attiny44-guitar-effector/
+Wireless Energy Meter With Load Control
+  https://atmega32-avr.com/wireless-energy-meter-with-load-control/
+Jar of Fireflies
+  https://atmega32-avr.com/jar-of-fireflies/
+Using a Quadrature Encoder With an ATtiny 2313 and an OLED Display
+  https://atmega32-avr.com/using-a-quadrature-encoder-with-an-attiny-2313-and-an-oled-display/
+2cm Height 7 Segments 6 Digits AVR Clock With 4 Digits Thermometer
+  https://atmega32-avr.com/2cm-height-7-segments-6-digits-avr-clock-with-4-digits-thermometer/
+Debugging AVR Code in Linux With Simavr
+  https://atmega32-avr.com/debugging-avr-code-in-linux-with-simavr-2/
+How to Use the Dragon Rider 500 With Your AVR Dragon
+  https://atmega32-avr.com/how-to-use-the-dragon-rider-500-with-your-avr-dragon/
+GAS DETECTOR CIRCUIT ATTINY45
+  https://atmega32-avr.com/gas-detector-circuit-attiny45/
+WHEELS BIKE LIGHT CIRCUIT
+  https://atmega32-avr.com/wheels-bike-light-circuit/
+COMPUTER CONTROLLED 8-CHANNEL DIMMER CIRCUIT
+  https://atmega32-avr.com/computer-controlled-8-channel-dimmer-circuit/
+WAV PLAYER CIRCUIT WITH ATMEL ATTINY2313
+  https://atmega32-avr.com/wav-player-circuit-with-atmel-attiny2313/
+DISEQC TESTER CIRCUIT WITH ATMEL ATTINY13
+  https://atmega32-avr.com/diseqc-tester-circuit-with-atmel-attiny13/
+USB CONTROLLED WEB SITE HIT COUNTER ATMEL ATTINY25 WITH DELPHI
+  https://atmega32-avr.com/usb-controlled-web-site-hit-counter-atmel-attiny25-with-delphi/
+NIMH NICD BATTERY FAST PWM CHARGER CIRCUIT ATMEL AVR
+  https://atmega32-avr.com/nimh-nicd-battery-fast-pwm-charger-circuit-atmel-avr/
+TV OSCILLOSCOPE CIRCUIT WITH ATMEGA8515 ATTINY12
+  https://atmega32-avr.com/tv-oscilloscope-circuit-with-atmega8515-attiny12/
+DIGITAL TONE CONTROL CIRCUIT ATMEL ATTINY2313 LM1036
+  https://atmega32-avr.com/digital-tone-control-circuit-atmel-attiny2313-lm1036/
+8051 BASCOM AVR PROJECTS ATMEL CIRCUITS ARCHIVE
+  https://atmega32-avr.com/8051-bascom-avr-projects-atmel-circuits-archive/
+USB UART CONVERTER PIC16F88 CIRCUIT ATTINY2313
+  https://atmega32-avr.com/usb-uart-converter-pic16f88-circuit-attiny2313/
+ATMEL ATMEGA8 VIA USB CONTROL CIRCUIT
+  https://atmega32-avr.com/atmel-atmega8-via-usb-control-circuit/
+LIGHT FOLLOWING ROBOT WITH ATMEL ATTINY25
+  https://atmega32-avr.com/light-following-robot-with-atmel-attiny25/
+FOR ALL THE TELEVISION REMOTE CONTROL (JUST OFF)
+  https://atmega32-avr.com/for-all-the-television-remote-control-just-off/
+PROGRAMMED DOOR ALARM CIRCUIT ATTINY24 ATTINY13 CONTROLLED
+  https://atmega32-avr.com/programmed-door-alarm-circuit-attiny24-attiny13-controlled/
+ATMEL APPLICATION NOTES AND SOURCE C ASM CODE
+  https://atmega32-avr.com/atmel-application-notes-and-source-c-asm-code/
+ATMEL ATTINY15 MICROCONTROLLER EXAMPLE DC TO DC CONVERTER CIRCUIT
+  https://atmega32-avr.com/atmel-attiny15-microcontroller-example-dc-to-dc-converter-circuit/
+REMOTE-CONTROLLED DIGITAL TIMER CIRCUIT WITH ATMEL ATTINY2313
+  https://atmega32-avr.com/remote-controlled-digital-timer-circuit-with-atmel-attiny2313/
+STAR LED EFFECTS CIRCUIT ATTINY13 PROJECT
+  https://atmega32-avr.com/star-led-effects-circuit-attiny13-project/
+ELECTRONIC PIANO CIRCUIT ATTINY2313 SIMPLE AUDIO PROJECT
+  https://atmega32-avr.com/electronic-piano-circuit-attiny2313-simple-audio-project/
+15A MOTOR SPEED CONTROL CIRCUIT ATTINY45 PWM
+  https://atmega32-avr.com/15a-motor-speed-control-circuit-attiny45-pwm/
+LED EFFECT CIRCUIT ATTINY2313 MULTI FUNCTION
+  https://atmega32-avr.com/led-effect-circuit-attiny2313-multi-function/
+TOY CAR MODIFICATION MADE SIMPLE ROBOT PROJECT ATTINY2313
+  https://atmega32-avr.com/toy-car-modification-made-simple-robot-project-attiny2313/
+LIPO LI-ION BATTERY CHARGER CIRCUIT BALANCING ATTINY26
+  https://atmega32-avr.com/lipo-li-ion-battery-charger-circuit-balancing-attiny26/
+NI-MH BATTERY CHARGER CIRCUIT ATMEL ATTINY26
+  https://atmega32-avr.com/ni-mh-battery-charger-circuit-atmel-attiny26/
+USB PASSWORD GENERATOR CIRCUIT ATTINY85
+  https://atmega32-avr.com/usb-password-generator-circuit-attiny85/
+USB BUSINESS CARD WITH ATTINY85
+  https://atmega32-avr.com/usb-business-card-with-attiny85/
+BATTERY ALARM CIRCUIT FOR MODEL HELICOPTERS ATTINY13
+  https://atmega32-avr.com/battery-alarm-circuit-for-model-helicopters-attiny13/
+ATMEL ATTINY45 BLUETOOTH SCOREBOARD CIRCUIT
+  https://atmega32-avr.com/atmel-attiny45-bluetooth-scoreboard-circuit/
+1A 10A ADJUSTABLE BATTERY CHARGING CIRCUIT 100AH
+  https://atmega32-avr.com/1a-10a-adjustable-battery-charging-circuit-100ah/
+230V FAN REGULATOR CIRCUIT MOSFET MC33152 ATTINY25
+  https://atmega32-avr.com/230v-fan-regulator-circuit-mosfet-mc33152-attiny25/
+PROGRAMMABLE TIMER CIRCUIT ATTINY25
+  https://atmega32-avr.com/programmable-timer-circuit-attiny25/
+TINY USB PROGRAMMER AVR MICROCONTROLLERS AVRDUDE
+  https://atmega32-avr.com/tiny-usb-programmer-avr-microcontrollers-avrdude/
+NIXIE TUBE THERMOMETER CIRCUIT
+  https://atmega32-avr.com/nixie-tube-thermometer-circuit/
+AUTOMATIC FEEDING MACHINE WITH CD-ROM MECHANIC
+  https://atmega32-avr.com/automatic-feeding-machine-with-cd-rom-mechanic/
+MultiPurpose Atmel Development Boards Project
+  https://atmega32-avr.com/multipurpose-atmel-development-boards-project/
+ATTiny 2313 BOARD
+  https://atmega32-avr.com/attiny-2313-board/
+OH HAI! on Windows 10 IoT Core
+  https://atmega32-avr.com/oh-hai-windows-10-iot-core/
+ThiDom Home automation
+  https://atmega32-avr.com/thidom-home-automation/
+Physical computing with ATtiny
+  https://atmega32-avr.com/physical-computing-attiny/
+nRF24L01+ with ATtiny85 3 Pins
+  https://atmega32-avr.com/nrf24l01-attiny85-3-pins/
+Programming ATtiny85 with Arduino Uno
+  https://atmega32-avr.com/programming-attiny85-arduino-uno/
+Arduino Without External Clock Crystal on ATmega328
+  https://atmega32-avr.com/arduino-without-external-clock-crystal-atmega328/
+Tri-Mode Digital Clock with ATtiny85 and RTC
+  https://atmega32-avr.com/tri-mode-digital-clock-attiny85-rtc/
+Bootload Your ATtiny85
+  https://atmega32-avr.com/bootload-your-attiny85/
+SSD1306xLED Tinusaur ATtiny85 Library for SSD1306
+  https://atmega32-avr.com/ssd1306xled-tinusaur-attiny85-library-ssd1306/
+3D-Printed RGB Wallet
+  https://atmega32-avr.com/3d-printed-rgb-wallet/
+Light-Up Poker Chip
+  https://atmega32-avr.com/light-poker-chip/
+Scrumtato: Make Daily Stand-Ups Agile Again
+  https://atmega32-avr.com/scrumtato-make-daily-stand-ups-agile/
+Playing Simon On A Hacked Farm Toy
+  https://atmega32-avr.com/playing-simon-hacked-farm-toy/
+DIY Canon IR Remote
+  https://atmega32-avr.com/diy-canon-ir-remote/
+wozItDo: Tiny IQ puzzel, BIG challenge
+  https://atmega32-avr.com/wozitdo-tiny-iq-puzzel-big-challenge/
+Door/Window alarm circuit
+  https://atmega32-avr.com/doorwindow-alarm-circuit/
+Atmel AVR ISP Microcontroller Programmer Project
+  https://atmega32-avr.com/atmel-avr-isp-microcontroller-programmer-project/
+Controlling DC motor with AVR ATtiny13 PWM and ADC Project
+  https://atmega32-avr.com/controlling-dc-motor-avr-attiny13-pwm-adc-project/
+Attiny85 As a Step/Dir Stepper Motor Controller
+  https://atmega32-avr.com/attiny85-stepdir-stepper-motor-controller/
+Custom PCB for Lights, Temperature, Video OSD and VTX PSU upgrades to HKing Rattler RC Car
+  https://atmega32-avr.com/custom-pcb-lights-temperature-video-osd-vtx-psu-upgrades-hking-rattler-rc-car/
+AVR ATtiny USB Tutorial Part 2
+  https://atmega32-avr.com/avr-attiny-usb-tutorial-part-2/
+AVR HVSP Fuse Resetter
+  https://atmega32-avr.com/avr-hvsp-fuse-resetter/
+How to fix dead atmega and attiny avr chips
+  https://atmega32-avr.com/how-to-fix-dead-atmega-and-attiny-avr-chips/
+Atmega Alarmclock & Thermohumidity meter
+  https://atmega32-avr.com/atmega-alarmclock-thermohumidity-meter/
+LED thermometer
+  https://atmega32-avr.com/led-thermometer/
+Stepper motor driver
+  https://atmega32-avr.com/stepper-motor-driver/
+Temperature indicator
+  https://atmega32-avr.com/temperature-indicator/
+Running LED's using ATTiny2313
+  https://atmega32-avr.com/running-leds-using-attiny2313/
+Running LED’s
+  https://atmega32-avr.com/running-leds/
+Electronic cricket
+  https://atmega32-avr.com/electronic-cricket/
+Dot matrix display
+  https://atmega32-avr.com/dot-matrix-display/
+LCD/switch interface
+  https://atmega32-avr.com/lcdswitch-interface/
+Digital Book Cricket with ATtiny 85
+  https://atmega32-avr.com/digital-book-cricket-attiny-85/
+AVR I/O Ports
+  https://atmega32-avr.com/avr-io-ports/
+I2C Bus for ATtiny and ATmega
+  https://atmega32-avr.com/i2c-bus-for-attiny-and-atmega/
+SecureLED: Better Access Control Using ATMega32
+  https://atmega32-avr.com/secureled-better-access-control-using-atmega32/
+4-key keyboard using ATtiny85
+  https://atmega32-avr.com/4-key-keyboard-using-attiny85/
+USB Sensors with ATtiny Microcontrollers
+  https://atmega32-avr.com/usb-sensors-with-attiny-microcontrollers/
+Solar Power / Panel Inverter – Grid-Intertie Inverter using Attiny45
+  https://atmega32-avr.com/solar-power-panel-inverter-grid-intertie-inverter-using-attiny45/
+Testing Device for DiSEqC-Switches using ATtiny13-20PI
+  https://atmega32-avr.com/testing-device-for-diseqc-switches-using-attiny13-20pi/
+USB AVR in-system Programmer using ATtiny2313
+  https://atmega32-avr.com/usb-avr-in-system-programmer-using-attiny2313/
+Stealth USB CapsLocker using Tiny45 microcontroller
+  https://atmega32-avr.com/stealth-usb-capslocker-using-tiny45-microcontroller/
+Atmel AVR-firmware based universal USB-Interface using ATTiny2313
+  https://atmega32-avr.com/atmel-avr-firmware-based-universal-usb-interface-using-attiny2313/
+The Game of Life using ATtiny2313 microcontroller
+  https://atmega32-avr.com/the-game-of-life-using-attiny2313-microcontroller/
+ATtiny breadboard headers using ATtiny2313
+  https://atmega32-avr.com/attiny-breadboard-headers-using-attiny2313/
+FabISP, a fab-able in-system programmer using ATtiny44
+  https://atmega32-avr.com/fabisp-a-fab-able-in-system-programmer-using-attiny44/
+Batwatch using ATtiny13V microcontroller
+  https://atmega32-avr.com/batwatch-using-attiny13v-microcontroller/
+Project Development Board using ATTiny2313 microcontroller
+  https://atmega32-avr.com/project-development-board-using-attiny2313-microcontroller/
+AVR Programmer using ATTINY2313 microcontroller
+  https://atmega32-avr.com/avr-programmer-using-attiny2313-microcontroller/
+DIY USB password generator using ATtiny Microcontroller
+  https://atmega32-avr.com/diy-usb-password-generator-using-attiny-microcontroller/
+Barker Code-Locked Loop Synchronous Demodulator using ATtiny2313 microcontroller
+  https://atmega32-avr.com/barker-code-locked-loop-synchronous-demodulator-using-attiny2313-microcontroller/
+Prime Calculator is Complete using ATMega8 Microcontroller
+  https://atmega32-avr.com/prime-calculator-is-complete-using-atmega8-microcontroller/
+LED Dog Collar using ATTINY2313 Microcontroller
+  https://atmega32-avr.com/led-dog-collar-using-attiny2313-microcontroller/
+BUILD A SIMPLE SERIAL PROGRAMMER FOR AVR DEVICES using ATtiny2313 Microcontroller
+  https://atmega32-avr.com/build-a-simple-serial-programmer-for-avr-devices-using-attiny2313-microcontroller/
+LED Menorah using ATtiny13 microcontroller
+  https://atmega32-avr.com/led-menorah-using-attiny13-microcontroller/
+ATtiny12 fuse restorer using microcontroller
+  https://atmega32-avr.com/attiny12-fuse-restorer-using-microcontroller-2/
+3 channel, 8 bit EEPROM DAC with DS interface using ATtiny12 microcontroller
+  https://atmega32-avr.com/3-channel-8-bit-eeprom-dac-with-ds-interface-using-attiny12-microcontroller/
+DS interface test tool using ATtiny2313 microcontroller
+  https://atmega32-avr.com/ds-interface-test-tool-using-attiny2313-microcontroller/
+Longboard Wheel Display using AVR microcontroller
+  https://atmega32-avr.com/longboard-wheel-display-using-avr-microcontroller/
+AttoBasic  HOME using Atmega168 microcontroller
+  https://atmega32-avr.com/attobasic-home-using-atmega168-microcontroller/
+A Superhet/Direct Conversion AM receiver  for 181.818 kHz using Attiny2313
+  https://atmega32-avr.com/a-superhetdirect-conversion-am-receiver-for-181-818-khz-using-attiny2313/
+1750 Meter Lowfer Band amplitude modulated RF source using ATtiny2313 microcontroller
+  https://atmega32-avr.com/1750-meter-lowfer-band-amplitude-modulated-rf-source-using-attiny2313-microcontroller/
+Frequency Meter with 100 MHz RF desktop channel using ATtiny2313 microcontroller
+  https://atmega32-avr.com/frequency-meter-with-100-mhz-rf-desktop-channel-using-attiny2313-microcontroller/
+RS-232 to 100 MHz RF desktop channel adapter using ATtiny2313 microcontroller
+  https://atmega32-avr.com/rs-232-to-100-mhz-rf-desktop-channel-adapter-using-attiny2313-microcontroller/
+Low cost RF for simple data link and remote control using ATtiny12 microcontroller
+  https://atmega32-avr.com/low-cost-rf-for-simple-data-link-and-remote-control-using-attiny12-microcontroller/
+Minimum Mass Wireless LCD Display using ATtiny2313 microcontroller
+  https://atmega32-avr.com/minimum-mass-wireless-lcd-display-using-attiny2313-microcontroller/
+A Low Power PLL FM Transmitter using LMX1601 and ATtiny2313 microcontroller
+  https://atmega32-avr.com/a-low-power-pll-fm-transmitter-using-lmx1601-and-attiny2313-microcontroller/
+A Simple FM Stereo Transmitter using ATTINY12 microcontroller
+  https://atmega32-avr.com/a-simple-fm-stereo-transmitter-using-attiny12-microcontroller/
+Multifunction 330 MHz Remote Control With an ATTINY2313 Simulating the PT2264 Encoder
+  https://atmega32-avr.com/multifunction-330-mhz-remote-control-with-an-attiny2313-simulating-the-pt2264-encoder/
+Circuit and firmware to support Seiko-Epson G1216B1N000 dot graphics display using ATtiny2313
+  https://atmega32-avr.com/circuit-and-firmware-to-support-seiko-epson-g1216b1n000-dot-graphics-display-using-attiny2313/
+A serial interface for the Truly MTC-C162DPLY-2N using ATmega8515
+  https://atmega32-avr.com/a-serial-interface-for-the-truly-mtc-c162dply-2n-using-atmega8515/
+Remote Controlled (R/C) Airplane LED Flasher using ATTINY12 microcontroller
+  https://atmega32-avr.com/remote-controlled-rc-airplane-led-flasher-using-attiny12-microcontroller/
+A Microcontroller Based Digital Lock-In Milliohmmeter using ATtiny2313 microcontroller
+  https://atmega32-avr.com/a-microcontroller-based-digital-lock-in-milliohmmeter-using-attiny2313-microcontroller/
+I2C Tiny USB using ATtiny45 microcontroller
+  https://atmega32-avr.com/i2c-tiny-usb-using-attiny45-microcontroller/
+RS-232 Freq. Meter/Pulse Generator  Based on Atmel ATtiny2313 using microcontroller
+  https://atmega32-avr.com/rs-232-freq-meterpulse-generator-based-on-atmel-attiny2313-using-microcontroller/
+A Little More Serious Frequency Meter using ATtiny2313 microcontroller
+  https://atmega32-avr.com/a-little-more-serious-frequency-meter-using-attiny2313-microcontroller/
+A 1 Khz Digital Sine Wave Signal Source using ATmega8515 microcontroller
+  https://atmega32-avr.com/a-1-khz-digital-sine-wave-signal-source-using-atmega8515-microcontroller/
+MAX038-Based Sweep/Function Generator With Markers using AVR ATtiny2313 microcontroller
+  https://atmega32-avr.com/max038-based-sweepfunction-generator-with-markers-using-avr-attiny2313-microcontroller/
+A Pretty Good LC Meter Based on the AVR using ATTINY2313 Microcontroller
+  https://atmega32-avr.com/a-pretty-good-lc-meter-based-on-the-avr-using-attiny2313-microcontroller/
+An Even Better LC Meter Based on the AVR ATTINY861
+  https://atmega32-avr.com/an-even-better-lc-meter-based-on-the-avr-attiny861/
+Serial interface with 2X16 LCD display using ATMega8515 microcontroller
+  https://atmega32-avr.com/serial-interface-with-2x16-lcd-display-using-atmega8515-microcontroller/
+100 MHz RF oscillator using ATtiny12 microcontroller
+  https://atmega32-avr.com/100-mhz-rf-oscillator-using-attiny12-microcontroller/
+Decoding 4 buttons with two I/O’s on AVR using ATtiny12 microcontroller
+  https://atmega32-avr.com/decoding-4-buttons-with-two-ios-on-avr-using-attiny12-microcontroller/
+EEPROM Driver for AVR with RAM using ATtiny15 microcontroller
+  https://atmega32-avr.com/eeprom-driver-for-avr-with-ram-using-attiny15-microcontroller/
+Morse Code Alarm Clock using ATtiny2313 microcontroller
+  https://atmega32-avr.com/morse-code-alarm-clock-using-attiny2313-microcontroller/
+Atmel Avr Project Circuit Archive 360 MB using ATmega8 microcontroller
+  https://atmega32-avr.com/atmel-avr-project-circuit-archive-360-mb-using-atmega8-microcontroller/
+PC Temperature Meter using ATtiny15 microcontroller
+  https://atmega32-avr.com/pc-temperature-meter-using-attiny15-microcontroller/
+Atmel Bascom avr 8051 project, the circuit archive using AT89S8252 microcontroller
+  https://atmega32-avr.com/atmel-bascom-avr-8051-project-the-circuit-archive-using-at89s8252-microcontroller/
+Lux meters attiny26-16 light measurement circuit using attiny26 microcontroller
+  https://atmega32-avr.com/lux-meters-attiny26-16-light-measurement-circuit-using-attiny26-microcontroller/
+Midi Generator using ATtiny26-8PI microcontroller
+  https://atmega32-avr.com/midi-generator-using-attiny26-8pi-microcontroller/
+USB AVR programmer using ATtiny2313 microcontroller
+  https://atmega32-avr.com/usb-avr-programmer-using-attiny2313-microcontroller/
+10 Bit analog to digital converter using ATtiny26 microcontroller
+  https://atmega32-avr.com/10-bit-analog-to-digital-converter-using-attiny26-microcontroller/
+SMS control 4 way remote control relays using ATtiny2313 microcontroller
+  https://atmega32-avr.com/sms-control-4-way-remote-control-relays-using-attiny2313-microcontroller/
+i2c interface to USB interface using attiny45 microcontroller
+  https://atmega32-avr.com/i2c-interface-to-usb-interface-using-attiny45-microcontroller/
+DC Servomotor Controller System Meter using ATtiny2313 microcontroller
+  https://atmega32-avr.com/dc-servomotor-controller-system-meter-using-attiny2313-microcontroller/
+Low Picofarad Capacitance Meter ATtiny2313 microcontroller
+  https://atmega32-avr.com/low-picofarad-capacitance-meter-attiny2313-microcontroller/
+AVR Security Keypad Lock using ATtiny2313 microcontroller
+  https://atmega32-avr.com/avr-security-keypad-lock-using-attiny2313-microcontroller/
+AVR LED Candle using ATtiny85 microcontroller
+  https://atmega32-avr.com/avr-led-candle-using-attiny85-microcontroller/
+Clever Clapper using ATtiny2313 microcontroller
+  https://atmega32-avr.com/clever-clapper-using-attiny2313-microcontroller/
+STK500 Compatible ISP using AVR microcontroller
+  https://atmega32-avr.com/stk500-compatible-isp-using-avr-microcontroller/
+Low-cost AVR programmer
+  https://atmega32-avr.com/low-cost-avr-programmer/
+SP12 serial programmer software
+  https://atmega32-avr.com/sp12-serial-programmer-software/
+AVR assembly language
+  https://atmega32-avr.com/avr-assembly-language/
+White 7-segments clock ATtiny26
+  https://atmega32-avr.com/white-7-segments-clock-attiny26/
+Controlling internal DAC AT90PWM3 using microcontroller
+  https://atmega32-avr.com/controlling-internal-dac-at90pwm3-using-microcontroller/
+Controlling SpeakJet with an AVR microcontroller using ATmega88 microcontroller
+  https://atmega32-avr.com/controlling-speakjet-with-an-avr-microcontroller-using-atmega88-microcontroller/
+Switching between Red, Green and Blue (or Blue1 or/and Blue2 for an RGBB type) using AVR microcontroller
+  https://atmega32-avr.com/switching-between-red-green-and-blue-or-blue1-orand-blue2-for-an-rgbb-type-using-avr-microcontroller/
+A GLCD connected to an AVR microcontroller using ATmega8 microcontroller
+  https://atmega32-avr.com/a-glcd-connected-to-an-avr-microcontroller-using-atmega8-microcontroller/
+Pinning LCD display 1601 using microcontroller
+  https://atmega32-avr.com/pinning-lcd-display-1601-using-microcontroller/
+Controlling 7-segments LED displays using AVR microcontroller
+  https://atmega32-avr.com/controlling-7-segments-led-displays-using-avr-microcontroller/
+TIL311 / INL0397-1 Hexadecimal Display usning AVR microcontroller
+  https://atmega32-avr.com/til311-inl0397-1-hexadecimal-display-usning-avr-microcontroller/
+93C66 EEPROM chip with an AVR microcontroller
+  https://atmega32-avr.com/93c66-eeprom-chip-with-an-avr-microcontroller/
+DS1669 Digital Potmeter UP/DOWN using microcontroller
+  https://atmega32-avr.com/ds1669-digital-potmeter-updown-using-microcontroller/
+DS1802 Digital Volume Control using microcontroller
+  https://atmega32-avr.com/ds1802-digital-volume-control-using-microcontroller/
+16 LED Knight Rider using 74HCT138 microcontroller
+  https://atmega32-avr.com/16-led-knight-rider-using-74hct138-microcontroller/
+8 LED Knight Rider using  AVR microcontroller
+  https://atmega32-avr.com/8-led-knight-rider-using-avr-microcontroller/
+6 LED Knight Rider using ATtiny22 microcontroller
+  https://atmega32-avr.com/6-led-knight-rider-using-attiny22-microcontroller/
+Dotmatrix using ATtiny2313 microcontroller
+  https://atmega32-avr.com/dotmatrix-using-attiny2313-microcontroller/
+Tea Timer using ATTiny2313 microcontroller
+  https://atmega32-avr.com/tea-timer-using-attiny2313-microcontroller/
+Kitchen Timer using ATTiny2313 microcontroller
+  https://atmega32-avr.com/kitchen-timer-using-attiny2313-microcontroller/
+Beamer Control using attiny2313 microcontroller
+  https://atmega32-avr.com/beamer-control-using-attiny2313-microcontroller/
+Door Opener using ATTiny2313 microcontroller
+  https://atmega32-avr.com/door-opener-using-attiny2313-microcontroller/
+Dimmer using ATTiny2313 microcontroller
+  https://atmega32-avr.com/dimmer-using-attiny2313-microcontroller/
+AVR digital clock with white seven segment LED display using ATtiny26 microcontroller
+  https://atmega32-avr.com/avr-digital-clock-with-white-seven-segment-led-display-using-attiny26-microcontroller/
+VGA monitor tester using ATTiny2313 microcontroller
+  https://atmega32-avr.com/vga-monitor-tester-using-attiny2313-microcontroller/
+USB business card with a computer chip board using ATtiny85 microcontroller
+  https://atmega32-avr.com/usb-business-card-with-a-computer-chip-board-using-attiny85-microcontroller/
+Experimental board using ATTiny2313 microcontroller
+  https://atmega32-avr.com/experimental-board-using-attiny2313-microcontroller/
+Automate lights in your kitchen area using ATTiny84 microcontroller
+  https://atmega32-avr.com/automate-lights-in-your-kitchen-area-using-attiny84-microcontroller/
+50 MHz range frequency counter using ATtiny45 microcontroller
+  https://atmega32-avr.com/50-mhz-range-frequency-counter-using-attiny45-microcontroller/
+Easy Data Logger with Virtual USB using ATtiny45 microcontroller
+  https://atmega32-avr.com/easy-data-logger-with-virtual-usb-using-attiny45-microcontroller/
+Blinking, Singing, Marioman using Attiny microcontrollers
+  https://atmega32-avr.com/blinking-singing-marioman-using-attiny-microcontrollers/
+Reading Switches with using Attiny microcontrollers
+  https://atmega32-avr.com/reading-switches-with-using-attiny-microcontrollers/
+Halloween Robot using Attiny microcontrollers
+  https://atmega32-avr.com/halloween-robot-using-attiny-microcontrollers/
+A complete starter guide to AVRs using attiny2313 microcontroller
+  https://atmega32-avr.com/a-complete-starter-guide-to-avrs-using-attiny2313-microcontroller/
+Control Anything with one AVR pin using Attiny2313 microcontroller
+  https://atmega32-avr.com/control-anything-with-one-avr-pin-using-attiny2313-microcontroller/
+Ambient Light Gift Badge using ATTiny13 microcontroller
+  https://atmega32-avr.com/ambient-light-gift-badge-using-attiny13-microcontroller/
+3 Easy Holiday Gifts using  ATTiny microcontroller
+  https://atmega32-avr.com/3-easy-holiday-gifts-using-attiny-microcontroller/
+How to use a 74HC595 Shift Register with a using AVR ATtiny13 microcontroller
+  https://atmega32-avr.com/how-to-use-a-74hc595-shift-register-with-a-using-avr-attiny13-microcontroller/
+$10 ATtiny85/45 POV display!! (works really well)
+  https://atmega32-avr.com/10-attiny8545-pov-display-works-really-well/
+Door Activated LED Lighting using Hall Effect Sensors using Attiny85 microcontroller
+  https://atmega32-avr.com/door-activated-led-lighting-using-hall-effect-sensors-using-attiny85-microcontroller/
+Getting Started with Atmel AVR and BASCOM using attiny26 microcontroller
+  https://atmega32-avr.com/getting-started-with-atmel-avr-and-bascom-using-attiny26-microcontroller/
+How to use the Dragon Rider 500 with your AVR Dragon using ATtiny2313 microcontroller
+  https://atmega32-avr.com/how-to-use-the-dragon-rider-500-with-your-avr-dragon-using-attiny2313-microcontroller/
+Make a breadboard adapter for your AVR microcontroller using attiny2313
+  https://atmega32-avr.com/make-a-breadboard-adapter-for-your-avr-microcontroller-using-attiny2313/
+How to program a AVR (arduino) with another arduino using attiny2313 microcontroller
+  https://atmega32-avr.com/how-to-program-a-avr-arduino-with-another-arduino-using-attiny2313-microcontroller/
+Creating a charlieplexed LED grid to run on ATTiny85
+  https://atmega32-avr.com/creating-a-charlieplexed-led-grid-to-run-on-attiny85/
+How to control a 16×2 LCD using an AVR ATtiny2313
+  https://atmega32-avr.com/how-to-control-a-16x2-lcd-using-an-avr-attiny2313/
+How to program a AVR (arduino) with another arduino using atmega168 microcontroller
+  https://atmega32-avr.com/how-to-program-a-avr-arduino-with-another-arduino-using-atmega168-microcontroller/
+Custom Tron Disc Mod using ATMega328
+  https://atmega32-avr.com/custom-tron-disc-mod-using-atmega328/
+Turn Your Arduino Into an ISP
+  https://atmega32-avr.com/turn-your-arduino-into-an-isp/
+GuGaplexed Valentine LED Heart using ATTiny13V Microcontroller
+  https://atmega32-avr.com/gugaplexed-valentine-led-heart-using-attiny13v-microcontroller-2/
+Assembling the Dragon Rider 500 for use with the AVR Dragon using ATmega88 microcontroller
+  https://atmega32-avr.com/assembling-the-dragon-rider-500-for-use-with-the-avr-dragon-using-atmega88-microcontroller-2/
+Slaveflash with Attiny24 ver. 2.0
+  https://atmega32-avr.com/slaveflash-with-attiny24-ver-2-0/
+Annoying Beeper using Microcontroller ATtiny13
+  https://atmega32-avr.com/annoying-beeper-using-microcontroller-attiny13/
+Drive a Stepper Motor with an AVR Microprocessor using ATTiny2313 microcontroller
+  https://atmega32-avr.com/drive-a-stepper-motor-with-an-avr-microprocessor-using-attiny2313-microcontroller/
+Slaveflash-trigger for digital cameras with Attiny24
+  https://atmega32-avr.com/slaveflash-trigger-for-digital-cameras-with-attiny24/
+Apple-style LED pulsing using a $1.30 MCU using ATTiny85 microcontroller
+  https://atmega32-avr.com/apple-style-led-pulsing-using-a-1-30-mcu-using-attiny85-microcontroller/
+Ghetto Development Environment Using Microcontrollers
+  https://atmega32-avr.com/ghetto-development-environment-using-microcontrollers/
+New Jar of Fireflies
+  https://atmega32-avr.com/new-jar-of-fireflies/
+VUSBTiny AVR SPI Programmer Using ATtiny85
+  https://atmega32-avr.com/vusbtiny-avr-spi-programmer-using-attiny85/
+Programmable LED using Atmel ATtiny13v Microcontroller
+  https://atmega32-avr.com/programmable-led-using-atmel-attiny13v-microcontroller/
+Jar of Fireflies using AVR ATTiny45 Microcontroller
+  https://atmega32-avr.com/jar-of-fireflies-using-avr-attiny45-microcontroller/
+I2C Bus for ATtiny and ATmega168
+  https://atmega32-avr.com/i2c-bus-for-attiny-and-atmega168/
+Repair dead AVR's – Attiny fusebit doctor (HVSP)
+  https://atmega32-avr.com/repair-dead-avrs-attiny-fusebit-doctor-hvsp/
+ISP 6 pin to 8 Pin Socket Using ATTiny45
+  https://atmega32-avr.com/isp-6-pin-to-8-pin-socket-using-attiny45/
+Micro controller programming: Making a set of traffic lights using Microcontroller ATTiny2313
+  https://atmega32-avr.com/micro-controller-programming-making-a-set-of-traffic-lights-using-microcontroller-attiny2313/
+AVR LCD Namebadge Using ATtiny2313
+  https://atmega32-avr.com/avr-lcd-namebadge-using-attiny2313/
+LoveBox – The box of love using ATtiny2313 Microcontroller
+  https://atmega32-avr.com/lovebox-the-box-of-love-using-attiny2313-microcontroller/
+Build a Complete AVR System and Play Mastermind Using Microcontrollers
+  https://atmega32-avr.com/build-a-complete-avr-system-and-play-mastermind-using-microcontrollers/
+AVR mini board with additional boards using attiny2313 microcontroller
+  https://atmega32-avr.com/avr-mini-board-with-additional-boards-using-using-attiny2313-microcontroller/
+Led dimmer 2 channels using Attiny13 microcontroller
+  https://atmega32-avr.com/led-dimmer-2-channels-using-attiny13-microcontroller/
+Synchronizing Fireflies using Microcontroller ATtiny13
+  https://atmega32-avr.com/synchronizing-fireflies-using-microcontroller-attiny13/
+Faraday For Fun: An Electronic Batteryless Dice using Microcontroller ATTiny13
+  https://atmega32-avr.com/faraday-for-fun-an-electronic-batteryless-dice-using-microcontroller-attiny13/
+Buggy – A Crafty Programmable LED Creature using Microcontroller Atmel Attiny44v
+  https://atmega32-avr.com/buggy-a-crafty-programmable-led-creature-using-microcontroller-atmel-attiny44v/
+LED Hanukkah Menorah using Microcontroller ATtiny13
+  https://atmega32-avr.com/led-hanukkah-menorah-using-microcontroller-attiny13/
+Swiss AVR Knife using Microcontroller ATtiny84
+  https://atmega32-avr.com/swiss-avr-knife-using-microcontroller-attiny84/
+LED Microcontrolled Stained Glass Firefly Pendant using Microcontroller ATTiny45 chip
+  https://atmega32-avr.com/led-microcontrolled-stained-glass-firefly-pendant-using-microcontroller-attiny45-chip/
+Ghetto Programming: Getting started with AVR microprocessors on the cheap.
+  https://atmega32-avr.com/ghetto-programming-getting-started-with-avr-microprocessors-on-the-cheap/
+LED Scolling Dot Matrix Font & Graphics Generator 5×8 5×7 8×8
+  https://atmega32-avr.com/led-scolling-dot-matrix-font-graphics-generator-5x8-5x7-8x8/
+LED Binary Calculator using Microcontroller ATtiny2313
+  https://atmega32-avr.com/led-binary-calculator-using-microcontroller-attiny2313/
+Debugging AVR code in Linux with simavr using Microcontroller ATTiny85
+  https://atmega32-avr.com/debugging-avr-code-in-linux-with-simavr-using-microcontroller-attiny85/
+Power your Arduino/AVR with a Hand-Cranked Battery
+  https://atmega32-avr.com/power-your-arduinoavr-with-a-hand-cranked-battery/
+Mechanized Android Figure using Microcontroller ATtiny44A
+  https://atmega32-avr.com/mechanized-android-figure-using-microcontroller-attiny44a/
+Rainbow glowing ping pong Using ATTing 13
+  https://atmega32-avr.com/rainbow-glowing-ping-pong-using-atting-13/
+ATTiny2313 Multi-mode LED Matrix Clock
+  https://atmega32-avr.com/attiny2313-multi-mode-led-matrix-clock/
+Temperature Indicator Using attiny2313 micrcontroller
+  https://atmega32-avr.com/temperature-indicator-using-attiny2313-micrcontroller/
+Stepper motor Driver Using AT2313 microcontroller
+  https://atmega32-avr.com/steppermotor-driver-using-at2313-microcontroller/
+Multipattern Running light using ATtiny2313 microcontroller
+  https://atmega32-avr.com/multipattern-running-light/
+PC Thermometer Using ATTiny2313
+  https://atmega32-avr.com/pc-thermometer-using-attiny2313/
+LCD Thermometer TCN75 Using ATTiny2313
+  https://atmega32-avr.com/lcd-thermometer-tcn75-using-attiny2313/
+AVR GPS Locator using avr microcontroller
+  https://atmega32-avr.com/avr-gps-locator-using-avr-microcontroller/
+LCD Interface Board Using ATTiny2313
+  https://atmega32-avr.com/lcd-interface-board-using-attiny2313/
+ATTiny2313 Board RS232
+  https://atmega32-avr.com/attiny2313-board-rs232/
+Make an automatic plant light using ATTiny26 Microcontroller
+  https://atmega32-avr.com/make-an-automatic-plant-light-using-attiny26-microcontroller/
+Ghetto Pixels – Building an open source BlinkM Using ATTiny45 Microcontroller
+  https://atmega32-avr.com/ghetto-pixels-building-an-open-source-blinkm-using-attiny45-microcontroller/
+USB PCB Business Card Using ATtiny85 Microcontroller
+  https://atmega32-avr.com/usb-pcb-business-card-using-attiny85-microcontroller/
+Using ATMega328 Microcontroller Custom Tron Disc Mod
+  https://atmega32-avr.com/using-atmega328-microcontroller-custom-tron-disc-mod/
+Using AtTiny2313 microcontroller Build an electronic polyhedral die
+  https://atmega32-avr.com/using-attiny2313-microcontroller-build-an-electronic-polyhedral-die/
+How to drive a lot of LEDs from a few microcontroller pins.
+  https://atmega32-avr.com/how-to-drive-a-lot-of-leds-from-a-few-microcontroller-pins/
+Using the 8Pin ATTINY programming shield with an external clock
+  https://atmega32-avr.com/using-the-8pin-attiny-programming-shield-with-an-external-clock/
+ATTiny Board For AVR ATTiny microcontrollers
+  https://atmega32-avr.com/attiny-board-for-avr-attiny-microcontrollers/
+Top 10 Rogers PCB Manufacturers in China
+  https://atmega32-avr.com/top-10-rogers-pcb-manufacturers-in-china/
+AVR Based DC Motor Controller using ATmega16 with Proteus Simulation
+  https://atmega32-avr.com/avr-based-dc-motor-controller-using-atmega16-with-proteus-simulation/
+Adafruit Trellis Shield Latching Keyboard Test using ATmega328P with Proteus Simulation
+  https://atmega32-avr.com/adafruit-trellis-shield-latching-keyboard-test-using-atmega328p-with-proteus-simulation/
+Bitmap Drawing on TFT LCD using ATmega328P with Proteus Simulation
+  https://atmega32-avr.com/bitmap-drawing-on-tft-lcd-using-atmega328p-with-proteus-simulation/
+Digital Melody Player using ATmega8 with Proteus Simulation
+  https://atmega32-avr.com/digital-melody-player-using-atmega8-with-proteus-simulation/
+Wise Technologies
+  http://www.wisetechcenter.com/

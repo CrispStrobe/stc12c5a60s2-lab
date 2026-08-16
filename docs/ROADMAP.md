@@ -2197,3 +2197,48 @@ by hand) when authoring; hackster projects carry per-project licenses
 Order of attack when this tier opens: USI model → t2313 + t13 configs
 → ATTinyCore compile flavor → author the runnable-now classes as
 examples (corpus fuel) → SSD1306-on-t85 games as the showpiece.
+
+**ATtiny harvest AMENDED (owner corrections, 2026-08-16):**
+
+- **The atmega32-avr list is ~278 projects, not 135** — the first fetch
+  truncated. Full title+link harvest (314 deduplicated anchors) now in
+  `docs/attiny-harvest.txt`; the class taxonomy above HOLDS for the
+  tail (spot-checked: more motor/PWM on t13, USB tutorials, video OSD).
+- **The hackster collection is MIT (© Hack star, 2022-12-20) and every
+  project is a WOKWI SIMULATION LINK with complete code** — 13 projects:
+  blink, Simon, FastLED (+cylon), menorah/hanukiah ×2, DHT11+OLED,
+  slide switch, 3-LED sequence, servo, potentiometer, pushbutton,
+  74HC595+pots. This is the highest-grade source of the three: license
+  clean, code included, circuits machine-readable — bw-parts' NEW wokwi
+  diagram.json importer (50/50 green, real-file acceptance) ingests the
+  circuits directly. DHT11, servo, SSD1306, 74HC595 device models all
+  exist; the t85 USI gap gates only the OLED one.
+- **origin-ic.com list: 403 to scripted access** — same posture as
+  before: idea-class listicle, re-harvest by hand when authoring.
+
+**HOW "many of them, on every MCU that supports them" WORKS — the
+write-once-run-everywhere strategy (this is already mostly built):**
+
+1. **Author once, part-aware:** each project becomes ONE canonical
+   example in the dialect (DEVICE + PIN abstraction). The dialect is
+   already part-aware across 8051/AVR/Pico timing (README §8.1).
+2. **Retarget is a solved mechanism:** `retargetPseudocode` +
+   RETARGET_POOLS rewrite a program's pins/clock for another device
+   (STC blink → Pico GP25 → Nano D13, all under test), and refuse with
+   REASONS when a capability is missing (ADC on STC89C52RC refuses).
+3. **Compatibility is computed, not asserted:** the importer's
+   computeExampleCompat marks each example's device pool; the gallery
+   can badge "runs on: t85, t88, Uno, Nano, Mega, Pico, STC12" per
+   example, gated by what it actually needs (ADC, TWI/USI, PWM pins,
+   pin count, flash size).
+4. **Peripheral gates are the honest edges:** OLED needs I2C (TWI on
+   t88/Uno; USI on t85 = the gap; bit-bang works everywhere at engine
+   level), servo needs a timer channel, FastLED/neopixel needs
+   cycle-tight bit-banging (the neopixel device model exists — t85 at
+   8 MHz is the canonical host), 74HC595 works on ANY 3 GPIOs.
+5. **So the pipeline per harvested project:** wokwi-import the circuit
+   (or author it) → port the sketch to the dialect (or, once the
+   ATTinyCore hosted flavor lands, compile the Arduino source as-is)
+   → compat matrix computes the device pool → one example, N devices,
+   and every (example, device) pair is a corpus/oracle row for the
+   parity campaign. The 13 MIT wokwi projects are the pilot batch.
