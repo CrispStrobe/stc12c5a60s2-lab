@@ -2699,3 +2699,17 @@ UM245R USB-FIFO serial — and the .kicad_sch files are TEXT
 transcription is a parse, not a squint. Coordinator's opening move
 next session: parse the sheets into a netlist table like
 RETRO-CONSOLE-RBS15667.md, then the 3-board faithful bench.
+
+**Z80 variations survey 2 (owner links):**
+- McHogardty/z80 — MIT, docs+code breadboard build: adoptable, ladder
+  candidate beside Bread80.
+- stefanschramm/z80pg2026 — GitHub reports NO license (owner believed
+  MIT); read-for-facts until a LICENSE file is confirmed in-repo.
+- abaffa/z80cpm_emulator — GPL-2.0, Grant Searle CP/M-on-breadboard
+  lineage, RC2014-compatible. NOT in our corpus; GPL means never
+  vendored into the app — brickwright-gpl-lab is the channel, and the
+  Searle design family is the natural CP/M-tier reference there.
+- callumoriley/Z80-computer — GPL-3.0: read-facts/GPL-lab only.
+- Zee2's Z80 repo — no license: read-facts only.
+License doctrine unchanged: MIT/BSD adoptable with attribution; GPL
+via gpl-lab; unlicensed read-for-facts.
