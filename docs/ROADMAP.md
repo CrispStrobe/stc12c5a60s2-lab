@@ -2045,6 +2045,18 @@ chip family — 74LS173/161/189/157/107 are engine devices now.
   one more independent BOM to cross-check the fidelity pass against.
   No new capability implied; filed proportionately.
 
+- **andrewthecodertx/javascript-beneater-65c02 (MIT)** — a PHP (despite
+  the name) Eater 65C02 emulator whose face is a CLI LED strip of the
+  VIA's port B per cycle. The owner's question "can we do the live LED
+  example with code plus circuit?" exposed that our eater6502-blink was
+  a FAKE — a generic mcu with one LED on 'PA0'. Re-authored 2026-08-16
+  (sb3 0234392): the bench's proven machine mesh + the classic eight
+  LEDs on pb0..pb7, 22 parts seated on FOUR boards, extraction green —
+  where their LEDs are printed glyphs, ours are engine devices behind
+  real resistors. Their MIT blink/hello/echo programs join the corpus
+  pool; their port-B LED-strip view is folded into the architecture-
+  face brief as the debugger's port bar.
+
 ## Importers: the ad-hoc converters become a module family (2026-08-16)
 
 The owner's read is right: we keep writing one-off translators (the
