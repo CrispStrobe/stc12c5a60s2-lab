@@ -2297,3 +2297,71 @@ NEW clusters, in teaching order:
 Assignment: gap parts → bw-parts (bodies/sidecars) + bw-board (device
 models); lesson authoring (clusters 1-5, DE-first with EN twins) →
 bw-blocks as the pc-series continuation; cluster 6 → coordinator.
+
+## Teaching impedance — and the Lehrpfad (owner directive, 2026-08-16)
+
+**The three-level impedance design.** One physical bench, three depths;
+every level ends with something the learner SEES on the scope or LED.
+
+- **Level 10 (qualitative):** "resistance that cares how fast you
+  wiggle." Bench: function generator through a capacitor into a lamp —
+  at 1 Hz the lamp stays dark (cap blocks slow), at 1 kHz it glows
+  (cap passes fast); swap in a coil and the behavior flips. Words to
+  keep: capacitor = a stretchy membrane in the pipe (blocks steady
+  flow, passes wiggles), inductor = a heavy waterwheel (hates change,
+  loves steady flow). No formulas; two toggle buttons (slow/fast) and
+  eyes.
+- **Level 18 (the gist, semi-quantitative):** the scope shows what the
+  lamp hinted: drive an RC divider at f << fc, f ≈ fc, f >> fc; READ
+  amplitude ratio and the phase lag off the traces. Xc = 1/(2πfC)
+  introduced as "the resistance number that falls with frequency";
+  the corner where Xc = R gets its name (-3 dB) because the learner
+  just measured it. Deliverable: a hand-filled table Vout/Vin vs f —
+  a Bode plot they built from measurements before hearing the word.
+- **Level 23 (application):** complex Z = R + jX and phasors as the
+  bookkeeping that makes the divider formula work at every frequency
+  (Zc/(R+Zc)); DESIGN task: pick R,C for a target corner, verify by
+  sweep; then RLC series resonance — predict f0 = 1/(2π√LC), find the
+  peak by measurement, explain the phase zero-crossing. Optional
+  bridge to speaker crossovers as the real-world artifact.
+
+**Engine reality check:** transient sine + scope already work (the
+sine FG example ships), inductors exist in the solver — level 10 and
+manual level-18 measurements are possible TODAY. What is missing is
+the instrument that makes 18/23 sing:
+
+**THE SWEEP INSTRUMENT (coordinator's, architectural):** one engine,
+two faces — (a) X-Y curve tracing: ramp a source, plot V vs I
+(→ Dioden-Kennlinien from the German canon), (b) frequency response:
+step the FG across a decade range, measure amplitude ratio + phase
+per step from the transient waveform, plot Bode magnitude/phase
+(→ impedance levels 18/23, RLC resonance). Same stepping/measuring
+core, two presentations. This single instrument unlocks the entire
+Messtechnik tier AND the impedance curriculum.
+
+**The Lehrpfad (textbook mode).** Naming: candidates were Course,
+Field Guide, Lab Notebook, Learning Trail — recommendation:
+**"Lehrpfad"** (DE) / **"Trail"** (EN). A Lehrpfad is literally a
+nature trail with numbered stations — exactly this: a curriculum-
+ordered walk where each station is a runnable bench.
+Architecture (schema in sb3 examples/curriculum.json):
+- **trails** → ordered **chapters** → ordered **stations**; a station
+  is an example id PLUS narrative fields (lead-in text, "what you now
+  know", optional level: 10/18/23) or a pure-text interlude.
+- The same example may appear on several trails at different depths
+  (the impedance bench appears three times with different framing).
+- The GUI gets a Trail view: full-width reading pane (the narrative),
+  stations as cards, progress kept in localStorage; "open the bench"
+  jumps into the designer with the station's example.
+- Content authoring = bw-blocks (physics-curriculum ordering: charge →
+  current → voltage → resistance → dividers → capacitors → time →
+  frequency → impedance → semiconductors → gates → MCUs); shell UI =
+  cui lane after the coordinator lands the schema + intro-modal.
+
+**Intro modal (coordinator's, key UX, shipping first):** the (i) on
+example cards currently opens in the tiny list frame — unreadable and
+unworthy of the intros the catalog now carries. It becomes an
+almost-fullscreen modal: rendered markdown, EN/DE toggle, the
+example's difficulty/devices row, and one primary action ("Open on
+the bench"). The same modal is the station reader the Lehrpfad will
+reuse — build once.
