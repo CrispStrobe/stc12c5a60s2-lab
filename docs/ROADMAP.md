@@ -1981,9 +1981,18 @@ machine grew a bit-bang serial codec and per-chip initial input levels.
 Two traps recorded where they bit: floating-high port inputs make the
 LCD busy-poll burn 255 retries per write (banner at 2.5 s instead of
 0.3 s — the preset pins inputs.b low), and GETLN discards CR and ends
-lines on NL, so a CR-only sender waits forever. Corrected claim (owner):
-shippable interactive machines exist already — Tali Forth 2 (public
-domain, py65mon) and R.T. Russell's BBC BASIC for Z80 (zlib, CP/M).
+lines on NL, so a CR-only sender waits forever. Corrected claim (owner, twice —
+the second time because THIS FILE was stale): shippable interactive
+machines exist already — Tali Forth 2 (public domain, py65mon), R.T.
+Russell's BBC BASIC for Z80 (zlib, CP/M), AND Microsoft BASIC-M6502
+(MIT): the port the entry below still called "mid-flight" had FINISHED
+in its own repo (basic-m6502-bw, ca65 + own ACIA shim, smoke test
+green) without writing back here. Re-verified 2026-08-16 against the
+current machine and made structural: the ROM is vendored in bw-board
+(db12772) and the boot is a SUITE test (MEMORY SIZE?/WIDTH?, OK,
+PRINT 2+2 = 4, stored FOR/NEXT runs) — a test cannot drift the way a
+ledger line can. Fleet doctrine reinforced: a lane that lands a
+milestone writes it back to the roadmap in the same push.
 G-Pascal's actual firsts are narrower and better: the first shippable
 machine whose DEVELOPMENT TOOLCHAIN runs ON the machine (editor +
 65C02 assembler + Pascal compiler in ROM — the type/assemble/run/
