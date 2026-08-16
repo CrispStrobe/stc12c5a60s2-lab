@@ -2425,3 +2425,70 @@ driver+example building in cfront under a signed-off plan (separate
 tft opcode prefix — the round-trip argument) · framebuffer last mile
 pending. The Codex shell brief is with the cui lane (CodexBrowser as a
 second lens over the same examples; prop contract before styling).
+
+## The Bausatz canon — soldering kits as simulation targets (owner directive, 2026-08-16)
+
+The owner's second German harvest: the roboter-bausatz.de soldering
+kits (Lötbausätze) plus larger matrices. Manuals are archived in
+`../stc-research/corpus/roboter-bausatz/` (LOCAL ONLY, like everything
+in that repo — 17 files, PDFs + schematic images).
+
+**Licensing doctrine (same as the ICStation cube, restated):** the
+kits' licenses are unknown, so nothing of theirs ships — no PCB art,
+no manual text or photos, no vendor firmware. What DOES ship: circuit
+topologies (facts, re-drawn by us), measured behavior of hardware the
+owner physically has, and our own clean-room implementations. Most
+kits therefore become "inspired-by" examples — similar circuit, our
+schematic, our code, our name.
+
+**THE EXCEPTION — the Retro Console (RBS15667), owner-held, 100%
+functional equivalence target.** The manual's own schematic reveals a
+gift: **U1 is an STC15F2K60S2** — the exact chip this repo carries a
+full peripheral model for (STC15-PERIPHERAL-MODEL.md), socketed, 3-5V.
+The rest: two 8x8 LED matrices as a 16x8 playfield (dis2/dis3, port-
+scanned), a 3-digit 0.56" 7-seg for score (dis1, 056SMG_3), buzzer via
+S8050 on P5.5 with 1k base resistor, five buttons on P3.0/P3.2/P3.3/
+P3.6/P3.7 to GND, power switch, USB 5V in, battery holder. Every
+building block already exists in the engine. The plan:
+1. Transcribe the exact pin netlist from the schematic (page 5 of the
+   archived manual; needs a high-zoom pass — the matrix pin labels are
+   at the edge of legibility; the owner's physical board can settle
+   any ambiguity by continuity test).
+2. A curated bench example (three boards or a dedicated composite)
+   that IS the console: same chip, same scan topology, same buttons.
+3. Games as OUR pseudocode/C — Tetris/Snake/Racing/Shooter re-written
+   clean-room (game rules are not the vendor's; their firmware is,
+   and we never had it as source anyway).
+4. **The re-programming story is the point:** the same program runs
+   in-app on the simulated console and flashes onto the real kit via
+   `make PART=stc15f2k60s2 flash` — the chip is socketed and STC ISP
+   rides the USB serial. This console is the natural bench vehicle for
+   the FIRST VERIFIED-ON-SILICON claim (the STC15 was already flagged
+   as the likeliest candidate; now there is a game console riding on
+   it).
+
+**Matrix widening (engine + parts):**
+- Generic NxM scanned LED matrix part (led_matrix is 8x8-shaped today):
+  params {rows, cols, polarity}; 9x9 self-wired (the Instructables
+  81-LED grid — 18 GPIO lines, an ATmega2560/Mega natural) plus 16x8
+  (the console's pair) fall out of the same generalization.
+- MAX7219 device EXISTS in the engine already; what's missing is the
+  generateC driver + example (SPI bit-bang, queue behind cfront's
+  tft/oled ladder — third verse of the same triangle).
+- CHA-81: not yet identified with confidence — find the actual kit
+  before modeling anything. Do not guess.
+
+**Kit-inspired example wave (clean-room, mostly pure-circuit, parts
+all exist):** LED-Lauflicht + Mini-Roulette + Glücksrad (555 + CD4017,
+the wheel adds a tilt/vibration trigger — tilt_sensor exists),
+pulsierendes LED-Herz + pulsierende Lampe (LM358 triangle-wave
+breathing, lm358 exists), LED-Sanduhr (tilt + two LED columns),
+Lichtorgel (mic + transistor stages — sound_module), Stroboskop (555
+astable at low duty), LED-Glocke. MCU-tier kits: Millivoltmeter
+(STC15 ADC + 3x7-seg — pairs with the ADC-verification thread),
+Taschenrechner/Widerstandsrechner (keypad_4x4 + display), DS1302
+Rotationsuhr (ds1302 exists; LED ring as a NxM special case),
+AT89C2051-Uhr (2K-flash 8051 sibling — emu8051 runs the core; needs a
+chip config + part). Authoring: bw-blocks continues the pc-series;
+parts gaps: bw-parts; NxM matrix generalization: bw-board lane with
+my review; console transcription + games: coordinator.
