@@ -166,3 +166,13 @@ the emulator lane with a ucsim cross-check to split emulator-bug from
 codegen-bug. Flash 10-console-selftest with confidence; hold
 11-console-pong until the verdict — flashing a wedging image teaches
 nothing but confusion.
+
+**Pong-hold UPDATE (same night): VERDICT — emulator bug, not our code.**
+A 30-byte hand-assembled repro (no compiler in the loop) proves the
+emu8051 wasm fails LCALL/RET to high code addresses (~0x13A0 breaks,
+~0x500 works; boundary bisect with the lane). The pong FIRMWARE is
+exonerated — both toolchains' images are byte-perfect and the wedge is
+the emulator's call/return above the boundary. Silicon is expected to
+run pong fine, but the flash HOLD stands until the emulator verdict is
+implemented and pong verified end-to-end under emulation — unverified-
+but-probably-fine is not a standard this project flashes.
