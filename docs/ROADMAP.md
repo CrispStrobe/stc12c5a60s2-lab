@@ -2629,3 +2629,13 @@ bench together; until per-device benches exist for an example the
 picker still retargets the program and uses the role-inferred bench,
 never a wrong hardcoded one. UI = cui lane (briefed with the
 generator seed sb3 60ca43d); catalog-build half = coordinator.
+
+**WORE amendment 2 (owner, verbatim):** the Code tab joins as the
+third surface. "Load example…" must also list the CATALOG examples
+that carry code (program.bw), not just the built-in stage games. The
+Device selector gains a new DEFAULT = "no chips" (pure stage mode,
+games list as today); when any chip (MCU/uC/CPU) is selected, "Load
+example…" switches to the code examples whose `devices` list includes
+that device — retargeted on load where the device differs from the
+example's DEVICE line. And a search/filter box in that list, because
+it will be plenty (230+ and growing).
