@@ -1875,6 +1875,14 @@ References, adjudicated:
   74xx device models must meet, since real SAP-1 bugs live on the
   falling edge.
 
+- **chelsea6502/BeebEater (MIT)** — already our BBC BASIC milestone
+  ROM-side; the owner points out it also documents the WIRING: 65C02 @
+  1 MHz, 16K RAM / 32K ROM, 6551 ACIA at 115200 (1.8432 MHz crystal),
+  6522 VIA with PS/2 keyboard on PORTA (pins 2-9) and a 16x2 HD44780 in
+  4-BIT mode on PORTB (pins 10-16). MIT = adoptable as the full-build
+  example's canonical peripheral wiring — the same circuit then serves
+  the shippable MS-BASIC ROM when that port lands.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
