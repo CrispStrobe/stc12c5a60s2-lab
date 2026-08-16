@@ -2027,3 +2027,34 @@ chip family — 74LS173/161/189/157/107 are engine devices now.
   from the vga frame pulse (simplevga's pulse exists, NMI routing does
   not), and a 5 MHz preset (trivial). When those close, the machine
   plays Bad Apple — the loudest possible fidelity demo.
+
+## Importers: the ad-hoc converters become a module family (2026-08-16)
+
+The owner's read is right: we keep writing one-off translators (the
+.dig plan, the extractors, the seat generator's additive re-author).
+Formalized: a registry of IMPORTERS in the designer, one contract —
+importCircuit(format, bytes) → {parts, wires, warnings, unmapped} —
+feeding the existing pipeline (loader → seat generator lays the result
+onto breadboards → DRC/extractors verify). Formats, in leverage order:
+
+- **KiCad (netlist first)**: the .net s-expression export has
+  connectivity already resolved — components (ref, value, libsource) +
+  nets with (node ref pin). Importer = a small s-expr parser + a
+  mapping table lib_id/value → engine kind, pin → terminal, honest
+  `unmapped` for the rest. The .kicad_sch route (wires/junctions/
+  labels) can come later; the netlist covers the use case. First
+  corpus: **Upcycle-Electronics/8-Bit-Breadboard-Computer (MIT)** —
+  the whole Eater 8-bit as clean hierarchical KiCad, license-good to
+  ship as imported examples; tebl's BE6502 (MIT) is corpus #2.
+- **Digital .dig (XML)**: as planned with the MIT 8bitsim corpus.
+- **Wokwi diagram.json**: nearest-neighbor format — our part art IS
+  wokwi-style; likely near-1:1 kinds. Import AND export (the obvious
+  interchange we should speak natively).
+- **Fritzing .fzz (open XML)**: later; same class.
+- **Tinkercad: NOT directly doable** — closed platform, no circuit
+  file export or import API (images and Arduino code out only).
+  Stated as a fact, not a TODO; Wokwi/Fritzing are the practical
+  bridges for that audience.
+
+Assignment: kicad-netlist importer + the registry to bw-parts (kind/
+terminal mapping is its domain); .dig stays with bw-bundle.
