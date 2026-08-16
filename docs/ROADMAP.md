@@ -1891,6 +1891,26 @@ References, adjudicated:
   oscillator, HD44780 16x2, plus the LEDs/resistors/caps/buttons that
   make the photo look like the photo.
 
+- **nickgammon/G-Pascal (MIT)** — on-board Pascal compiler + 65C02
+  assembler + text editor for exactly the Eater 6502 board: VIA at
+  $7FF0, BIT-BANGED serial on PA0 (in, CB2 edge IRQ) / PA1 (out), LCD.
+  MIT = SHIPPABLE interactive machine (what BBC BASIC's Acorn heritage
+  forbids). FIRST SMOKE 2026-08-16 on our M6502Machine (config: RAM
+  16K, ROM 32K, via@$7FF0, bin/gpascal.bin): reset vector taken,
+  ~40k VIA pin edges — the LCD boot traffic — but PA1 stays idle, so
+  the bit-bang TX path (VIA T1 pacing + CB2 handshake) is the open
+  machine-side item. When it talks, the app gets a wired, MIT,
+  Pascal-speaking 6502 with editor and compiler ON the machine.
+- **CompuSAR/Ben8Bit (NO license)** — the Eater 8-bit re-implemented in
+  VERILOG for FPGA: demux bus instead of tri-state, active-high control,
+  synthesized microcode with per-instruction cycle counts. Reference-
+  only, but doubly useful: an independent formalization of the module
+  boundaries/control signals to cross-check our device wiring against,
+  and locally simulable (iverilog) — a potential referee #3 beside
+  vrcpu and wmvanvliet.
+- **eater.net/8bit** — the 8-bit machine's own official home (parts,
+  schematics, videos), companion to the /6502 page above.
+
 In flight (briefed 2026-08-16): bw-board surveys/builds the missing
 74-series device kinds (74LS173 register, 74LS161 counter, 74LS189 RAM
 with its inverted-output trap, 74LS157 mux, 74LS107 vs existing jkff;
