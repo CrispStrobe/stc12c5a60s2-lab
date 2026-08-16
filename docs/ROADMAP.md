@@ -2103,3 +2103,19 @@ public-domain film — cleanest rights in the set), tron-0xf,
 blinkenrocket-firmware. Ship-built-artifacts-with-source can grow in
 place when wanted; GPL wasm tooling (ucsim) inside the APP remains an
 owner decision, flagged, not assumed.
+
+**MILESTONE 2026-08-16: THE SAP-1's PROGRAM COUNTER COUNTS.** The TTL
+tier's thesis is now demonstrated end to end: 8bitsim's PC.dig (MIT),
+translated by the Digital-as-pin-oracle pipeline (sb3 scripts/
+dig-to-circuit-v2.mjs), runs under the analog engine — 555 astable
+ticking, 74LS161 incrementing, '245 driving the bus, LEDs walking in
+binary (6→7→8→9→10 read off audit-solve samples). The debugging
+yielded a REAL ENGINE FIX beyond the tier: mna.js now merges disjoint
+ground islands into the reference (bw-board 9ebbc1f) — any circuit
+with more than one gnd symbol on unconnected nets was silently
+floating all but the first. Plus four translator lessons recorded in
+the commit: proven-astable realization with the control cap, In
+defaults as ties with --set overrides, the splitter barrier cut to its
+parsed pin span, and Digital's overlined active-low labels. Remaining
+to the full machine: the splitter as a real bridging part, then the
+module ladder and Main.dig itself.
