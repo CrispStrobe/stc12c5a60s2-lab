@@ -1,0 +1,19 @@
+Waiting for MCU, please cycle power: <- Packet data: 46 B9 68 00 3A 00 0A 6B 0A 6B 0A 6B 0A 6B 0A 6B 0A 6B 0A 6B 0A 6B 66 43 FD F0 02 82 EF F6 AE F3 EE F1 CA CC 70 1B F3 DF FE 8C ED F6 EE E7 EE FB 6A CC 9D 57 DF 7F DE FD EE 04 3C 16
+-> Packet data: 46 B9 6A 00 06 82 F2 16
+done
+Target model:
+  Name: STC89C52RC/LE52RC
+  Magic: F002
+  Code flash: 8.0 KB
+  EEPROM flash: 6.0 KB
+Target frequency: 10.973 MHz
+Target BSL version: 6.6C
+Target options:
+  cpu_6t_enabled=False
+  bsl_pindetect_enabled=False
+  eeprom_erase_enabled=False
+  clock_gain=high
+  ale_enabled=True
+  xram_enabled=True
+  watchdog_por_enabled=False
+Disconnected!

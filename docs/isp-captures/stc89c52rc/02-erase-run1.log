@@ -1,0 +1,55 @@
+Waiting for MCU, please cycle power: <- Packet data: 25
+<- Packet data: 31
+<- Packet data: 20
+<- Packet data: 51
+<- Packet data: 25
+<- Packet data: 25
+<- Packet data: 91
+<- Packet data: 01
+<- Packet data: 04
+<- Packet data: FC
+<- Packet data: 25
+<- Packet data: 31
+<- Packet data: 20
+<- Packet data: 6B
+<- Packet data: 25
+<- Packet data: 25
+<- Packet data: 91
+<- Packet data: 91
+<- Packet data: 80
+<- Packet data: 00
+<- Packet data: 46 B9 68 00 3A 00 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 66 43 FD F0 02 82 EF F6 AE F2 EE F1 CA EC 72 1B F3 DF 7E 8C ED F6 EE E7 EE FB 6A C8 9D 57 DF 7F DE FD EE 04 49 16
+done
+Target model:
+  Name: STC89C52RC/LE52RC
+  Magic: F002
+  Code flash: 8.0 KB
+  EEPROM flash: 6.0 KB
+Target frequency: 11.030 MHz
+Target BSL version: 6.6C
+Target options:
+  cpu_6t_enabled=False
+  bsl_pindetect_enabled=False
+  eeprom_erase_enabled=False
+  clock_gain=high
+  ale_enabled=True
+  xram_enabled=True
+  watchdog_por_enabled=False
+Switching to 115200 baud: checking -> Packet data: 46 B9 6A 00 0C 8F FF FD 00 06 A0 81 28 16
+<- Packet data: 46 B9 68 00 0C 8F FF FD 00 06 A0 81 26 16
+setting -> Packet data: 46 B9 6A 00 0B 8E FF FD 00 06 A0 A5 16
+<- Packet data: 46 B9 68 00 0B 8E FF FD 00 06 A0 A3 16
+testing -> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+done
+Erasing 32 blocks: -> Packet data: 46 B9 6A 00 0D 84 20 33 33 33 33 33 33 4D 16
+<- Packet data: 46 B9 68 00 0D 80 F0 02 C4 2B 01 83 74 CE 16
+-> Packet data: 46 B9 6A 00 06 82 F2 16
+done
+Disconnected!

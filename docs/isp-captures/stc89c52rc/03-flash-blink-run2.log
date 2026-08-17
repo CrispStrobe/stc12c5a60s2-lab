@@ -1,0 +1,44 @@
+Waiting for MCU, please cycle power: <- Packet data: 00
+<- Packet data: 00
+<- Packet data: 46 B9 68 00 3A 00 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 0A 79 66 43 FD F0 02 82 EA C6 8E E2 CA C0 CA CC F2 0A D2 DA CA 88 CE E2 CE C6 EE CA EA C8 9C C6 CA 7F DE FD 4E 04 94 16
+done
+Target model:
+  Name: STC89C52RC/LE52RC
+  Magic: F002
+  Code flash: 8.0 KB
+  EEPROM flash: 6.0 KB
+Target frequency: 11.030 MHz
+Target BSL version: 6.6C
+Target options:
+  cpu_6t_enabled=False
+  bsl_pindetect_enabled=False
+  eeprom_erase_enabled=False
+  clock_gain=high
+  ale_enabled=True
+  xram_enabled=True
+  watchdog_por_enabled=False
+Loading flash: 299 bytes (Intel HEX)
+Switching to 115200 baud: checking -> Packet data: 46 B9 6A 00 0C 8F FF FD 00 06 A0 81 28 16
+<- Packet data: 46 B9 68 00 0C 8F FF FD 00 06 A0 81 26 16
+setting -> Packet data: 46 B9 6A 00 0B 8E FF FD 00 06 A0 A5 16
+<- Packet data: 46 B9 68 00 0B 8E FF FD 00 06 A0 A3 16
+testing -> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+-> Packet data: 46 B9 6A 00 0C 80 00 00 36 01 F0 02 1F 16
+<- Packet data: 46 B9 68 00 06 80 EE 16
+done
+Erasing 2 blocks: -> Packet data: 46 B9 6A 00 0D 84 02 33 33 33 33 33 33 2F 16
+<- Packet data: 46 B9 68 00 0D 80 F0 02 C4 2B 01 83 74 CE 16
+-> Packet data: 46 B9 6A 00 8C 00 00 00 00 00 00 80 02 00 4C 00 00 00 00 00 00 00 E2 FB EA F2 80 2C 00 00 E0 FB EA F0 80 24 E6 B5 02 02 EB F6 22 00 E2 B5 02 02 EB F2 22 00 E0 B5 02 02 EB F0 22 30 F6 E0 A8 82 20 F5 D3 EA C6 F5 82 22 8B 82 22 30 F6 E6 A8 82 20 F5 D9 80 CF 02 00 DF 75 81 07 12 01 27 E5 82 60 03 02 00 49 79 00 E9 44 00 60 1B 7A 00 90 01 2B 78 01 75 A0 00 E4 93 F2 A3 08 B8 00 02 05 A0 D9 F4 DA F2 75 A0 FF E4 78 FF F6 D8 B2 16
+<- Packet data: 46 B9 68 00 07 80 3C 2B 16
+done
+Writing flash:   0%|          | 0/512 [00:00<?, ? Bytes/s]-> Packet data: 46 B9 6A 00 8C 00 00 00 00 80 00 80 FD 78 00 E8 44 00 60 0A 79 01 75 A0 00 E4 F3 09 D8 FC 78 00 E8 44 00 60 0C 79 00 90 00 01 E4 F0 A3 D8 FC D9 FA 02 00 49 D2 90 D2 91 22 E5 89 54 F0 44 01 F5 89 C2 8C C2 8D 22 AE 82 AF 83 8E 04 8F 05 1E BE FF 01 1F EC 4D 60 13 75 8A 67 75 8C FC C2 8D D2 8C 30 8D FD C2 8C C2 8D 80 E0 22 12 00 A8 12 00 AD 7F 00 C2 90 D2 91 90 00 96 C0 07 12 00 BA D2 90 C2 91 90 00 96 12 00 BA D0 07 0F ED 16
+<- Packet data: 00
+Protocol error: incorrect frame start
+-> Packet data: 46 B9 6A 00 06 82 F2 16
+Disconnected!
+Writing flash:  25%|██▌       | 128/512 [00:00<00:01, 230.85 Bytes/s]
