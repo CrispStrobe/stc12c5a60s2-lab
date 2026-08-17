@@ -48,7 +48,19 @@ through the 74HC245.
   number. Fixed at the parser (Python precedence, stc-compiler
   c34ad1b, regression-tested); the bench found in silence what no
   green test had.
-- **8-LED module: measured on P2** (08-ledfind89 three-phase test,
+- **8×8 DOT MATRIX: FULLY MEASURED AND DRIVEN FROM BLOCKS**
+  (11-matrix89 hunts + pseudocode/15-a2-matrix.bw, iterated with the
+  owner over four flashes). The wiring: the 74HC595 (silkscreen
+  SER=P3.4, RCLK=P3.5, SCLK=P3.6 — labels below the matrix) selects
+  the physical ROWS active HIGH with **Q7 = top … Q0 = bottom**; P0's
+  bits sink the COLUMNS active LOW with **bit 7 = left** (corner-dot
+  probe). Net: image bytes read top-down, MSB-left — literals look
+  like the picture. **THE TRAP THAT COST FIVE DARK FLASHES: J24
+  (silkscreen GND-OE-VCC) shipped with the cap on OE–VCC, tri-stating
+  the 595's outputs entirely.** The cap belongs on OE–GND. Every
+  correct-pin firmware was dark until the owner moved it; a jumper,
+  not a wire, was the whole mystery. The steady heart at ~110 Hz
+  scan (`wait 1 ms` per row) is the shipped demo.
   owner-observed: phase 2). So the LEDs SHARE THE PORT with the 7-seg
   digit select (P2.2–P2.4) — the vendor's "modules can't all be used
   at once" caveat as measured copper: scanning the tubes dances the

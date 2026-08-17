@@ -1,0 +1,35 @@
+# The A2's 8x8 dot matrix, as blocks — a scanned heart. Every fact
+# below was measured on the real board (docs/BOARD-PRECHIN-A2.md):
+# the 74HC595 on SER=P3.4 (DATA), RCLK=P3.5 (LATCH), SCLK=P3.6
+# (CLOCK) selects the PHYSICAL ROWS active HIGH — Q7 is the TOP row
+# (the first flash showed the heart 90 deg clockwise: 595 = rows;
+# the second showed it 180 deg: the walk ran bottom-up, so the walk
+# table below runs Q7..Q0 and the image reads top-down). P0's bits
+# are the COLUMNS, sinking ACTIVE LOW, bit 7 = LEFT (measured with a
+# corner-dot probe). Net result: images are written top-down with the
+# most significant bit on the left — the binary literals below read
+# exactly like the picture. And the hardware
+# lesson of the night: J24 (silkscreen GND-OE-VCC) must strap OE to
+# GND — the factory position tied OE to VCC and disabled the 595's
+# outputs entirely.
+#   ./tools/compile-remote.sh -p 15-a2-matrix
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE heart = 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000, 0b00000000
+  TABLE walk = 0b10000000, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010, 0b00000001
+
+  PART rowsel = 74HC595 DATA P3.4 CLOCK P3.6 LATCH P3.5
+
+  PORT columns = P0 OUTPUT ACTIVE LOW
+
+  WHEN started:
+    FOREVER:
+      set c to 0
+      REPEAT 8:
+        set rowsel to walk[c]
+        set columns to heart[c]
+        wait 1 ms
+        set columns to 0
+        change c by 1
