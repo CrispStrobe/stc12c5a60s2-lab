@@ -2713,3 +2713,32 @@ RETRO-CONSOLE-RBS15667.md, then the 3-board faithful bench.
 - Zee2's Z80 repo — no license: read-facts only.
 License doctrine unchanged: MIT/BSD adoptable with attribution; GPL
 via gpl-lab; unlicensed read-for-facts.
+
+
+## Pin-expansion tier: more I/O than the chip has legs (added 2026-08-17)
+
+Owner-requested arc, aimed squarely at the ATtiny85 (five GPIO) but
+teachable on every board — each technique is a classic:
+
+- **74HC595 output expansion** — the engine's `shift_register` device;
+  the dialect already has PART/shift-out. Demo in the spirit of the
+  Instructables "Getting more IO pins on ATtiny with Shift Register":
+  three pins drive eight LEDs, chainable to sixteen.
+- **74HC165 input expansion** — parallel-in/serial-out, the input twin;
+  engine device exists. Eight buttons on three pins.
+- **PCF8574 I2C expander** — engine device exists; the bit-banged I2C
+  driver now speaks all three cores (8051 sbit, AVR BW_BIT, RP2040 SIO).
+  Eight GPIO over two wires.
+- **MCP23008 I2C expander** — NOT yet an engine device (MCP23017's
+  little sibling; registers INTCAP/GPIO/OLAT per Microchip DS21919).
+  Needs the device model first, then the example.
+- **Resistor-ladder analog multiplexing** — many buttons on ONE ADC pin
+  (the LCD-keypad-shield trick). Pure passives + the ADC; the ATtiny85
+  has ADC on PB2/3/4, and the engine solves the divider exactly. The
+  natural crown: the CALCULATOR's fifteen keys on an ATtiny85 — 2 ladder
+  pins + I2C = five pins total, which is exactly what the chip has.
+
+Sequencing: 595 demo first (everything exists), then 165, then the
+ladder (pure engine), then PCF8574, then the MCP23008 device model.
+Each example authored once in the dialect and WORE-fanned to every
+board that fits, refusals stating reasons.
