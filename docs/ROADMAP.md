@@ -1229,8 +1229,11 @@ seams; nothing above them changes.
   MAXIMAL BOARD: PRECHIN 普中51 A2 — bill of materials now VERIFIED
   from the vendor's own module-legend table (prechin.cn/51/91.html,
   archived with provenance in stc-research/corpus/prechin-a2, LOCAL):
-  STC89C52-class ZIF with all IO broken out; 2×4-digit common-anode
-  7-seg driven by 74HC245 (segments) + 74HC138 (digit select); 8 LEDs;
+  STC89C52-class ZIF with all IO broken out; 2×4-digit **common-CATHODE**
+  7-seg driven by 74HC245 (segments, P0) + 74HC138 (digit select,
+  P2.2–P2.4) — polarity and both pin groups MEASURED on the real A2
+  by src/07-sevenseg89, owner-observed 2026-08-17 (this line said
+  common-anode until then; the vendor table had it right); 8 LEDs;
   8x8 dot matrix off a 74HC595; 4x4 matrix + 1x4 keys; passive buzzer;
   DS1302; DS18B20 header; AT24C02 I2C EEPROM; ADC/DAC = XPT2046 +
   LM358; IR receiver; 5-wire stepper module; NRF24L01 header; LCD1602

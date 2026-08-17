@@ -7,10 +7,13 @@ plan live in docs/ROADMAP.md ("MAXIMAL BOARD: PRECHIN 普中51 A2", ~line 1229);
 the vendor page + photos are archived in `../stc-research/corpus/prechin-a2`
 (LOCAL, no port-map harvest yet — measurement is the only pin authority).
 
-**One conflict between our own documents, to be settled by measurement:**
-the ROADMAP block says the 7-seg is common-ANODE; the vendor's module table
-(official photo, module 22) says 共阴 — common-CATHODE, 74HC245-driven.
-A one-line segment test settles it; until then trust neither.
+**SETTLED BY EXPERIMENT (07-sevenseg89, owner-observed):** the 7-seg is
+**COMMON CATHODE** — `P0=0x3F` walked zeros across the tubes, `P0=0xC0`
+drew the g-segment dashes, exactly the CC signature. The vendor table
+(共阴) was right; the ROADMAP block's "common-anode" was wrong and is
+now corrected. Same experiment confirmed the **74HC138 digit select on
+P2.2–P2.4** (the zeros marched digit to digit) and **segments on P0**
+through the 74HC245.
 
 ## Measured so far (authority: the chip, via discover89)
 
