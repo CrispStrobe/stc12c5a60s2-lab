@@ -2912,7 +2912,9 @@ Verified in one session, each stage machine- or owner-confirmed:
   back — one heartbeat per 800 ms sweep, timing exact.
 
 Still open on this chip: the board peripherals (buttons, buzzer,
-DS18B20, LCD1602), and a live-monitor port — the STC12 monitor's
+DS18B20; the LCD1602/12864 headers are bare — no display fitted on
+this board, that waits for the Prechin A2 board later), and a
+live-monitor port — the STC12 monitor's
 architecture maps onto this part because the 8052's Timer 2 can be
 the baud generator (RCLK/TCLK), freeing Timer 1 for wall time
 exactly as the STC12's BRT does. ADC and the existing

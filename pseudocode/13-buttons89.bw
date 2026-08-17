@@ -1,0 +1,55 @@
+# The measured board drives itself: the four black buttons that
+# 05-discover89 located on P3.2..P3.5 (active low) steer the marquee.
+# Multi-WHEN cooperative scheduling on real silicon — one task walks
+# the LEDs, four event hats handle the keys. Silent by design (the
+# buzzer is deferred), machine-checkable over the UART.
+#
+#   key1 (P3.2)  reverse direction
+#   key2 (P3.3)  faster
+#   key3 (P3.4)  slower
+#   key4 (P3.5)  report status over serial
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE walk = 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000
+
+  PORT leds = P1 OUTPUT ACTIVE LOW
+
+  PIN key1 = P3.2 INPUT ACTIVE LOW
+  PIN key2 = P3.3 INPUT ACTIVE LOW
+  PIN key3 = P3.4 INPUT ACTIVE LOW
+  PIN key4 = P3.5 INPUT ACTIVE LOW
+
+  WHEN started:
+    set step to 0
+    set dir to 1
+    set pace to 100
+    FOREVER:
+      set leds to walk[step]
+      wait pace ms
+      change step by dir
+      IF step > 7 THEN:
+        set step to 0
+      IF step < 0 THEN:
+        set step to 7
+
+  WHEN key1 pressed:
+    set dir to 0 - dir
+    print "reverse"
+
+  WHEN key2 pressed:
+    IF pace > 40 THEN:
+      change pace by -30
+    print "faster"
+    print pace
+
+  WHEN key3 pressed:
+    IF pace < 400 THEN:
+      change pace by 30
+    print "slower"
+    print pace
+
+  WHEN key4 pressed:
+    print "status: pace"
+    print pace
