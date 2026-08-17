@@ -1,0 +1,26 @@
+Flashing build/stc89c52rc/12-lcd89/12-lcd89.hex via /dev/cu.usbserial-1110 ...
+>>> Power-cycle the MCU now (unplug/replug its VCC) <<<
+stcgal -P stc89 -p /dev/cu.usbserial-1110 -l 2400 -b 115200 build/stc89c52rc/12-lcd89/12-lcd89.hex
+Waiting for MCU, please cycle power: done
+Target model:
+  Name: STC89C52RC/LE52RC
+  Magic: F002
+  Code flash: 8.0 KB
+  EEPROM flash: 6.0 KB
+Target frequency: 10.973 MHz
+Target BSL version: 6.6C
+Target options:
+  cpu_6t_enabled=False
+  bsl_pindetect_enabled=False
+  eeprom_erase_enabled=False
+  clock_gain=high
+  ale_enabled=True
+  xram_enabled=True
+  watchdog_por_enabled=False
+Loading flash: 714 bytes (Intel HEX)
+Switching to 115200 baud: checking setting testing done
+Erasing 4 blocks: done
+Writing flash:   0%|          | 0/1024 [00:00<?, ? Bytes/s]Writing flash:  38%|███▊      | 384/1024 [00:00<00:00, 3368.72 Bytes/s]Writing flash:  75%|███████▌  | 768/1024 [00:00<00:00, 2726.25 Bytes/s]Protocol error: incorrect frame start
+Disconnected!
+Writing flash:  88%|████████▊ | 896/1024 [00:00<00:00, 2677.07 Bytes/s]
+make: *** [flash] Error 1
