@@ -2884,6 +2884,41 @@ through a save dialog; direct-signed builds write it straight.
 iOS has no USB-CDC host path — Pico deploy is desktop-only there,
 the iOS app is the editor/simulator, which is fine for the store.
 
+FIRST REAL SILICON (2026-08-17, evening bench session): the
+prediction above said the STC15 console would carry the first
+verified-on-silicon claim — reality delivered an **STC89C52RC**
+first. The owner's dev board (AliExpress "51 minimum system",
+CH340G, 8-LED marquee, 4-digit 7-seg, LCD headers, buzzer, DS18B20,
+IR, 4 buttons) handshook with stcgal 1.10 from macOS on the first
+try: STC89C52RC/LE52RC, magic F002, 8 KB flash + 6 KB EEPROM, BSL
+6.6C, crystal measured **11.030 MHz**, 12T (`cpu_6t_enabled=False`).
+Verified in one session, each stage machine- or owner-confirmed:
+
+- `src/03-blink89` — 238-byte flash, Timer-0-exact 1 Hz on
+  P0/P1/P2; owner confirmed LEDs AND 7-seg blinking.
+- `src/04-hello89` — built through the Makefile's new stc89c52rc
+  lane (peer commit f86bcc3), 9600 baud off Timer 1 mode 2 (no BRT
+  on this part); the host read `STC89C52RC hello #17` back over the
+  same CH340, counter consistent with uptime. TWO-WAY UART PROVEN
+  — flash path, code execution, crystal timing, serial both ways.
+- The 0.26% crystal error (11.030 vs 11.0592) is inside UART
+  tolerance, as predicted.
+
+- `pseudocode/12-marquee89.bw` — BLOCKS TO SILICON: the dialect
+  program (walking-bit PORT marquee + print heartbeat) compiled
+  through the hosted stc-compiler (which correctly emitted the
+  Timer-1 baud path for the BRT-less part, `TH1 = TL1 = 253`),
+  flashed with stcgal, and the host read `marquee sweep 16/17/18`
+  back — one heartbeat per 800 ms sweep, timing exact.
+
+Still open on this chip: the board peripherals (buttons, buzzer,
+DS18B20, LCD1602), and a live-monitor port — the STC12 monitor's
+architecture maps onto this part because the 8052's Timer 2 can be
+the baud generator (RCLK/TCLK), freeing Timer 1 for wall time
+exactly as the STC12's BRT does. ADC and the existing
+`10-live-firmware` binary stay waiting for STC12 silicon — the
+board's socket accepts one pin-for-pin.
+
 The black-OLED convergence (2026-08-17, late): the owner's "Pocket
 Calculator OLED always black" turned out to be THREE stacked defects,
 each masking the next, closed in one session and pinned by tests:

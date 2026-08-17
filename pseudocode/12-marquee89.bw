@@ -1,0 +1,26 @@
+# Blocks-to-silicon for the STC89C52RC bench board: a walking-bit
+# marquee on the 8 LEDs (P1, active low) plus a heartbeat over the
+# UART -- visually distinct from 03/04 so a successful flash is
+# unmistakable, and machine-checkable over the same CH340 cable.
+#   ./tools/compile-remote.sh -p 12-marquee89
+#   make PART=stc89c52rc EXAMPLE=12-marquee89 flash   # after copying the C
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE walk = 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000
+
+  PORT leds = P1 OUTPUT ACTIVE LOW
+
+  WHEN started:
+    set step to 0
+    set sweep to 0
+    FOREVER:
+      set leds to walk[step]
+      wait 100 ms
+      change step by 1
+      IF step > 7 THEN:
+        set step to 0
+        change sweep by 1
+        print "marquee sweep"
+        print sweep
