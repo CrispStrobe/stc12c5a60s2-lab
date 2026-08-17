@@ -1,0 +1,38 @@
+# 09-keyshow89, as blocks: the Prechin A2's 4x4 keypad shows its key
+# as a hex digit on the 7-seg. Every pin below was MEASURED on the
+# real board (docs/BOARD-PRECHIN-A2.md, 2026-08-17): keypad rows
+# P1.7..P1.4 / cols P1.3..P1.0, segments P0 through the 74HC245
+# (common cathode: segment high = lit), digit select through the
+# 74HC138 on P2.2..P2.4 (digit 0 = all three low), and the LED module
+# shares P2 — the select pins are ACTIVE LOW PINs here, so the rest
+# of P2 stays quasi-high and the LEDs stay dark.
+#   ./tools/compile-remote.sh -p 14-a2-keyshow
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE font = 0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01101111, 0b01110111, 0b01111100, 0b00111001, 0b01011110, 0b01111001, 0b01110001
+
+  PART keys = KEYPAD4X4 ROWS P1.7 P1.6 P1.5 P1.4 COLS P1.3 P1.2 P1.1 P1.0
+
+  PORT segments = P0 OUTPUT
+
+  PIN selA = P2.2 OUTPUT ACTIVE LOW
+  PIN selB = P2.3 OUTPUT ACTIVE LOW
+  PIN selC = P2.4 OUTPUT ACTIVE LOW
+
+  WHEN started:
+    turn on selA                 # digit 0: 138 address 000
+    turn on selB
+    turn on selC
+    set segments to 0
+    set shown to 0 - 1
+    FOREVER:
+      set k to keys
+      IF k >= 0 THEN:
+        IF not k = shown THEN:
+          set shown to k
+          set segments to font[k]
+          print "key"
+          print k
+      wait 30 ms
