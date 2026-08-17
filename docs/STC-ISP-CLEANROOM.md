@@ -72,3 +72,20 @@ the roles from bleeding.
    STC89C52RC and the owner sees it blink — the same bar every
    silicon claim in this repo meets.
 4. Provenance sections complete in both spec and crate README.
+
+## Coordinator rulings (append-only)
+
+- **2026-08-17 — `../stc-compiler`'s STC12 flasher is OFF LIMITS to the
+  spec and implementation roles.** Its own `BENCH-FLASHING.md` describes
+  the flasher as "byte-identical to what stcgal itself emits," which
+  makes it stcgal-derived in substance regardless of any local licence
+  label — the rgm3/ledcube444 lesson (an upstream with no licence to
+  give cannot be laundered downstream). `stc12-session.json` from the
+  same source is excluded for the same reason. When stc12 support is
+  specced later, its facts come from fresh bench captures, never that
+  flasher.
+- **2026-08-17 — the CSDN `james026` write-up is refused.** The spec
+  role opened it in phase 1, found it declares GPL v3 and embeds tool
+  source, and excluded it; the open items it would have answered were
+  re-derived from our own captured bytes instead. Not an admissible
+  source for any role.
