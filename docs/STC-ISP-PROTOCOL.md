@@ -393,8 +393,9 @@ flashed `04-hello89` firmware**, which prints on the same UART. So while
 the host waited at 2400 baud for a bootloader, the line was carrying an
 application's 115200-baud output, misframed into garbage.
 
-The evidence: **152 single-byte receptions, 38 distinct values**
-(`a0 b3 e1 25 fc 4d 54 …`), arriving in a repeating five-byte rhythm
+The evidence: `05-timeout-nocycle` shows **152 single-byte receptions**
+(24 distinct values in that one session; **38 distinct** across all 248
+noise bytes in the corpus), arriving in a repeating five-byte rhythm
 (`a0 b3 e1 25 fc`) for 30 seconds. Every capture that involved a
 previously flashed chip shows the same thing before the handshake —
 `04-flash-hello-run2.log` opens with 31 such bytes, `02-erase-run1.log`
@@ -563,12 +564,18 @@ Both image cases fit `NN = 2 × ceil(size / 512)`, i.e. the erase
 granularity is 512 bytes expressed as an even number of 256-byte blocks,
 and the whole-chip case fits it too (`2 × ceil(8192/512) = 32`).
 
-`[NEEDS-BENCH]` **Erase granularity — the one arithmetic ambiguity left.**
-`NN = 2 × ceil(size/512)` and `NN = ceil(size/256)` both fit the blink
-case; only the hello case separates them, and it separates them by one
-sample. *Experiment:* flash an image of ~1100 bytes. The 512-byte rule
-predicts `NN = 6`; the 256-byte rule predicts `NN = 5`. One capture
-settles it.
+`[RESOLVED — 512-byte rule]` **Erase granularity.** `NN = 2 ×
+ceil(size/512)` and `NN = ceil(size/256)` both fit the blink case; a
+second, independent image separates them. Bench capture
+`06-write-frame-error.log` flashes a **714-byte** image and reports
+**"Erasing 4 blocks"**: `2 × ceil(714/512) = 4` (512-byte rule) vs
+`ceil(714/256) = 3` (256-byte rule). The reported 4 can only come from
+the 512-byte rule, matching the hello case (608 B → 4) from a different
+size — so the granularity is **512 bytes, expressed as an even number of
+256-byte blocks**, confirmed by two independent samples. `stcbsl`
+implements this rule (no `[NEEDS-BENCH]` guard remains on it). The same
+`06` log is also a second sighting of the mid-write "incorrect frame
+start" desync noted under §5.1.2.
 
 `[NEEDS-BENCH]` **The reply payload `F0 02 C4 2B 01 83 74`** is constant
 in all six sessions. `F0 02` is the chip identity; the remaining five
@@ -928,7 +935,7 @@ soonest.
 
 | # | Item | Experiment | § |
 |---|---|---|---|
-| C-1 | Erase granularity (512 B vs 256 B rule) | Flash a ~1100-byte image; predicts `NN`=6 vs 5 | 5.5 |
+| C-1 | ~~Erase granularity (512 B vs 256 B rule)~~ **RESOLVED**: 512-byte rule, confirmed by `06`'s 714 B → 4 blocks (§5.5) | done | 5.5 |
 | C-2 | Magic bytes inside a payload | Flash an image containing the byte pair `46 B9` | 4 |
 | C-3 | Whether a bad ack byte means rejection | Send a frame whose data differs from intent | 5.6 |
 | C-4 | Address field above 64 KB | Capture an STC89C58RD+ or larger | 5.6 |
