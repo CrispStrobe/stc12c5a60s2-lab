@@ -38,6 +38,12 @@ through the 74HC245.
   logged nothing; active scanning is mandatory.)
 - **DS18B20: no presence pulse** on any probeable pin so far — socket
   likely unpopulated (check the three-hole footprint next to label 14).
+- **8-LED module: measured on P2** (08-ledfind89 three-phase test,
+  owner-observed: phase 2). So the LEDs SHARE THE PORT with the 7-seg
+  digit select (P2.2–P2.4) — the vendor's "modules can't all be used
+  at once" caveat as measured copper: scanning the tubes dances the
+  LEDs. Per-bit polarity not yet observed (family convention says
+  active low; unconfirmed).
 
 ## Official module list (from the vendor photos)
 

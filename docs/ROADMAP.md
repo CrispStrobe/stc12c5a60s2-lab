@@ -2924,6 +2924,25 @@ exactly as the STC12's BRT does. ADC and the existing
 `10-live-firmware` binary stay waiting for STC12 silicon — the
 board's socket accepts one pin-for-pin.
 
+A2 BENCH NIGHT, CONTINUED (same evening): the Prechin A2 (same
+STC89C52RC, BSL 6.6C) mapped itself end to end — see
+docs/BOARD-PRECHIN-A2.md for every measured fact (keypad = full P1,
+six-point verified; 7-seg common CATHODE, segments P0, 138 select
+P2.2–P2.4; the 8-LED module SHARES P2 with the select; K3/K4 =
+P3.2/P3.3 with K1/K2 on the UART pins). The integration proof is
+`src/09-keyshow89`: 4x4 press → hex glyph on the tube + UART echo,
+every constant measured, owner-verified 0-F across all sixteen keys
+on first flash. Discovery tooling that made it possible:
+05-discover89 (passive watcher + 1-Wire probe), 06-matrix89 (active
+matrix scan — a matrix is INVISIBLE to a passive watcher, proven
+live), 07-sevenseg89 (polarity A/B test), 08-ledfind89 (port
+elimination). DIALECT GAP exposed by 09: BrickWright pseudocode has
+no matrix-scan idiom — a PART KEYPAD4x4 (rows/cols pins, scanned by
+the runtime tick like the simulator's keypad device) is the missing
+piece before keyshow can be written as blocks. The ISP bench-capture
+campaign for the clean-room Rust tool also ran on this board the
+same night (docs/isp-captures/stc89c52rc/, nine sessions).
+
 The black-OLED convergence (2026-08-17, late): the owner's "Pocket
 Calculator OLED always black" turned out to be THREE stacked defects,
 each masking the next, closed in one session and pinned by tests:
