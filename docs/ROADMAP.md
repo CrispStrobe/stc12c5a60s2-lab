@@ -2767,6 +2767,16 @@ Building it surfaced two real cross-cutting bugs, both fixed:
   HIGH-as-pressed against pull-up-to-GND benches — ACTIVE LOW now;
   and eater6502 PB7 freed (plain I/O while ACR7=0, W65C22 §2.5).
 
-Stage two (task #34): second display, NTC B-equation degC, frequency
-counter on IN, PWM output with pot-set frequency/duty, S8550 digit
-drivers, 5V/3.3V level outputs, and an STC15W408AS part entry.
+Stage two (task #34) — B-equation degC SHIPPED (2026-08-17): mode T
+reads real temperature now, an 11-segment piecewise-linear map of the
+B-equation (B=3950, 10k@25C) over the divider millivolts, +/-0.3 degC
+across -19..88 degC against float truth THROUGH the silicon model.
+Sub-zero renders "-XY" with segment g as the minus; positive "XY.Z"
+with a positioned decimal point. The full-chain harness the stage-one
+session never committed is a repo test now: sb3-creator
+test/multimeter-chain.test.mjs asserts the absolute display readings
+(generateC -> sdcc -> emu8051 STC15 -> board MNA -> digit decode),
+env-gated on the local toolchain. Still open from stage two: second
+display, frequency counter on IN, PWM output with pot-set
+frequency/duty, S8550 digit drivers, 5V/3.3V level outputs, and an
+STC15W408AS part entry.
