@@ -2742,3 +2742,31 @@ Sequencing: 595 demo first (everything exists), then 165, then the
 ladder (pure engine), then PCF8574, then the MCP23008 device model.
 Each example authored once in the dialect and WORE-fanned to every
 board that fits, refusals stating reasons.
+
+## The Bausatz multimeter (HU-050 / RBS17603) — stage one SHIPPED (2026-08-17)
+
+The owner's multimeter kit (STC15W408AS, two 3631BS 3-digit displays,
+LM358, 0.02R shunt, NTC x2, PWM out with two trimmers, buzzer,
+AMS1117-3.3) maps almost one-to-one onto existing engine parts.
+`76-multimeter` in sb3-creator is the clean-room measuring core:
+STC15F2K60S2 stand-in, one seven_seg_3, three modes (V via 30k/10k
+divider, A via the kit's own 0.02R shunt + LM358 x46.5, T as raw NTC
+millivolts), MODE button, buzzer chirp. Verified headless through the
+full chain (generateC -> sdcc -> emu8051 STC15 -> board MNA -> digit
+decode): pot 60% reads 2.83, mode A 067, mode T 454, modes wrap.
+
+Building it surfaced two real cross-cutting bugs, both fixed:
+- emu8051 adapter push mode never seated never-written pins — every
+  untouched active-low button read held-down (bw-board 0263cd4).
+- The C target's variables were 16-bit int on sdcc/avr-gcc/cc65;
+  `raw * 5000` wrapped and every ADC example computed garbage
+  magnitudes. Variables/params/adc_read are long now (sb3).
+  Trace-diff suites missed it: they compare wrong-to-wrong. Only an
+  EXPECTED-value check catches magnitude bugs.
+- Same session: buttons in 05-counter / retro-console / pong read
+  HIGH-as-pressed against pull-up-to-GND benches — ACTIVE LOW now;
+  and eater6502 PB7 freed (plain I/O while ACR7=0, W65C22 §2.5).
+
+Stage two (task #34): second display, NTC B-equation degC, frequency
+counter on IN, PWM output with pot-set frequency/duty, S8550 digit
+drivers, 5V/3.3V level outputs, and an STC15W408AS part entry.
