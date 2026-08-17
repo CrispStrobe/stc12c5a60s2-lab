@@ -2943,6 +2943,23 @@ piece before keyshow can be written as blocks. The ISP bench-capture
 campaign for the clean-room Rust tool also ran on this board the
 same night (docs/isp-captures/stc89c52rc/, nine sessions).
 
+STCBSL ACCEPTANCE RUN PASSED (2026-08-18, just after midnight):
+`tools/stcbsl` — the clean-room MIT flasher built the same night
+from those captures — identified the STC89C52RC on its FIRST
+silicon contact (the uncaptured handshake pulse train worked; spec
+risk B-2 closed by direct evidence) and then PROGRAMMED AND RAN
+pseudocode-born firmware: the 15-a2-matrix heart, owner-watched on
+the 8x8. One bug found and precisely diagnosed on the way: the
+115200 baud probe times out because the host keeps listening at
+the old baud for a reply that arrives at the new one (the probe
+frame is byte-identical to the capture; `--baud 2400` — old == new
+— bypasses it and proves the diagnosis; fix is the implementer's).
+The definition of done — a flasher we own, flashing our chip,
+owner watching — is met. Also note 01-blink is the contract's
+acceptance image but is INVISIBLE on the A2 (it drives P1.0/P1.1 =
+keypad lines), so the visible heart stood in — same protocol path,
+bigger image, better witness.
+
 The black-OLED convergence (2026-08-17, late): the owner's "Pocket
 Calculator OLED always black" turned out to be THREE stacked defects,
 each masking the next, closed in one session and pinned by tests:
