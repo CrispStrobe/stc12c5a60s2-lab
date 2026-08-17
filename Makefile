@@ -32,20 +32,29 @@ STCGAL    ?= stcgal
 # --------------------------------------------------------------------- target
 # STC12C5A60S2: 60 KB flash, 256 B internal RAM + 1024 B auxiliary (XRAM).
 # STC15F2K60S2: 60 KB flash, 256 B internal RAM + 1792 B auxiliary (XRAM).
+# STC89C52RC:    8 KB flash, 256 B internal RAM +  256 B auxiliary (XRAM).
+#                12T core, no PxM port modes, no ADC/PCA/BRT - the classic.
 ifeq ($(PART),stc15f2k60s2)
   XRAM     := 1792
+  CODESZ   := 61440
   PARTDEF  := -DPART_STC15F2K60S2=1
   PROTOCOL ?= stc15
 else ifeq ($(PART),stc12c5a60s2)
   XRAM     := 1024
+  CODESZ   := 61440
   PARTDEF  := -DPART_STC12C5A60S2=1
   PROTOCOL ?= stc12
+else ifeq ($(PART),stc89c52rc)
+  XRAM     := 256
+  CODESZ   := 8192
+  PARTDEF  := -DPART_STC89C52RC=1
+  PROTOCOL ?= stc89
 else
-  $(error unknown PART "$(PART)" - try stc12c5a60s2 or stc15f2k60s2)
+  $(error unknown PART "$(PART)" - try stc12c5a60s2, stc15f2k60s2 or stc89c52rc)
 endif
 
 SDCCFLAGS ?= -mmcs51 --std-c99 \
-             --iram-size 256 --xram-size $(XRAM) --code-size 61440 \
+             --iram-size 256 --xram-size $(XRAM) --code-size $(CODESZ) \
              -I include -DFOSC_HZ=$(FOSC)UL $(PARTDEF)
 
 # ---------------------------------------------------------------------- flash

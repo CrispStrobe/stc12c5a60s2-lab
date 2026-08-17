@@ -9,7 +9,13 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#ifdef PART_STC89C52RC
+/* The classic: no PxM registers, no ADC, no PCA. 8052.h has everything
+ * the STC89C52RC actually implements. */
+#include <8052.h>
+#else
 #include <stc12.h>
+#endif
 
 /*
  * The STC15F2K60S2 borrows stc12.h deliberately: 74 SFRs share both name and
@@ -84,8 +90,13 @@
  */
 static void board_init(void)
 {
+#ifndef PART_STC89C52RC
     P1M1 &= ~LED_MASK;   /* M1 = 0 */
     P1M0 |=  LED_MASK;   /* M0 = 1  -> push-pull */
+#endif
+    /* The STC89 has no port-mode registers - quasi-bidirectional is all
+     * there is. The sink-driven active-low LED wiring above is chosen
+     * precisely because it works in that mode, so nothing else changes. */
 
     LED1 = LED_OFF;
     LED2 = LED_OFF;

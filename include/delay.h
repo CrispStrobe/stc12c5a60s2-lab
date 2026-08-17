@@ -22,7 +22,11 @@
 
 static void delay_init(void)
 {
+#ifndef PART_STC89C52RC
     AUXR &= ~0x80;              /* T0x12 = 0 -> Timer 0 runs at FOSC/12 */
+#endif
+    /* The STC89's 12T core has no T0x12 bit - Timer 0 is FOSC/12 by
+     * construction, which is exactly the rate every delay here assumes. */
     TMOD  = (TMOD & 0xF0) | 0x01;  /* Timer 0, mode 1: 16-bit */
     TR0   = 0;
     TF0   = 0;
