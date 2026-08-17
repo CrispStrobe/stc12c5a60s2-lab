@@ -2838,11 +2838,25 @@ Work items, in build order:
    cannot be code). MakeCode's invariant, ours now: an import loses
    NOTHING on the round trip.
 
-4. **PICOBOOT over WebUSB** (Chromium polish). A transport-agnostic
-   module speaking the RP2040 bootrom's vendor interface (exclusive
-   access, flash erase/write, reboot), mock-tested like picoRepl;
-   device verification when a BOOTSEL Pico and a Chromium session
-   are both at hand. The UF2 download stays the primary path.
+4. **PICOBOOT over WebUSB** — REDIRECTED (owner directives,
+   2026-08-17): the product is a TAURI app, NO Python in the shipped
+   bundle, all platforms. That reshapes the transport story: the Tauri
+   build gets native serial via Rust (tauri serialport plugin) driving
+   the same transport-agnostic picoRepl protocol — the WebSerial/
+   Chromium limitation only exists for the pure-web build, which keeps
+   WebSerial where available and the UF2 download everywhere. BOOTSEL
+   flashing from the app becomes a Rust-side USB concern (nusb/
+   picoboot) when wanted; a browser WebUSB PICOBOOT client is no
+   longer on the path. Status of the rest: item 1 SHIPPED
+   (`bw compile --uf2`, RAM-boot vector prelude — owner verifies by
+   dragging), item 2 SHIPPED (`bw bake-uf2`: MicroPython firmware +
+   littlefs image with main.py in ONE drag-drop file, built with the
+   real littlefs via npm wasm — no Python, all platforms), item 3
+   SHIPPED (grey blocks: `raw` statement, reader preserves, emitter
+   re-emits verbatim, hand-written programs only). `bw flash` now
+   speaks our own raw-REPL protocol over a plain fd + stty (macOS/
+   Linux), mpremote demoted to fallback — the CLI is Python-free on
+   the happy path too.
 
 Provenance discipline: formats and protocols are reimplemented from
 their specs; anything lifted verbatim keeps its MIT/BSD notice and a
