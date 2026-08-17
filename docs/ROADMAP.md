@@ -2799,3 +2799,51 @@ examples transform the authored circuit (MCU swap + pin-map rewrite,
 non-MCU parts byte-identical, refusals ledgered app-readably as
 transformRefused and greyed in the chooser). The consoles list stc12
 now (pools widened to the chip's true 34 non-ISP GPIO).
+
+## The MakeCode lesson — UF2 deploy, grey blocks, WebUSB (owner directive, 2026-08-17)
+
+MakeCode's deploy story is the model: their UF2 format (Microsoft, MIT —
+the RP2040's BOOTSEL drive IS that ecosystem) makes "download a file,
+drag it onto the drive" the universal path — no drivers, no cable
+protocol, no browser API, works on Safari. Their round-trip discipline
+(code as truth, blocks as projection, GREY BLOCKS preserving what the
+decompiler cannot express) is the standard our readers should meet.
+What we do NOT take: their compiler/blocks stack (ARM-only, would cost
+the 8051/AVR/Z80/6502 C story) and their behavioral simulator (ours is
+electrical — deeper where it matters to us).
+
+Work items, in build order:
+
+1. **UF2 wrapper + `bw compile --uf2`** (sb3-creator). Reimplement the
+   UF2 block format from the spec (512-byte blocks, RP2040 family
+   0xe48bff56) as src/utils/uf2.js. The C path gains a RAM-boot UF2:
+   a vector-table prelude (SP + reset→main) linked at 0x20000000 —
+   the bootrom loads SRAM-targeted UF2s and vectors into them, so the
+   drag-drop artifact needs NO boot2 and NO flash linkage. The
+   emulator keeps its main-first image; the two layouts are two
+   linker scripts. VERIFY ON THE REAL PICO by dragging.
+
+2. **MicroPython + littlefs UF2 baking** (the Safari-proof calculator
+   installer). One UF2 = official MicroPython firmware blocks + a
+   littlefs image carrying main.py at the port's filesystem offset
+   (RPI_PICO: storage at flash 0x100a0000, 1408 KiB, lfs2,
+   block 4096). CLI-side first via littlefs image generation;
+   app-side later as the peer's wasm follow-up. Wrong offsets cannot
+   brick — worst case is a reformat.
+
+3. **Grey blocks for the readers** (sb3-creator). Readers stop
+   dropping what they cannot translate: a `raw` passthrough statement
+   enters the dialect, the readers emit it for unknown lines, and the
+   emitters re-emit it verbatim (as a comment on targets where it
+   cannot be code). MakeCode's invariant, ours now: an import loses
+   NOTHING on the round trip.
+
+4. **PICOBOOT over WebUSB** (Chromium polish). A transport-agnostic
+   module speaking the RP2040 bootrom's vendor interface (exclusive
+   access, flash erase/write, reboot), mock-tested like picoRepl;
+   device verification when a BOOTSEL Pico and a Chromium session
+   are both at hand. The UF2 download stays the primary path.
+
+Provenance discipline: formats and protocols are reimplemented from
+their specs; anything lifted verbatim keeps its MIT/BSD notice and a
+THIRD-PARTY.md entry per the house rules.
