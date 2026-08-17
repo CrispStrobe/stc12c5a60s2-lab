@@ -2861,3 +2861,25 @@ Work items, in build order:
 Provenance discipline: formats and protocols are reimplemented from
 their specs; anything lifted verbatim keeps its MIT/BSD notice and a
 THIRD-PARTY.md entry per the house rules.
+
+Tauri reconciliation (2026-08-17, after reading `~/code/appstore.md`):
+the store app ALREADY EXISTS and is already Tauri —
+`brickwright-lite/apps/tauri/` (`com.crispstrobe.brickwright`, ASC
+app 6788993444), with the macOS two-cert .app+.pkg lane and the iOS
+manual-signing lane solved for real, and 0.1.0/0.1.1 builds sitting
+in external-TestFlight review as of that day. So there is no second
+desktop app record to create: the standalone
+`~/code/lego/brickwright-tauri` scaffold is the PROTOTYPE, and its
+unique piece — the serial/BOOTSEL/UF2 Rust commands lite's shell
+lacked (it had BLE only) — is ported on lite branch
+`fable/pico-serial` (src-tauri/src/pico.rs, desktop-gated with
+honest mobile stubs, plus `overlay/.../pico-tauri-transport.js`
+wrapping invoke() into the picoRepl Transport shape, the
+usb+serial sandbox entitlements, and `ITSAppUsesNonExemptEncryption`
+in the macOS plist so uploads stop parking at
+MISSING_EXPORT_COMPLIANCE). Known MAS caveat, documented in the
+entitlements file: the sandbox denies writing firmware.uf2 onto
+/Volumes/RPI-RP2 directly, so the store build routes BOOTSEL flash
+through a save dialog; direct-signed builds write it straight.
+iOS has no USB-CDC host path — Pico deploy is desktop-only there,
+the iOS app is the editor/simulator, which is fine for the store.
