@@ -2883,3 +2883,45 @@ entitlements file: the sandbox denies writing firmware.uf2 onto
 through a save dialog; direct-signed builds write it straight.
 iOS has no USB-CDC host path — Pico deploy is desktop-only there,
 the iOS app is the editor/simulator, which is fine for the store.
+
+The black-OLED convergence (2026-08-17, late): the owner's "Pocket
+Calculator OLED always black" turned out to be THREE stacked defects,
+each masking the next, closed in one session and pinned by tests:
+
+1. bw-board 3627902 — the digital fast path. Every bit-banged I2C edge
+   was a full MNA solve (~60k for one display init+clear), so the
+   in-app Pico simulation ran ~1000x slower than wall clock and never
+   reached its first frame. Nets whose only consumers are I2C decoders
+   and passives now defer the solve behind a dirty flag and settle a
+   DIGITAL level per net (strongest driver among master Thevenin and
+   slave drives; released outputs lose to the pull-up), feeding the
+   decoders to a fixpoint — which is why slave ACKs and read-bits work
+   at logic level. Reads are overlay-first, so nothing observable
+   changes; LED/buzzer/scope/cube nets never qualify. Calculator
+   chain: 6.2s -> 2.8s wall. test/digital-fast-path.test.mjs.
+
+2. lite 8cd9da3 — pin authority. The designer's wiring-derived
+   declaration pass (active-low fallback while nets are unresolved)
+   REPLACED the parsed program's pins on runtime.stc: the calculator's
+   17 ACTIVE-HIGH keys flipped, the firmware armed pull-ups, and every
+   key read as pressed forever. Authority now travels on the stc
+   object (pinsSource='program'); derived pins only add names the
+   program does not declare. Traced live via the new __bwStcTrace
+   hook — the old bwPseudocodeSource signal is consumed before the
+   designer's first pass, which is why the first fix attempt missed.
+
+3. sb3 81d54e2 — generateC(project) vs this.project. Eleven resolution
+   sites inside generateC (I2C pins for AVR and Pico, TFT, tables,
+   ledcube, five PART walks) read the creator's default project; with
+   a PASSED project — the app's only calling convention — the pico
+   branch silently emitted `#define I2C_SDA_HI() ((void)0)` and the
+   firmware bit-banged nothing. Every headless test called generateC()
+   bare and could never see it. test/generatec-passed-project.test.mjs
+   pins generateC(copy)===generateC().
+
+Verified on the rebuilt app: calculator OLED lit ~5s after Run (keys
+idle at the key=99 sentinel), ammeter LCD shows "AMMETER / 9 mA" on
+the AVR path in the same 5s. The lesson worth the ink: three layers
+each produced the SAME symptom (dark display), and every headless
+harness sidestepped a different one — only the full in-app probe
+chain, peeled one layer per instrumented run, found them all.
