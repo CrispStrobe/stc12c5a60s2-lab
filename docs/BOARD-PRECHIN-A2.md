@@ -22,9 +22,17 @@ A one-line segment test settles it; until then trust neither.
   K2=P3.0: those are the UART/ISP pins, which our discovery firmware
   deliberately masks. Vendor wiring two keys onto the serial pins is a
   real conflict, not a doc error — flashing with a key held would fail.
-- **4×4 matrix: silent under the passive watcher, as physics demands**
-  (row-to-column contact, both quasi-high). `src/06-matrix89` (active
-  scan, follower pairs vs boot baseline) is the tool that maps it.
+- **4×4 matrix: FULLY MEASURED** by `src/06-matrix89` (active scan,
+  follower pairs vs boot baseline). Rows top→bottom **P1.7, P1.6,
+  P1.5, P1.4**; columns left→right **P1.3, P1.2, P1.1, P1.0** — the
+  whole P1 port. Verified at six points: corners S1/S4/S13/S16
+  measured first, then the interpolated middles CONFIRMED as
+  predictions (S6 = P1.6~P1.2, S11 = P1.5~P1.1). Every press and
+  release seen symmetrically in both scan directions. Matches the
+  byr-51-electronicbalance row/col sbits exactly.
+  (Method note, proven live: a matrix is invisible to a passive pin
+  watcher — row-to-col contact, both quasi-high — which is why v1
+  logged nothing; active scanning is mandatory.)
 - **DS18B20: no presence pulse** on any probeable pin so far — socket
   likely unpopulated (check the three-hole footprint next to label 14).
 
