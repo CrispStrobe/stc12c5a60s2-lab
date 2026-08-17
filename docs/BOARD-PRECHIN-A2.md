@@ -38,6 +38,16 @@ through the 74HC245.
   logged nothing; active scanning is mandatory.)
 - **DS18B20: no presence pulse** on any probeable pin so far — socket
   likely unpopulated (check the three-hole footprint next to label 14).
+- **BLOCKS-TO-SILICON, WITH A KEYPAD (pseudocode/14-a2-keyshow.bw):**
+  the keyshow demo rewritten as pseudocode on the dialect's new
+  `PART KEYPAD4X4` compiled (locally AND via the hosted service),
+  flashed, and owner-verified 0–F on the tube with the dialect's own
+  `key`/`n` prints on the wire. The first attempt flashed clean and
+  did NOTHING — which uncovered a real dialect bug: `not` bound
+  tighter than `=`, so `IF not k = shown` compared a boolean to a
+  number. Fixed at the parser (Python precedence, stc-compiler
+  c34ad1b, regression-tested); the bench found in silence what no
+  green test had.
 - **8-LED module: measured on P2** (08-ledfind89 three-phase test,
   owner-observed: phase 2). So the LEDs SHARE THE PORT with the 7-seg
   digit select (P2.2–P2.4) — the vendor's "modules can't all be used
