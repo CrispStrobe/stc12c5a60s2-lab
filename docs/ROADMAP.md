@@ -2780,3 +2780,22 @@ env-gated on the local toolchain. Still open from stage two: second
 display, frequency counter on IN, PWM output with pot-set
 frequency/duty, S8550 digit drivers, 5V/3.3V level outputs, and an
 STC15W408AS part entry.
+
+## 2026-08-17, the convergence day — status snapshot
+
+Multimeter stage two SHIPPED (peer session): mode T reads real degC via
+a B-equation piecewise map, minus-glyph for sub-zero, dp-digit control;
+the full chain is a committed test. Stage one's chain-test pattern
+(compile -> emulate -> board -> face, absolute assertions) became the
+platform's backbone and caught, in one day: 16-bit dialect math, missing
+I2C pull-ups, authored-pin canonicalization drift, disconnected bench
+staging, missing SSD1306/HD44780 bring-up on AVR/ARM (real-silicon bug),
+and unseated transformed benches. Suites: sb3 green including all
+formerly-ledgered referee reds; bench-invariants gate now loads every
+shipped bench and asserts engine acceptance + MCU-reachability.
+
+Circuit-preserving retargeting exists: device picks on authored-circuit
+examples transform the authored circuit (MCU swap + pin-map rewrite,
+non-MCU parts byte-identical, refusals ledgered app-readably as
+transformRefused and greyed in the chooser). The consoles list stc12
+now (pools widened to the chip's true 34 non-ISP GPIO).
