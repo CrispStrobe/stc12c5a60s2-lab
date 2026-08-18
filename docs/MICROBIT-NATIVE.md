@@ -219,10 +219,34 @@ is largely surfacing what the MIT sim already does; no fork needed yet.
 > CPU emulator with a program clock and instruction stepping) running the
 > COMPILED micro:bit firmware, not the MicroPython black-box. That gives `insn`
 > stepping, breakpoints, registers and memory for free, and it slots into the
-> existing `DebugTarget` factory exactly like the other cores. Whether such an
-> nRF52 emulator exists in JS at usable fidelity is the first thing to establish.
-> Until then, micro:bit stays a **run target** (Stage 2: compile → sim → run +
-> serial), NOT a debug target — and `capabilities()` says so honestly.
+> existing `DebugTarget` factory exactly like the other cores.
+>
+> **The landscape, checked 2026-08-19 (owner asked about BabbleSim / nrf52_bsim):**
+> - **BabbleSim + Zephyr `nrf52_bsim` are NOT the route.** `nrf52_bsim`
+>   *compiles the firmware to native x86* and runs it as a **native Linux/macOS
+>   POSIX process** (not ARM emulation, not browser/WASM), it is **Zephyr-RTOS
+>   specific** (our micro:bit runs MicroPython / CODAL, not Zephyr), and you
+>   "debug it with gdb" at the *host* level, not the ARM target. Every axis is
+>   wrong for a browser, MicroPython-or-CODAL, ARM-target debugger. **BabbleSim**
+>   itself is a 2.4 GHz **radio physical-layer** simulator — its real (narrow)
+>   value to us is a *future, separate* feature: simulating the **radio channel
+>   between several micro:bit programs** (networked-radio lessons), not the CPU.
+> - **The building blocks for a real nRF52 emulator DO exist in JS/WASM:** a
+>   WebAssembly **Cortex-M4 CPU emulator** exists (HN 40846943), and
+>   **Unicorn.js** (the Unicorn engine in JS) emulates ARM incl. Cortex-M.
+>   `rp2040js` is the exact pattern but is Cortex-M0+ (RP2040), so it is a
+>   reference not a drop-in. There is **no off-the-shelf nRF52 browser emulator.**
+> - So Path B = **a Cortex-M4 core (from the WASM M4 emulator or Unicorn.js) +
+>   nRF52833 peripheral models** (GPIO, TIMER/RTC, the LED-matrix row/col GPIO,
+>   buttons, the I²C accel/mag, and — later — the radio via BabbleSim) + load the
+>   compiled `.hex`. The CPU core is a dependency; the **peripheral models are the
+>   bulk of the work**, incrementally (exactly how `rp2040js` grew). Multi-session,
+>   but real and it fits `DebugTarget` (an emulator owns its clock, so `runFor`
+>   works and `insn` stepping is native).
+>
+> Until Path B lands, micro:bit is a **run target** (Stage 2: compile → sim → run
+> + serial) plus the **instrumentation debugger below** (block-level, codeable
+> now) — NOT an `insn`-stepping debug target, and `capabilities()` says so.
 >
 > **The other feasible path — instrumentation, and it is CODEABLE now.** The
 > 8051 debugger's Level-1 position (`DEBUG-CONTROL-MODEL.md §2`) works by *reading
