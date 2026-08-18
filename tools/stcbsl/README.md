@@ -292,3 +292,11 @@ would bite:
 Nothing here has run on real silicon. The acceptance test is the same one the
 rest of this repo uses: `stcbsl flash` puts `01-blink` onto the bench's
 STC89C52RC and the owner watches it blink.
+
+## Releases
+
+This directory is the WORKING TREE. Public releases live at
+<https://github.com/CrispStrobe/stcbsl> (extracted with full history via
+`git subtree split -P tools/stcbsl`) and on crates.io as
+[`stcbsl`](https://crates.io/crates/stcbsl). To cut a release: re-split,
+push the branch to the public repo, bump the version there, `cargo publish`.

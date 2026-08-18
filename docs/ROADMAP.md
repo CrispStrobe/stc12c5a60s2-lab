@@ -2955,7 +2955,13 @@ the old baud for a reply that arrives at the new one (the probe
 frame is byte-identical to the capture; `--baud 2400` — old == new
 — bypasses it and proves the diagnosis; fix is the implementer's).
 The definition of done — a flasher we own, flashing our chip,
-owner watching — is met. FULL-SPEED CLOSE (2026-08-18, ~5:30am):
+owner watching — is met. Morning addendum: `src/13-hello115`
+verified the 8052 TIMER-2 BAUD GENERATOR on silicon — byte-perfect
+115200 from reload 0xFFFD, flashed BY STCBSL at full speed — closing
+the claim the STC89 live-monitor port stands on. stcbsl is also
+PUBLISHED: public repo github.com/CrispStrobe/stcbsl (subtree split,
+full history) and crates.io `stcbsl` 0.1.0 (cargo-package-gated,
+manual first publish per crates.md). FULL-SPEED CLOSE (2026-08-18, ~5:30am):
 after five silicon bugs found and fixed across one night (the true
 baud dance from a pyserial-instrumented trace; macOS CH340 ignoring
 bare-termios rates → IOSSIOSPEED; the sync-pulse barrage; the

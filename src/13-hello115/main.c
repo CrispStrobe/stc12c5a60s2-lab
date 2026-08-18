@@ -6,7 +6,7 @@
 // reload 65536-3 = 0xFFFD — the same arithmetic the BSL's own FF FD
 // parameter uses, which is a nice symmetry.
 
-#include <8051.h>
+#include <8052.h>   /* Timer 2 lives here, not in 8051.h */
 
 #define TICK_50MS (65536u - 46080u)
 

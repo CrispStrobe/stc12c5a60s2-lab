@@ -716,8 +716,12 @@ handshake-dialect mismatch, and `PROTOCOL=auto` may also negotiate it.
 │   └── live-sfr.h           the curated SFR window (see below)
 ├── src/
 │   ├── 01-blink/main.c      the C example
-│   ├── 02-adc/main.c        ADC check — UNVERIFIED on silicon
-│   └── 10-live-firmware/    on-chip debug monitor — UNVERIFIED on silicon
+│   ├── 02-adc/main.c        ADC check — UNVERIFIED (needs STC12 silicon)
+│   ├── 03…09,11-13/         bench-verified STC89 examples: blink, two-way
+│   │                        UART, board discovery, matrix scan, 7-seg,
+│   │                        LED find, keypad-to-display, dot matrix, LCD
+│   │                        probe, Timer-2 baud at 115200 — see §9
+│   └── 10-live-firmware/    on-chip debug monitor — UNVERIFIED (STC12)
 ├── pseudocode/
 │   └── *.bw                 the same, as BrickWright pseudocode
 ├── tests/
@@ -727,11 +731,16 @@ handshake-dialect mismatch, and `PROTOCOL=auto` may also negotiate it.
 │   ├── find-port.sh         guesses the serial device
 │   ├── compile-remote.sh    builds via the hosted compiler, no SDCC needed
 │   └── live-monitor.py      the host end of the debug link
+├── tools/stcbsl/            our own ISP flasher in Rust (MIT) — working
+│                            tree; released at github.com/CrispStrobe/stcbsl
+│                            and on crates.io as `stcbsl`
 └── docs/
     ├── PINOUT.md   PINOUT.de.md    full pin + SFR reference
     ├── ROADMAP.md                 the BrickWright extension plan
     ├── STC12-PERIPHERAL-MODEL.md   what this chip does — the shared contract
     ├── DEBUG-CONTROL-MODEL.md      run control, for emulators and for silicon
+    ├── BOARD-PRECHIN-A2.md         a real board, measured pin by pin
+    ├── isp-captures/               byte-exact ISP session logs (stcbsl's spec)
     └── BENCH-FLASHING.md           verifying the browser flashers on silicon
 ```
 
@@ -759,8 +768,10 @@ stay English, since they track the datasheet's own naming.
 
 Blinking two LEDs was step zero. The primitives — GPIO, PWM (PCA 8-bit and
 16-bit compare/match), ADC, UART, timers — are **built and cross-checked
-between two emulators** (category 2b; not yet verified on silicon — see
-`BENCH-ADC`, `BENCH-PWM`, `BENCH-UART` in [docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
+between two emulators**; as of the first bench sessions (§9), GPIO, UART and
+the timers are verified on real STC89 silicon, while ADC and PCA/PWM still
+wait for an STC12 in the socket (see `BENCH-ADC`, `BENCH-PWM` in
+[docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
 
 These primitives are exposed as **BrickWright blocks** that transpile to C and
 compile to a `.hex` with the same SDCC + stcgal pipeline documented above.
@@ -805,6 +816,42 @@ Three consequences are baked into the tooling:
   this whole section is about.
 - **The Keil translator warns** when migrated code contains software
   busy-wait loops or `_nop_()` runs, naming exactly this trap.
+
+---
+
+## 9. First silicon — what is now verified on real hardware
+
+On 2026-08-17/18 the first bench sessions ran, on two STC89C52RC boards (a
+minimum-system board and a Prechin 普中51-单核-A2). Everything below moved
+from "cross-checked between two emulators" to **measured on a real chip**:
+
+- **The whole toolchain**: `make` → SDCC → stcgal over a CH340, from macOS,
+  no Windows tool anywhere. Flash, erase, identify — dozens of sessions.
+- **Timers**: Timer 0 at FOSC/12, crystal-true (a stopwatch-verified 1 Hz
+  blink); Timer 1 mode 2 as 9600-baud clock, two-way UART proven by the
+  host reading the firmware's output back over the same cable.
+- **Timer 2 as baud generator at 115200** (`src/13-hello115`): reload
+  `0xFFFD` = 11 059 200 / 32 / 3 — byte-perfect at the host. This is the
+  fact the planned STC89 port of the live monitor stands on.
+- **Blocks to silicon**: BrickWright pseudocode → the hosted compiler →
+  a running chip, including the dialect's `PART KEYPAD4X4` and `PART
+  74HC595` on measured pins. The A2's keypad, 7-segment, LED bank and
+  8×8 matrix were mapped **by firmware, not by datasheet trust** —
+  [docs/BOARD-PRECHIN-A2.md](docs/BOARD-PRECHIN-A2.md) holds every
+  measured fact, including the J24 output-enable jumper that cost five
+  dark flashes.
+- **Our own flasher**: [`stcbsl`](https://github.com/CrispStrobe/stcbsl)
+  (MIT, Rust, [on crates.io](https://crates.io/crates/stcbsl)) speaks the
+  STC89 ISP protocol end to end at full 115200, built from byte-exact
+  session captures ([docs/isp-captures/](docs/isp-captures/)) and debugged
+  against silicon through five real bugs — including macOS's CH340 driver
+  silently ignoring bare-termios baud changes, which pyserial masks with
+  an `IOSSIOSPEED` ioctl and every Rust serial program should know about.
+
+Still waiting for an STC12 in the socket (the boards' sockets accept one
+pin-for-pin): the **ADC path** (`src/02-adc`), **PCA/PWM**, the **BRT**,
+and the **live debug monitor** (`src/10-live-firmware`). Those stay
+flagged UNVERIFIED until that bench day.
 
 ---
 

@@ -747,8 +747,13 @@ Handshake-Dialektik, auch `PROTOCOL=auto` kann sie aushandeln.
 │   └── live-sfr.h           das kuratierte SFR-Fenster (siehe unten)
 ├── src/
 │   ├── 01-blink/main.c      das C-Beispiel
-│   ├── 02-adc/main.c        ADC-Prüfung — auf Silizium UNGEPRÜFT
-│   └── 10-live-firmware/    On-Chip-Debug-Monitor — auf Silizium UNGEPRÜFT
+│   ├── 02-adc/main.c        ADC-Prüfung — UNGEPRÜFT (braucht STC12-Silizium)
+│   ├── 03…09,11-13/         auf STC89-Silizium verifizierte Beispiele:
+│   │                        Blink, UART in beide Richtungen, Board-
+│   │                        Erkundung, Matrix-Scan, 7-Segment, LED-Suche,
+│   │                        Tastenfeld-auf-Anzeige, Punktmatrix, LCD-Probe,
+│   │                        Timer-2-Baud bei 115200 — siehe §9
+│   └── 10-live-firmware/    On-Chip-Debug-Monitor — UNGEPRÜFT (STC12)
 ├── pseudocode/
 │   └── *.bw                 dasselbe als BrickWright-Pseudocode
 ├── tests/
@@ -758,11 +763,17 @@ Handshake-Dialektik, auch `PROTOCOL=auto` kann sie aushandeln.
 │   ├── find-port.sh         findet das serielle Gerät
 │   ├── compile-remote.sh    baut über den gehosteten Compiler, ohne SDCC
 │   └── live-monitor.py      das Host-Ende der Debug-Verbindung
+├── tools/stcbsl/            unser eigener ISP-Flasher in Rust (MIT) —
+│                            Arbeitskopie; veröffentlicht unter
+│                            github.com/CrispStrobe/stcbsl und auf
+│                            crates.io als `stcbsl`
 └── docs/
     ├── PINOUT.md            vollständige Pin- und SFR-Referenz  (de: PINOUT.de.md)
     ├── ROADMAP.md           der Plan für die BrickWright-Erweiterung  (nur englisch)
     ├── STC12-PERIPHERAL-MODEL.md   was dieser Chip tut — der gemeinsame Vertrag
     ├── DEBUG-CONTROL-MODEL.md      Ablaufsteuerung, für Emulatoren und für Silizium
+    ├── BOARD-PRECHIN-A2.md         ein echtes Board, Pin für Pin vermessen
+    ├── isp-captures/               byte-genaue ISP-Sitzungsprotokolle
     └── BENCH-FLASHING.md           die Browser-Flasher auf Silizium prüfen
 ```
 
@@ -788,9 +799,10 @@ selbst lief noch nie auf Hardware.**
 
 Zwei blinkende LEDs waren Schritt null. Die Primitive — GPIO, PWM (PCA 8-Bit
 und 16-Bit Compare/Match), ADC, UART, Timer — sind **gebaut und zwischen zwei
-Emulatoren gegengeprüft** (Kategorie 2b; noch nicht auf echtem Silizium
-verifiziert — siehe `BENCH-ADC`, `BENCH-PWM`, `BENCH-UART` in
-[docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
+Emulatoren gegengeprüft**; seit den ersten Bench-Sitzungen (§9) sind GPIO,
+UART und die Timer auf echtem STC89-Silizium verifiziert, während ADC und
+PCA/PWM noch auf einen STC12 im Sockel warten (siehe `BENCH-ADC`,
+`BENCH-PWM` in [docs/BENCH-SESSION.md](docs/BENCH-SESSION.md)).
 
 Diese Primitive werden als **BrickWright-Blöcke** angeboten, die nach C
 transpilieren und über dieselbe SDCC-plus-stcgal-Kette wie oben zu einer
@@ -839,6 +851,48 @@ Drei Konsequenzen stecken im Werkzeug:
   Abschnitt geht.
 - **Der Keil-Übersetzer warnt**, wenn migrierter Code Software-Warteschleifen
   oder `_nop_()`-Ketten enthält — genau diese Falle.
+
+---
+
+## 9. Erstes Silizium — was jetzt auf echter Hardware verifiziert ist
+
+Am 17./18.08.2026 liefen die ersten Bench-Sitzungen, auf zwei
+STC89C52RC-Boards (einem Minimalsystem und einem Prechin 普中51-单核-A2).
+Alles Folgende ist damit von „zwischen zwei Emulatoren gegengeprüft" zu
+**auf echtem Chip gemessen** aufgestiegen:
+
+- **Die gesamte Werkzeugkette**: `make` → SDCC → stcgal über einen CH340,
+  von macOS aus, ohne ein einziges Windows-Werkzeug. Flashen, Löschen,
+  Identifizieren — Dutzende Sitzungen.
+- **Timer**: Timer 0 bei FOSC/12, quarzgenau (1-Hz-Blinken, mit der
+  Stoppuhr geprüft); Timer 1 in Modus 2 als 9600-Baud-Takt, UART in beide
+  Richtungen — der Host liest die Ausgabe der Firmware über dasselbe Kabel
+  zurück.
+- **Timer 2 als Baudraten-Generator bei 115200** (`src/13-hello115`):
+  Nachladewert `0xFFFD` = 11 059 200 / 32 / 3 — byte-genau am Host. Auf
+  dieser Tatsache steht der geplante STC89-Port des Live-Monitors.
+- **Blöcke auf Silizium**: BrickWright-Pseudocode → der gehostete
+  Compiler → ein laufender Chip, einschließlich `PART KEYPAD4X4` und
+  `PART 74HC595` des Dialekts auf vermessenen Pins. Tastenfeld,
+  7-Segment, LED-Reihe und 8×8-Matrix des A2 wurden **von Firmware
+  vermessen, nicht dem Datenblatt geglaubt** —
+  [docs/BOARD-PRECHIN-A2.md](docs/BOARD-PRECHIN-A2.md) hält jede Messung
+  fest, auch den Ausgangs-Freigabe-Jumper J24, der fünf dunkle
+  Flash-Versuche gekostet hat.
+- **Unser eigener Flasher**: [`stcbsl`](https://github.com/CrispStrobe/stcbsl)
+  (MIT, Rust, [auf crates.io](https://crates.io/crates/stcbsl)) spricht
+  das STC89-ISP-Protokoll vollständig bei 115200, gebaut aus byte-genauen
+  Sitzungsmitschnitten ([docs/isp-captures/](docs/isp-captures/)) und
+  gegen Silizium durch fünf echte Fehler debuggt — darunter der
+  CH340-Treiber von macOS, der nackte termios-Baudwechsel stillschweigend
+  ignoriert; pyserial verdeckt das mit einem `IOSSIOSPEED`-ioctl, und
+  jedes Rust-Serienprogramm sollte davon wissen.
+
+Noch offen, bis ein STC12 im Sockel steckt (die Sockel beider Boards
+nehmen ihn pinkompatibel auf): der **ADC-Pfad** (`src/02-adc`),
+**PCA/PWM**, der **BRT** und der **Live-Debug-Monitor**
+(`src/10-live-firmware`). Diese bleiben als UNGEPRÜFT markiert, bis
+dieser Bench-Tag kommt.
 
 ---
 
