@@ -1,0 +1,52 @@
+# The A2's 8x8 matrix as a first-class SCREEN — the clean block form of
+# 15-a2-matrix.bw. No scan loop: MATRIX8X8 refreshes itself in the
+# background (one row per Timer-0 tick), so the drawing verbs just say
+# what to show and the WHEN block keeps running. Same measured wiring as
+# 15-a2-matrix (docs/BOARD-PRECHIN-A2.md): 595 rows Q7=top, P0 columns
+# active-low bit7=left, so image bytes read top-down / MSB-left.
+#
+# This is the TARGET vocabulary for the MATRIX8X8 PART (design:
+# docs/A2-BOARD-SUPPORT.md). It is the acceptance example the dialect
+# implementation must compile and the emulator must light.
+#   ./tools/compile-remote.sh -p 16-a2-screen
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE heart = 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000, 0b00000000
+  TABLE smiley = 0b00000000, 0b01100110, 0b01100110, 0b00000000, 0b10000001, 0b01000010, 0b00111100, 0b00000000
+
+  PART screen = MATRIX8X8 ROWS 74HC595 DATA P3.4 CLOCK P3.6 LATCH P3.5 COLUMNS P0
+
+  WHEN started:
+    # The image verbs blit an 8-byte table; the picture stays lit with no
+    # loop of ours — the background scan holds it.
+    show image heart on screen
+    wait 1 second
+    show image smiley on screen
+    wait 1 second
+
+    # Draw pixel by pixel: a diagonal, top-left to bottom-right.
+    clear screen
+    set d to 0
+    REPEAT 8:
+      light pixel d d
+      wait 100 ms
+      change d by 1
+    wait 1 second
+
+    # Whole-row drawing and a marching bar.
+    clear screen
+    set y to 0
+    REPEAT 8:
+      draw row y = 0b11111111
+      wait 80 ms
+      draw row y = 0b00000000
+      change y by 1
+
+    # Scroll the heart off the left edge, one column per step.
+    show image heart on screen
+    REPEAT 8:
+      scroll screen left
+      wait 120 ms
+    clear screen
