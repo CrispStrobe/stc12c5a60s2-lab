@@ -32,6 +32,38 @@ This is a `generateC` change (a per-display ISR refresh hook + frame
 buffer), the natural extension of the existing PART model. It is the
 crux; everything below is vocabulary over it.
 
+### Three requirements the scan MUST honor (stc-e1, bench/scheduler side)
+
+1. **ISR budget.** `bw_ms++` stays the FIRST thing in the tick — the scan
+   must never skew the timing math. One row/digit per tick, **table-driven,
+   no mul/div in the ISR**, and the same register-bank discipline as the
+   existing `bw_tick`. At 921.6 kHz an 8051 1 ms tick is ~921 cycles total;
+   the scan stays a small fraction, measured worst-case in the emulators.
+
+2. **The 8051 read-modify-write hazard is the real danger of sharing a
+   port latch between ISR and mainline.** An `ANL`/`ORL` on a port in
+   mainline, interrupted by an ISR that writes the same latch, loses the
+   ISR's write on the write-back. **The fix is the existing PART claim
+   machinery:** an ISR-scanned part CLAIMS its pins, so user `PIN`/`PORT`
+   declarations on them are refused (the 595/KEYPAD4X4 precedent) and the
+   **ISR is the SOLE writer of those latches** — the mainline only ever
+   touches the RAM frame buffer, never the port. For LEDBANK8 sharing P2
+   with SEVENSEG8's select: the select bits belong to the ISR, and
+   LEDBANK8's writes go through the **same ISR-owned shadow byte**, not
+   direct `P2` stores — or the shared-port warning would document a race
+   instead of preventing one.
+
+3. **Golden before silicon.** A per-tick trace assertion in BOTH emulators
+   (which row selected, what the column port carried, the 595 edge order)
+   pins the interleave before a single power cycle is spent. The silicon
+   acceptance run is then: **heart drawn via blocks-with-ISR-scan, steady
+   at 125 Hz, keypad `WHEN`-hats firing while it renders** — all four A2
+   parts live at once, which is exactly the owner's ask.
+
+Division of labor (agreed 2026-08-18): this session builds the ISR hook +
+`MATRIX8X8` and the golden emulator traces; stc-e1 reviews via
+`DIVERGENCES.md` and silicon-verifies each stage on the real A2.
+
 ## Capability set and block vocabulary
 
 ### 8×8 dot matrix — `MATRIX8X8`
