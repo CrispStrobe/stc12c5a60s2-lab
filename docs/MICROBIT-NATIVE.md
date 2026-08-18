@@ -260,10 +260,45 @@ micro:bit execution surface**, alongside the MicroPython sim and real hardware:
 - **Debugger:** Arcade's sim exposes pause/step of the game loop; how much
   boundary-D parity it affords is a study, like the MicroPython sim's.
 
-This is a larger, later axis than the MicroPython integration (§5), but the
-licence is clear and the pattern (vendor an MIT WASM sim, add a lowering, plug a
-boundary-D target) is the same one this whole document is built on. Sequence it
-after the MicroPython path proves the pattern once.
+The licence is clear and the pattern (vendor an MIT WASM sim, add a lowering,
+plug a boundary-D target) is the same one this whole document is built on.
+
+### This is not a side quest — it is on the game-engine trajectory
+
+The arcade shield is not a foreign paradigm bolted on; it is the next stop on a
+road this app is already travelling. BrickWright already runs 6502, Z80 and a
+ZX Spectrum sim/emu; it already has **extended Sound and Graphics editors**; and
+it already drives LCDs, TFTs and OLEDs across multiple backends. A 160×128 colour
+TFT with sprites and tilemaps is the same class of thing, one notch richer — and
+the honest end state the owner names is a **versatile multi-platform game engine
+for both vector and bitmap graphics**, not a micro:bit-only feature. The arcade
+sim is one target of that engine; the Spectrum, the VDP on the 6502, and a future
+TFT part are others. Sequence it after the MicroPython path proves the
+boundary-D pattern once, but scope it as **graphics-engine infrastructure**, not
+as a micro:bit accessory.
+
+### The tie to the Controller panel (already DESIGNED)
+
+The input half of a game engine is already planned: `ROADMAP.md`'s **Controller
+panel** (DESIGNED 2026-08-14, owner's Mindstorms-app reference, lane briefed to
+bw-blocks) — freely-placeable widgets (joystick x/y −100..100, D-pad,
+momentary/toggle buttons, sliders, dial) in an edit-then-play stage mode, each
+binding two ways: program-facing (`controller [joy1] x`, `when [btnA] pressed`)
+and world-facing (bound to a part parameter, so it works even for compiled C on
+the emulated MCU). A game engine needs exactly this on-screen control surface;
+the arcade D-pad/A-B are the same widgets pointed at a running game. **Build the
+two together** — the Controller panel is the game engine's input layer, the
+arcade/graphics targets are its output layer, and both flow through
+`board.setControl` / the boundary-D run surface.
+
+### MIT reference material (adoptable, attribution only)
+
+- **`marceld23/StarPilots`** (MIT) — a complete top-down arcade space-shooter
+  *for the ElecFreaks Retro shield* (MakeCode Arcade), bilingual EN/DE. A full
+  reference game and a source of arcade patterns for the exact hardware in hand.
+- **`aliblol/code-club-missions`** (MIT) — mission-based coding curriculum for
+  Year 5/6 on micro:bit + ElecFreaks CuteBot + MakeCode Arcade. A pedagogy /
+  mission-structure reference for how the arcade+micro:bit ecosystem is taught.
 
 ## 7. Deliberately out of scope (for now)
 
