@@ -1,17 +1,37 @@
 # STC ISP in Rust — the clean-room contract
 
+> **CORRECTION (2026-08-18): the premise below was WRONG. stcgal is
+> MIT-licensed, not GPL.** Verified at the source: the README states
+> "stcgal is published under the MIT license," `setup.py` classifies it
+> `License :: OSI Approved :: MIT License`, and every source file carries
+> the MIT permission notice. The coordinator (me) asserted GPL-3.0 at the
+> start of this effort without checking, and built a whole clean-room
+> process on it. The consequences:
+>
+> - **No licensing problem exists or ever existed.** `stcbsl` is MIT;
+>   stcgal is MIT; the two are fully compatible. Reading, referencing, or
+>   even porting stcgal would have been fine all along.
+> - **The clean room was unnecessary** — not harmful (the result is a
+>   legitimate independent MIT implementation), just avoidable process
+>   cost. The real price was paid on the bench: the baud-switch dance,
+>   the macOS IOSSIOSPEED requirement, and the sync-pulse timing were all
+>   reverse-engineered from captures over many silicon iterations when
+>   they sit in stcgal's freely-readable MIT source.
+> - **Going forward, stcgal is an admissible reference for every role.**
+>   The rest of this document is kept for the record; treat its GPL-based
+>   refusals as void.
+
 Goal: a Rust implementation of the STC serial bootloader protocol
 (an stcgal-equivalent for the parts this lab owns), licensed by us.
 Working name: **`stcbsl`**, living at `tools/stcbsl/` in this repo,
-**MIT** (uniform with the rest of this repo; explicitly NOT a port).
+**MIT** (uniform with the rest of this repo).
 
-## Why a clean room
+## Why a clean room (SUPERSEDED — see the correction above)
 
-stcgal is GPL-3.0. A port, translation, or "rewrite with the Python
-open in the next window" is a derivative work and stays GPL-3.0 —
-it can never become MIT/MPL. What is NOT copyrightable is the
-protocol itself: byte layouts, handshakes, checksums, timings are
-facts. The ledcube example (`src/20-ledcube/`, spec
+stcgal is ~~GPL-3.0~~ **MIT** (this line was the error). What is NOT
+copyrightable is the protocol itself: byte layouts, handshakes,
+checksums, timings are facts — but with stcgal being MIT, even its
+*expression* is reusable under a notice. The ledcube example (`src/20-ledcube/`, spec
 `../ucsim-stc/spec-updates/008-ledcube-hardware-spec.md` §7) is this
 repo's precedent: one agent measures behavior and writes a spec of
 facts, a different agent who never saw the original writes the code,

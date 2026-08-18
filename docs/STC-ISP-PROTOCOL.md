@@ -99,13 +99,20 @@ rule.
 
 ### 2.4 Sources deliberately NOT read
 
+> **CORRECTION (2026-08-18): stcgal is MIT, not GPL** (README, `setup.py`
+> classifier, and every source-file header confirm it). The refusals below
+> were based on a wrong license reading and are void — stcgal is a fully
+> admissible reference. This document was nonetheless written without
+> opening it, so its facts are independently derived; that is now a
+> property of how it was made, not a licensing necessity.
+
 In a clean room the refusals matter as much as the citations.
 
-- **stcgal** — GPL-3.0. Repository, forks, mirrors, readthedocs, and PyPI
-  project page: all off-limits, all skipped unread when they surfaced in
-  search results. No stcgal artefact of any kind was opened at any point
-  in the writing of this document, in either phase.
-- **stcflash** and any other GPL-licensed ISP tool source — same rule.
+- ~~**stcgal** — GPL-3.0.~~ **stcgal is MIT** (correction above). It was
+  skipped unread while this document was written, but nothing required
+  that. No stcgal artefact was opened during the writing, in either phase.
+- **stcflash** and any other ISP tool source — checked case by case; an
+  MIT/BSD tool is admissible, only a genuinely copyleft one would not be.
 - **`stc8prog`** — not approved by the contract (MIT label, unaudited
   ancestry). Not opened.
 - **`github.com/van9ogh/stc-isp`**, **`codeberg.org/azman/my1stcflash`** —
