@@ -78,10 +78,61 @@ Blocks (all operate on the frame buffer; the ISR scans it):
 - `clear screen`
 - `light pixel X Y` / `clear pixel X Y`  (0..7, origin top-left)
 - `set pixel X Y to on|off`
+- `set pixel X Y brightness B`  (0..MAX; 0 = off, MAX = full)
 - `draw row Y = <byte>`  (a whole row at once)
 - `show image <table> on screen`  (blit 8 bytes — the heart demo, one line)
 - `scroll screen left|right|up|down`
+- `set screen brightness B`  (global dim, 0..MAX — scales the whole frame)
 - reporter `pixel X Y is on`  (boolean)
+
+### Brightness — supported, and where the decision splits
+
+The owner's ask: **different brightnesses per pixel.** On a multiplexed
+matrix that means duty-cycle modulation during the scan — a dim pixel is
+lit for a shorter fraction of each refresh cycle than a bright one. This
+is real and standard (it is how every grayscale LED matrix works), and it
+divides cleanly into two layers that must NOT be coupled:
+
+**Layer 1 — the surface (this session builds it now, mechanism-agnostic).**
+- The frame buffer holds a **brightness code per pixel, not one bit.**
+  Default depth **2 bits = 4 levels** (0 off, 1 dim, 2 mid, 3 full):
+  visually distinct, kid-legible, and cheap to scan. Packed as 2 bits/pixel
+  = **16 bytes** for the whole 8×8. The depth is a single `MATRIX_LEVELS`
+  constant so it can widen to 4-bit (16 levels, 32 bytes) later without
+  touching any verb.
+- Every drawing verb is brightness-ready: `light pixel X Y` writes full,
+  `set pixel X Y brightness B` writes a level, `show image` accepts either
+  a 1-bit table (blit at full) **or** a brightness table (one digit 0..3
+  per pixel), `set screen brightness` scales globally. On/off blocks stay
+  as sugar for level 0 / level MAX, so the simple programs are unchanged.
+- **The block EDITOR paints levels, not just on/off** — an 8×8 grid where
+  clicking a cell *cycles* its brightness (off → dim → mid → full → off),
+  exactly the micro:bit image-editor gesture, and its output is a
+  brightness table literal the `show image` verb consumes. This is the
+  micro:bit-style display block the owner asked for; brightness is what
+  makes the cycle-on-click meaningful rather than a plain toggle.
+
+**Layer 2 — the ISR scan scheme (JOINT with stc-e1, settled on the bench).**
+Getting 4 levels flicker-free out of a 1 ms/row scan is the hard part,
+because 8 rows already fill much of the tick budget and naive temporal PWM
+over frames flickers the dim pixels (a level-1 pixel lit 1 frame in 4 at a
+125 Hz frame rate blinks at ~31 Hz — visible). The two candidate mechanisms:
+  - **Binary-code modulation (BCM), table-driven.** Bit-planes with weighted
+    dwell (plane0 = 1 tick, plane1 = 2 ticks), the dwell schedule a precomputed
+    table so the ISR stays mul/div-free per requirement #1. Costs a longer
+    refresh cycle → the flicker question is whether the base row rate is fast
+    enough.
+  - **A dedicated faster display interrupt** (scan the matrix off a separate,
+    faster reload) so `bw_ms` stays exactly 1 ms while the matrix refreshes
+    at, say, 4–8× that rate — trading a timer against the A2's UART-baud use
+    of Timer 1. This is the honest way to kill flicker at 4 levels but spends
+    a timer.
+The pick is a scheduler/timer decision on stc-e1's side and gets nailed with
+golden emulator traces before silicon (requirement #3). **The surface above
+does not change whichever way it goes** — the frame buffer and verbs are the
+same; only the code that reads the buffer inside the interrupt differs. That
+decoupling is deliberate: the owner gets brightness blocks now, the flicker
+engineering converges on the bench without blocking the editor.
 
 ### 8 LEDs — `LEDBANK8`
 The A2's 8 LEDs share P2 with the 7-seg select (a real, documented
