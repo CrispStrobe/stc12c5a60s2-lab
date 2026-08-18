@@ -191,11 +191,60 @@ programs on both targets and diff observable behaviour.
 run cleanly through the existing sim-pane: display, buttons, serial, radio. This
 is largely surfacing what the MIT sim already does; no fork needed yet.
 
-**Stage 3 — Debugger (the real engineering).** Fork
-`micropython-microbit-v2-simulator` (MIT) to add a **debug postMessage channel**
-exposing its existing `step` / `stepEndPosition` / `getState` / `resume` as:
-halt, `step('line')`, source-line breakpoints, Python-frame position + locals,
-`onHalt`. Then:
+**Stage 3 — Debugger (the real engineering).**
+
+> **CORRECTION — investigated 2026-08-19, an earlier assumption here was wrong.**
+> This stage was written believing the WASM sim already had `step` /
+> `stepEndPosition` / `getState` / `resume` we could fork into a debug channel.
+> **It does not.** Reading the shipped `simulator.js`, `firmware.js` and the
+> cloned `micropython-microbit-v2-simulator` source: the `step`/`stepEndPosition`
+> hits are the AUDIO synthesizer (`sound-emoji-synthesizer.ts`) and `getState`
+> is the board SENSOR state, not a debugger. The WASM glue (`firmware.js`)
+> exports only `_mp_js_force_stop` plus HAL functions — **no step, no pause, no
+> breakpoint, no register/memory read.** The MicroPython VM in this sim runs free
+> or is force-stopped; it exposes no single-stepping. Adding that would mean
+> rebuilding MicroPython itself with a debug interface (Emscripten) — not a JS
+> fork.
+>
+> **Second, deeper wall:** the app's `DebugTarget` contract
+> (`bw-board/debug-session.js`, `debug-target-factory.js`) is built for
+> **emulators that own a program clock** — `runFor(budgetNs)` in *program* time,
+> the emulator advancing its own cycles. `emu8051`/`avr8js`/`rp2040js`/`m6502`
+> all fit. The MicroPython sim is a **black-box real-time VM in an iframe**: it
+> has no program clock to budget and no way to run "N ns then halt." So even
+> ignoring stepping, it cannot satisfy the boundary-D contract as written.
+>
+> **The real path (multi-session, redirected):** a native micro:bit debugger
+> means an **nRF52 / Cortex-M4 emulator** (the `rp2040js`/`avr8js` pattern — a JS
+> CPU emulator with a program clock and instruction stepping) running the
+> COMPILED micro:bit firmware, not the MicroPython black-box. That gives `insn`
+> stepping, breakpoints, registers and memory for free, and it slots into the
+> existing `DebugTarget` factory exactly like the other cores. Whether such an
+> nRF52 emulator exists in JS at usable fidelity is the first thing to establish.
+> Until then, micro:bit stays a **run target** (Stage 2: compile → sim → run +
+> serial), NOT a debug target — and `capabilities()` says so honestly.
+>
+> **The other feasible path — instrumentation, and it is CODEABLE now.** The
+> 8051 debugger's Level-1 position (`DEBUG-CONTROL-MODEL.md §2`) works by *reading
+> state*, not by VM stepping — a `<task>_state` static the scheduler updates. The
+> micro:bit has the same lever without any emulator: the compiler emits the
+> MicroPython, so a **debug build can instrument it** — a `_bw_pos(n)` marker at
+> each block that prints position over the sim's existing serial channel, and a
+> cooperative breakpoint check that spins on a value the host sets (the sim
+> already relays serial both ways). That yields **block-level position and
+> block breakpoints** — Level-1/Level-2 fidelity, not `insn` stepping — over the
+> sim we already ship, no VM changes. `capabilities()` reports `block` steps and
+> `yield`/block breakpoints, refuses `insn`/`line`, exactly as the on-chip 8051
+> monitor refuses what it cannot do. This is the honest first micro:bit debugger
+> and it is a `generateMicroPython(debug:true)` + serial-protocol + panel-wiring
+> job, not a toolchain rebuild. Prefer it over waiting on an nRF52 emulator.
+>
+> The original fork-the-sim plan below is kept struck-through-in-spirit for the
+> record; it is not the route.
+
+~~Fork `micropython-microbit-v2-simulator` (MIT) to add a debug postMessage
+channel exposing its `step`/`getState`/`resume`~~ (there is nothing to expose;
+see the correction above). The boundary-D wiring, IF a real emulator lands:
   1. **Generalise boundary D** where it is 8051-shaped: `position` as a tagged
      union (§3), `Space` no longer a fixed 8051 enum (§4), `StepKind` honestly
      reduced to what the VM supports (`line`, `over`, `out`; not `insn`/`block`).
