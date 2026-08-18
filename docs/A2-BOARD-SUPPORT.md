@@ -105,6 +105,19 @@ divides cleanly into two layers that must NOT be coupled:
   a 1-bit table (blit at full) **or** a brightness table (one digit 0..3
   per pixel), `set screen brightness` scales globally. On/off blocks stay
   as sugar for level 0 / level MAX, so the simple programs are unchanged.
+- **Two picture literals, one for each tier.** A flat `TABLE` (eight
+  comma-separated bytes, one bit per pixel) stays the 1-bit form and blits
+  at full brightness — 16-a2-screen.bw. A new **`IMAGE`** literal is the
+  grayscale form: an 8-row grid of eight brightness digits (0..3) each,
+  read top-down / MSB-left like the tables, e.g.
+  ```
+  IMAGE glow =
+    0 3 3 0 3 3 0 0
+    3 2 2 3 2 2 3 0
+    ...
+  ```
+  `IMAGE` is exactly what the grid editor emits; `show image` accepts either
+  literal (17-a2-brightness.bw is the `IMAGE` acceptance example).
 - **The block EDITOR paints levels, not just on/off** — an 8×8 grid where
   clicking a cell *cycles* its brightness (off → dim → mid → full → off),
   exactly the micro:bit image-editor gesture, and its output is a

@@ -1,0 +1,70 @@
+# The A2 matrix with PER-PIXEL BRIGHTNESS — the grayscale tier of
+# 16-a2-screen.bw. Same MATRIX8X8 PART, same measured wiring, but the
+# frame buffer carries a brightness LEVEL per pixel (0 off .. 3 full),
+# not just on/off, and the background scan renders the levels by
+# duty-cycle modulation. This is the acceptance example for the
+# brightness stage (docs/A2-BOARD-SUPPORT.md, "Brightness — supported").
+#
+# The literal format this pins down is the one the micro:bit-style block
+# EDITOR emits: a brightness TABLE is one hex digit 0..3 per pixel, eight
+# per row, read top-down / MSB-left exactly like the 1-bit tables. A
+# plain 1-bit image (16-a2-screen.bw) still works — it blits at full
+# brightness. A brightness image lets a picture fade in, glow, or shade.
+#   ./tools/compile-remote.sh -p 17-a2-brightness
+
+DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  PART screen = MATRIX8X8 ROWS 74HC595 DATA P3.4 CLOCK P3.6 LATCH P3.5 COLUMNS P0
+
+  # A brightness image: eight rows, eight brightness digits (0..3) each.
+  # A heart with a bright rim and a dim fill — the grayscale the editor paints.
+  IMAGE glow =
+    0 3 3 0 3 3 0 0
+    3 2 2 3 2 2 3 0
+    3 2 1 1 1 2 3 0
+    3 2 1 1 1 2 3 0
+    0 3 2 1 2 3 0 0
+    0 0 3 2 3 0 0 0
+    0 0 0 3 0 0 0 0
+    0 0 0 0 0 0 0 0
+
+  WHEN started:
+    # Show a full-brightness picture, then the shaded one — the two tiers
+    # side by side. The scan holds both without a loop of ours.
+    show image glow on screen
+    wait 1 second
+
+    # Fade the WHOLE picture down by scaling the global brightness, no
+    # redraw of the buffer — dim, dimmer, off, then back to full.
+    set screen brightness 3
+    wait 400 ms
+    set screen brightness 2
+    wait 400 ms
+    set screen brightness 1
+    wait 400 ms
+    set screen brightness 0
+    wait 400 ms
+    set screen brightness 3
+    wait 1 second
+
+    # Paint one pixel at each level so the four steps are visible at once:
+    # column 1..4 of the top row at brightness 0,1,2,3.
+    clear screen
+    set pixel 1 0 brightness 1
+    set pixel 2 0 brightness 2
+    set pixel 3 0 brightness 3
+    wait 1 second
+
+    # A single pixel breathing up through the levels and back down.
+    clear screen
+    set b to 0
+    REPEAT 3:
+      change b by 1
+      set pixel 4 4 brightness b
+      wait 250 ms
+    REPEAT 3:
+      set pixel 4 4 brightness b
+      wait 250 ms
+      change b by -1
+    set pixel 4 4 brightness 0
