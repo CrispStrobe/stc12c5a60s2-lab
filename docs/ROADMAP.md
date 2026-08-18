@@ -2955,7 +2955,18 @@ the old baud for a reply that arrives at the new one (the probe
 frame is byte-identical to the capture; `--baud 2400` — old == new
 — bypasses it and proves the diagnosis; fix is the implementer's).
 The definition of done — a flasher we own, flashing our chip,
-owner watching — is met. Also note 01-blink is the contract's
+owner watching — is met. FULL-SPEED CLOSE (2026-08-18, ~5:30am):
+after five silicon bugs found and fixed across one night (the true
+baud dance from a pyserial-instrumented trace; macOS CH340 ignoring
+bare-termios rates → IOSSIOSPEED; the sync-pulse barrage; the
+heard-latch; and stcgal's 100 ms drain-to-switch gap — we switched
+on the last stop bit and glitched the chip mid-commit), stcbsl
+flashed the pseudocode heart at FULL 115200, complete protocol,
+owner-watched. stcgal also turned out to be MIT all along, so the
+clean-room ceremony was unnecessary — but it produced the captures,
+the spec, and a reimplementation debugged against silicon rather
+than source, which found real bugs a port would have inherited
+silently. Also note 01-blink is the contract's
 acceptance image but is INVISIBLE on the A2 (it drives P1.0/P1.1 =
 keypad lines), so the visible heart stood in — same protocol path,
 bigger image, better witness.
