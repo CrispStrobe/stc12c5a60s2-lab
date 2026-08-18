@@ -228,6 +228,43 @@ Mirroring `§8`'s ladder, report honestly which rungs are climbed:
    produces the **same observable behaviour** (display/serial), proving the two
    compilers agree about the program even though they share no code.
 
+## 6a. The ElecFreaks Arcade Shield — a THIRD execution paradigm
+
+The owner has the ElecFreaks micro:bit Arcade shield in hand (a 160×128 colour
+TFT, D-pad, A/B, reset — a handheld game console around a micro:bit V2). Covering
+it is a first-class goal. **Licensing is entirely MIT** (verified 2026-08-18):
+
+| component | repo | licence |
+|---|---|---|
+| MakeCode Arcade engine + editor | `microsoft/pxt-arcade`, `microsoft/pxt`, `microsoft/pxt-common-packages` | **MIT** |
+| Arcade-shield-on-micro:bit extension | `microbit-apps/display-shield` (canonical), `thomasjball/arcadeshield` (Thomas Ball / MS Research), `gmh5225/pxt-arcadeshield`, `calliope-edu/gamekit` | **MIT** |
+
+**ElecFreaks ships no proprietary code for this** — their "Retro Programming
+Arcade" runs the standard MIT MakeCode Arcade stack plus the MIT display-shield
+extension. So there is nothing to clean-room here; it is all adoptable with
+attribution.
+
+**But Arcade is a different paradigm from everything in §1–§6.** The MicroPython
+path (the WASM sim, `sb3-creator-micropython`) is a text/5×5-pixel model. Arcade
+is a **colour-display game engine** — sprites, tilemaps, a 160×128 frame buffer,
+a game loop — compiled by PXT to ARM, with its **own self-hostable simulator**
+(`arcade.makecode.com`, MIT — the same "vendor the WASM sim" move we already made
+for micropython-microbit-v2-simulator). So the arcade shield is a **third
+micro:bit execution surface**, alongside the MicroPython sim and real hardware:
+
+- **Run target:** fork/vendor the MIT Arcade simulator as another boundary-D
+  target (its own capability column — a game loop, not line-stepping Python).
+- **Compiler:** a graphics/game block surface in the dialect (sprite, tilemap,
+  the colour screen, controller buttons) that lowers to Arcade — distinct from
+  the MicroPython lowering, sharing the front half of the pipeline.
+- **Debugger:** Arcade's sim exposes pause/step of the game loop; how much
+  boundary-D parity it affords is a study, like the MicroPython sim's.
+
+This is a larger, later axis than the MicroPython integration (§5), but the
+licence is clear and the pattern (vendor an MIT WASM sim, add a lowering, plug a
+boundary-D target) is the same one this whole document is built on. Sequence it
+after the MicroPython path proves the pattern once.
+
 ## 7. Deliberately out of scope (for now)
 
 Compiling the dialect to CODAL **C++** → `.hex` (MicroPython is the compiler path
