@@ -175,6 +175,43 @@ per-LED addressing and the shared-port warning.
   reads before it counts as a press), and per-key rising-edge detection.
   This is the one piece needing new scheduler infrastructure.
 
+#### Shared keypad scanner + the two surfaces — SETTLED 2026-08-18
+
+There are two keypad surfaces and they are **complementary, not duplicates**;
+this records which is which and how they share one scanner, so the MicroPython
+`PART KEYPAD4X4` lane can build.
+
+- **`PART KEYPAD4X4` is the AUTHORED-matrix-hardware surface** — index-read
+  (`0..15` / `-1`), the reporter sugar above, and the `WHEN key N pressed`
+  edge hats (built: stc-compiler + sb3-creator, debounced poll task, doesn't
+  touch the Timer-0 ISR). This is what a learner declares for a real 4×4 pad.
+- **`MK0..MK19` virtual pins are the RETARGET surface** — per-key boolean
+  (`PIN k = MK5 INPUT`), born from the 17-key retarget, each authored key keeps
+  its name. This is the *auto-retarget* form.
+- **Which surface per path:** authored hardware (any core, incl. an authored
+  Pico/micro:bit matrix) → **`PART KEYPAD4X4`**; `retargetPseudocode` producing
+  per-key inputs → **`MK` pins**. A program never mixes them.
+- **ONE shared scanner per core, both surfaces call it.** The PART's
+  `bw_kp_<pad>_poll` and MK's `bw_key_read` are the same debounced row-drive /
+  column-read loop (drive one row low, read the columns, key stable across two
+  reads before it counts). Emit it **once** per core; both the index reporter
+  and the MK booleans read its result. Per target:
+  - **8051 (compiled C):** the debounced poll task — done. Quasi-bidirectional
+    rows, weak pull-ups limit the two-keys-one-column short (the KEYPAD4X4
+    admission reason).
+  - **ARM / Pico (compiled C):** the same loop **plus the OE / tri-state dance**
+    — push-pull rows must be tri-stated (input/open-drain) when not driven, or
+    two pressed keys short two driven outputs. This is the one core-specific
+    addition.
+  - **MicroPython (Pico / micro:bit):** the scanner **is `Pin` juggling** — rows
+    `Pin(..., Pin.OUT)` pulsed low one at a time, columns `Pin(..., Pin.IN,
+    Pin.PULL_UP)` read; returns the same `0..15` index. The board's API *is* the
+    language, so there is no separate driver to emit — the MP lane implements the
+    scan loop + the index read + the hats (edge over the debounced index)
+    directly against `machine.Pin`, following this same debounce contract.
+- **Hats sit on the PART** (index read + per-key rising edge over the debounced
+  state) — settled and built; MK booleans already have per-pin edge for free.
+
 ### 8-digit 7-seg display — `SEVENSEG8`
 2×4 common-cathode tubes: segments on a port via 74HC245, digit select
 via 74HC138 (3 address pins), digit 0 = all select low:
