@@ -379,3 +379,78 @@ Compiling the dialect to CODAL **C++** → `.hex` (MicroPython is the compiler p
 we have); the gdb remote-serial wire format; on-device debug (Stage 4 far term);
 the Scratch BLE-control firmware entirely. Add them when something needs them,
 and extend this document **first** — the same rule boundary D lives by.
+
+## 8. Path B campaign — our own MIT nRF52 emulator, Unicorn.js as oracle
+
+The debugger's Stage-3 correction (§5) says an instruction-level micro:bit debugger
+needs an nRF52/Cortex-M4 emulator, and the spike (`MICROBIT-EMULATOR-SPIKE.md`)
+proved it feasible in browser-viable JS/WASM — but the only ready core, Unicorn.js,
+is **GPLv2**, wrong for this MIT/MPL stack. This section is the staged plan to build
+**our own MIT emulator** with **Unicorn.js as a DEV-ONLY differential oracle** —
+never shipped, exactly the `ucsim`(GPL)/`emu8051`(MIT) split this project already
+runs. The oracle does not shrink how much we write; it collapses the hard part —
+*verifying* a CPU emulator — from hand-checking every instruction into
+differential-fuzzing against a reference and diffing PC/regs/memory per step.
+
+**Before spending a week on it, settle the coupling (§8.0).** The emulator steps ARM
+machine code; our firmware is MicroPython, so it would step the *VM bytecode loop,
+not the kid's Python* (the spike's decisive finding). An instruction debugger only
+debugs the *user's* program if that program is **native-compiled** (MakeCode/CODAL).
+So Path B's debugger payoff is gated on a **native-compile target** — a separate
+build and a real product-direction choice. Path A (the instrumentation debugger,
+already landed) debugs the MicroPython program at block level *today*. **So Path B is
+worth building only if native micro:bit compilation is on the roadmap** — otherwise
+it is a systems/VM emulator, not a kid's-Python debugger. Green-light §8.0 first.
+
+### 8.0 Prerequisite decision — native compile?
+Decide whether "compile blocks → native micro:bit firmware (CODAL/PXT)" is a goal.
+- **Yes** → Path B's debugger debugs the user's program; proceed.
+- **No** → Path B debugs the MicroPython VM only; park it, Path A ships the debugger.
+This is the gate. Everything below assumes Yes.
+
+### The stages (each oracle-verified, most fleet-parallelisable)
+- **B1 — Oracle harness (~days, FIRST).** Wrap Unicorn.js (`@alexaltea/unicorn-js`,
+  `MODE_THUMB|MODE_MCLASS`, per the spike) as a reference. A differential runner
+  steps our core + Unicorn on the same code and diffs PC/regs/memory each
+  instruction; a fuzzer emits random valid Thumb-2 sequences. Build this before the
+  core — it de-risks everything and turns "is this instruction right?" into a test.
+  **Dev-only; never enters the product.**
+- **B2 — Cortex-M4 core (~3–6 wk, the bulk, the one serial bottleneck).** ARMv7E-M
+  Thumb-2 decode+execute — a *superset* of rp2040js's M0+ (do NOT extend rp2040js;
+  the M4 gap is large: ~3–4× the instructions, DSP saturating/SIMD, FPU). Plus the
+  M-profile system: vector table (proven in the spike), NVIC/SCB/SysTick, MSP/PSP,
+  exception entry/return stacking. Split by instruction group across lanes; the
+  oracle gates each. **FPU (VFP single-precision): +~1 wk, deferrable** (only
+  float-heavy firmware; the spike left it unverified — confirm `vadd.f32` first).
+- **B3 — Peripherals, minimum to boot+blink (~1–2 wk, parallel).** Per the spike's
+  scope table: **CLOCK** (fake instant `HFCLKSTARTED` or boot hangs — mandatory
+  first), **NVMC**-read, **GPIO** P0/P1, one **TIMER** (system tick), **GPIOTE**
+  (buttons), NVIC wiring. Gets a real hex past reset, blinking, buttons.
+- **B4 — Peripherals, full CODAL boot (~2–4 wk, parallel).** **TWIM** (I²C EasyDMA)
+  **+ an LSM303AGR accel/mag device stub** (the usual real blocker to a CODAL boot),
+  **UARTE** serial (the `print` path). **RADIO** stubbed for v1 (model later; this is
+  where BabbleSim finally fits — a separate multi-device radio-channel feature).
+- **B5 — DebugTarget integration (~days).** Slot a `'microbit'` kind into
+  `bw-board/debug-target-factory.js`. Because an emulator owns its clock, it
+  satisfies the `runFor(budgetNs)` contract, so `insn`/`line`/`over`/`out` stepping,
+  code breakpoints, registers and memory come essentially free and it drives the
+  same debug-panel as the 8051 — "native, like the 8051," for real this time.
+
+### Effort & shape
+Serial critical path ≈ **2–3 focused months** to "a real micro:bit hex boots and you
+can single-step it," with FPU/radio/full-fidelity incremental beyond. But the
+peripherals are **independent, individually oracle-testable modules** — the exact
+shape the fleet ate the A2 campaign in — so with fan-out the wall-clock drops toward
+**weeks**, the CPU core (B2) being the one hard-to-split bottleneck (and even it
+splits by instruction group). Plus the **native-compile path** (§8.0) is a separate,
+comparable effort that must land for the debugger to debug the user's program.
+
+### Licensing — why this stays clean
+Unicorn.js (GPLv2) is used **only as a build/test-time oracle**, never linked,
+bundled, fetched, or shipped by the product — the same relationship the MIT
+`emu8051` has to the GPL `ucsim`, and the same relationship any MIT program has to
+GPL `gcc`/`gdb` that built it. **A GPL tool imposes no licence on its output**, so
+the shipped emulator and app stay MIT/MPL with zero GPL obligation. This is *only*
+true while Unicorn stays dev-only. Shipping or load-time-fetching Unicorn.js itself
+is a different, lawyer-gated question (see the App-Store/AGPL analysis in the
+handover notes) — and unnecessary, because we are building our own core.
