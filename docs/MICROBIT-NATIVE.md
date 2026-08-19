@@ -263,6 +263,31 @@ is largely surfacing what the MIT sim already does; no fork needed yet.
 > and it is a `generateMicroPython(debug:true)` + serial-protocol + panel-wiring
 > job, not a toolchain rebuild. Prefer it over waiting on an nRF52 emulator.
 >
+> **SHIPPED (2026-08-19) — and it is no longer just position + run control.**
+> The instrumentation lever generalises: the same "read state over serial" trick
+> that gives position gives the whole 8051-parity inspection set. On halt the
+> debug build serialises live state, and the panel renders it, so the micro:bit
+> debugger now shows what the 8051 debugger shows:
+> - **Variables** (`\x1eV`+json) — the user's variables/lists, the memory/register
+>   pane. Names captured from the declared-variable set, read back via `globals()`.
+> - **Board** (`\x1eB`+json) — the micro:bit snapshot (display grid, buttons,
+>   accelerometer, temperature), the pin/sensor-status pane. micro:bit only; a
+>   Pico build inspects variables but no micro:bit board.
+> - **Trace** — the position-marker stream recorded as an execution history.
+> - **Call stack** (`\x1e>`/`\x1e<`) — procedures compile to generators, so a
+>   `try/finally` brackets each frame correctly across cooperative yields; the
+>   panel shows which custom block is running, `procNames[k]` labelling frames.
+> - **Conditional breakpoints** — host-side, ZERO codegen change: a conditional
+>   breakpoint is an ordinary breakpoint the host auto-continues past when its
+>   condition (evaluated against the `\x1eV` frame) is unmet, reusing the SAME
+>   `condition.js` parser + `breakpoints.js` store the 8051 debugger uses.
+>
+> What is NOT here and stays Path B: raw ARM registers and a memory dump — those
+> do not exist at the MicroPython level; they are the emulator's to provide (§4).
+> The codegen lives in `sb3-creator@783ab7f`; the panel in
+> `brickwright-lite` (splitter/controller `microbit-debug.js`, inspector
+> `microbit-sim-pane.jsx`). 24 controller + 31 codegen unit tests.
+>
 > The original fork-the-sim plan below is kept struck-through-in-spirit for the
 > record; it is not the route.
 
