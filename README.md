@@ -25,6 +25,7 @@ BrickWright already transpiles to LEGO NXT/EV3 bytecode. See
 6. [Troubleshooting](#6-troubleshooting)
 7. [Repo layout](#7-repo-layout)
 8. [Where this is going](#8-where-this-is-going)
+9. [First silicon — what is now verified on real hardware](#9-first-silicon--what-is-now-verified-on-real-hardware)
 
 ---
 
@@ -162,6 +163,22 @@ Any 5 V-capable USB-TTL serial adapter works. The common three:
 | **FT232R** | Built into macOS (AppleUSBFTDI) | `/dev/cu.usbserial-*` |
 | **An Arduino Uno** | whatever your Uno already uses | `/dev/cu.usbmodem*` |
 
+> [!NOTE]
+> **For an STC12 the choice may be narrower than this table.** stcgal's FAQ
+> keeps its own list of tested bridge chips, and **CP2102 is the only one with
+> macOS listed as a tested platform**; CH340/CH341 are recorded for Windows and
+> Linux only. The reason to be careful is that the STC12 bootloader requires
+> **even parity** (§6) — the STC89 family does not, so a CH340 that reliably
+> flashes an STC89 (§9) proves nothing about an STC12. A CH341T module
+> enumerates on macOS 26 with no extra driver as `/dev/cu.wchusbserial*` (USB
+> `1a86:5523`, i.e. serial mode) — which establishes enumeration, not parity
+> capability.
+
+Some modules have **two** jumpers: one for voltage (3.3 V / 5 V) and one for
+mode (TTL / I²C). On a CH341T module both must be right — **5 V** and **TTL**.
+At 3.3 V the STC12 is below its 3.5 V minimum, and its V<sub>IH</sub> of
+0.7 × VCC = 3.5 V would be out of reach anyway.
+
 > [!TIP]
 > **No adapter? An Arduino Uno is one.** Its ATmega16U2 is a USB-serial bridge.
 > Jumper `RESET` to `GND` to hold the ATmega328P out of the way, then treat the
@@ -244,10 +261,20 @@ So the flashing ritual is:
 3. `stcgal` catches the handshake at 2400 baud, negotiates up to 115200, and
    writes the flash.
 
+> [!IMPORTANT]
+> **The 2400 is stcgal's default, not the chip's.** For the STC12C5A60S2
+> everything findable points at **9600** — including stcgal's own protocol
+> capture for this very model. On that family, set
+> `HANDSHAKE=9600 BAUD=9600`; details in §6.
+
 If you want to automate step 2, wire the adapter's **DTR** line to a
 transistor that switches the MCU's VCC, and add `-a` to the stcgal call — see
 [rgm3/ledcube444](https://github.com/rgm3/ledcube444) for a photo of exactly
 that hack. Until then, a small switch or just pulling the VCC jumper is fine.
+Not every module brings DTR out at all: a CH341T has only TXD/RXD/GND/VCC
+(plus SDA/SCL), so `-a` is not an option there. Whether control lines exist is
+one line to check — `serial.Serial(...).cts` / `.dsr`; all `False` means there
+are none.
 
 ---
 
@@ -656,13 +683,97 @@ procedure for settling it, and names what to suspect first for each board.
 The most common failure, and it is almost always one of five things:
 
 1. **TX/RX not crossed.** Adapter TXD → pin 10, adapter RXD → pin 11. Swap
-   them and try again; you cannot damage anything by getting this wrong.
+   them and try again; you cannot damage anything by getting this wrong. Some
+   modules label the header from the *target's* point of view, though, in which
+   case straight-through is correct — see the STC12 section below.
 2. **You pressed reset instead of cycling power.** The ISP monitor only runs
    after a *cold* boot. Actually interrupt VCC.
 3. **You are on `/dev/tty.*`.** Use `/dev/cu.*`.
 4. **No common ground** between adapter and MCU.
 5. **Something else has the port open** — a serial monitor, screen, the
    Arduino IDE. Close it.
+
+**An STC12 stays silent though the same adapter flashes an STC89**
+
+From a bench session on 2026-08-09 that did **not** succeed: the chip never
+answered, and what was actually wrong is still open. The points below are
+evidenced anyway — each from stcgal's source, the datasheet, or other people's
+session logs. They are recorded because together they cost several hours.
+
+**The handshake rate is not 2400 on an STC12.** stcgal's default is 2400, and
+§2.3 treated that as settled. stcgal's *own* protocol capture for this exact
+chip (`doc/reverse-engineering/stc12c5a60s2.txt`) says `Handshake: 9600` /
+`Transfer: 9600`, and three independent success reports for the STC12C5A60S2
+agree: [stcgal#12](https://github.com/grigorig/stcgal/issues/12) (`-l 9600`),
+[ledcube8x8x8#8](https://github.com/tomazas/ledcube8x8x8/issues/8), and the
+[tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8) README. So try
+this first:
+
+```bash
+make info HANDSHAKE=9600 BAUD=9600
+```
+
+**The STC12 bootloader speaks 8E1; the STC89 speaks 8N1.** In stcgal's source,
+`Stc12BaseProtocol.PARITY = serial.PARITY_EVEN` ("Parity for error correction
+was introduced with STC12") against `Stc89Protocol.PARITY = PARITY_NONE`
+("these don't use any parity"). An uncomfortable consequence follows: **the
+CH340 path proven on silicon in §9 never exercised parity at all.** It says
+nothing about an STC12. stcgal's FAQ names exactly one known total failure —
+the Raspberry Pi Mini UART — precisely because it *"lacks parity support"*, and
+in its table of tested bridge chips **CP2102 is the only one with macOS** in
+the column. If you write your own capture tool, open the port with
+`PARITY_EVEN` too, or you are testing something other than what stcgal does.
+
+**stcgal 1.10 prints no progress dots while waiting.**
+`StcBaseProtocol.connect()` writes `Waiting for MCU, please cycle power:` once
+and then stays silent until a valid status packet arrives; framing errors are
+swallowed. A dotless prompt is the normal state, not a symptom — and it cannot
+distinguish "nothing comes back" from "garbage comes back". To separate those,
+write six lines that send `0x7f` and report *every* received byte. A valid
+reply begins `46 B9`.
+
+**Cutting power means cutting ground.** The adapter's TXD idles high and keeps
+feeding the chip through the clamp diode on its RxD pin, so the cold start
+never happens however often you pull the 5 V wire. stcgal's author confirms
+this in [stcgal#34](https://github.com/grigorig/stcgal/issues/34) and suggests
+1 kΩ series resistors in TXD and RXD. On a breadboard it is easier to
+power-cycle by pulling the **GND** wire instead: the sneak current then has no
+return path, and on reconnection the supply is already stable, which gives a
+sharper edge than re-seating the 5 V wire ever does.
+
+> [!CAUTION]
+> Do **not** short the supply rails to drain the bulk capacitor while the
+> adapter's 5 V wire is still connected. That is a dead short across VBUS: the
+> USB port shuts down, the device vanishes from `/dev`, and pyserial reports
+> `OSError: [Errno 6] Device not configured`.
+
+**TXD/RXD silkscreens are not trustworthy.** Some CH34x modules label the
+header from the *target's* perspective; in
+[ledcube8x8x8#8](https://github.com/tomazas/ledcube8x8x8/issues/8) only
+TXD→TXD / RXD→RXD worked. A loopback test (join the two pins, read the bytes
+back) proves they are a UART pair — **not** which pin is which. When in doubt
+try both orientations, at 9600/8E1.
+
+**A used chip may be set to an external clock.** If the `clock_source` option
+byte says `external` and there is no crystal on pins 19/18, nothing runs at
+all — not even the bootloader — and the chip sits silent with perfect DC
+readings on every pin. Every findable success report for this part had a
+crystal fitted (stcgal#12: 11.059 MHz; ledcube8x8x8#8: 23.846 MHz). §3.2 says
+"XTAL may stay empty"; that holds for a factory-fresh chip, not necessarily for
+a marketplace one.
+
+**`bsl_pindetect_enabled` can gate ISP entry on P1.0/P1.1.** With that option
+byte set, the bootloader only enters ISP if both pins are low at power-on. Two
+jumpers to GND cost nothing to rule out.
+
+**Supply current is the fastest liveness test.** Meter in mA range, in series
+with the 5 V wire: **10–25 mA** means the oscillator is running and the CPU is
+executing; **under 1 mA** means there is no clock. That separates "miswired"
+from "chip isn't running" in a single measurement, faster than any per-pin
+voltage reading — and in the session above it was the measurement that came far
+too late. (First confirm the mA range works at all, across a 1 kΩ to 5 V:
+~5 mA. A blown fuse in the mA path reads 0.0 and is indistinguishable from
+"draws nothing".)
 
 **It connects but writing fails partway**
 
@@ -781,7 +892,12 @@ pseudocode` is a verified fixed point over 54 gallery examples.
 
 ```
    Scratch blocks ──▶ BrickWright IR ──▶ C (SDCC) ──▶ .ihx ──▶ stcgal ──▶ chip
+                                     └─▶ MicroPython ──▶ bw flash ──▶ Pi Pico
 ```
+
+The second row is not hypothetical — see §9.1. The same pseudocode reaches an
+8051 through SDCC and an RP2040 through MicroPython, which is the whole point
+of putting an IR in the middle.
 
 The full design — block vocabulary, IR mapping, resource allocation, and how
 flashing gets driven from the browser — is in [docs/ROADMAP.md](docs/ROADMAP.md).
@@ -852,6 +968,45 @@ Still waiting for an STC12 in the socket (the boards' sockets accept one
 pin-for-pin): the **ADC path** (`src/02-adc`), **PCA/PWM**, the **BRT**,
 and the **live debug monitor** (`src/10-live-firmware`). Those stay
 flagged UNVERIFIED until that bench day.
+
+### 9.1 A second architecture: the Raspberry Pi Pico (2026-08-19)
+
+The dialect is not 8051-only, and this is the proof. On 2026-08-19 a
+**Raspberry Pi Pico** ran a pocket calculator written as BrickWright
+pseudocode — seventeen direct-wired keys on GP2–GP18 and a **GME12864-70**
+OLED (SH1106-class, 128×64, I²C on GP0/GP1), with the Pico's internal
+pull-downs doing the work so a pressed key reads HIGH and no external
+resistors are needed.
+
+It was deployed by this project's own CLI, not by a vendor tool:
+
+```bash
+cd ../sb3-creator
+node bin/bw.mjs flash examples/70-calculator/program.bw \
+     --port /dev/cu.usbmodem11101
+```
+
+`bw flash` writes `main.py` over its own raw-REPL implementation, verifies the
+write on the device and resets it. Reading the file back with `mpremote` gives
+a **byte-identical** copy of what `bw transpile --to micropython` produces, so
+what runs on the chip is exactly what the dialect generated. The calculator was
+confirmed working on the bench by the owner.
+
+Getting there took four fixes to the MicroPython back-end, each measured on the
+chip rather than argued from the source. The most surprising: MicroPython's
+compiler folds `if False:` away entirely, so the dead-yield trick that turns a
+yield-less function into a generator silently produces an ordinary function
+returning `None` — and every call through `yield from` dies with
+`TypeError: 'NoneType' object isn't iterable` before the first frame is drawn.
+
+**One trap worth repeating:** on a Pico, **physical pin 22 is GP17**. Header
+numbering and GPIO numbering are different coordinate systems, and "pin 22" is
+ambiguous until someone says which one they mean — the same discipline §1
+asks for on the STC12.
+
+Still unconfirmed on the bench: a later revision of the display code (one I²C
+blit per frame instead of one per print, and a right-aligned entry line) is
+flashed and boots cleanly, but has not been looked at with a human eye.
 
 ---
 
