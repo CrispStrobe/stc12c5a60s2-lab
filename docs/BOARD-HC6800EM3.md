@@ -89,3 +89,30 @@ lesson tree, incl. 18B20+1602 combo),
 
 Bonus fact from cocus: the EM3 builds with **SDCC via PlatformIO** today —
 our exact compiler. Nothing about the board is Keil-bound.
+
+The locally archived `hongwenjun_stc89c52`/`huang_daming_stc89c52` example
+adds unusually direct conflict documentation: its `main.c` says that fitting
+the LCD1602 conflicts with the numeric display, and that the P2 LED chase
+conflicts specifically with LCD `EN`. Its `lcd1602a.h` defines data=P0,
+RW=P2.5, RS=P2.6 and EN=P2.7. That predicts the A2 bench observations (the
+7-segment `8.` changing to `I-`, and D7/D8 lighting) rather than merely
+sharing the same conventional pin table.
+
+Additional historical HC6800EM/8051 tutorial indexes retained for future
+cross-checking: [HC6800EM3 WordPress archive](https://hc6800em.wordpress.com/tag/hc6800em3/)
+and [Kasim Daniel's 8051 page](https://kasimdaniel.blogspot.com/2014/07/8051.html).
+
+## Vendor DVD recovered locally (2026-08-24)
+
+The owner's `hc6800em3-dvd.iso` (ISO label `HC6800EM3-DVD`, 469 MB) contains
+the original English examples plus `A2. Chinese Examples/MCS51`. Its shipped
+LCD1602 keypad demo independently confirms `data=P0`, `RW=P2.5`, `RS=P2.6`,
+`EN=P2.7`; it selects 4-bit mode on P0.4–P0.7 and uses deliberately long
+1 ms data-settle and 5 ms enable-pulse delays. The untouched 512-byte
+`pro.hex` was programmed successfully on the A2's STC89C52RC. It ran (the
+P1 keypad scan audibly clicked the A2's shared P1.5 buzzer) but the LCD still
+showed only its uninitialized solid row. The cause was then bench-confirmed:
+the LCD was seated end-for-end. Because the A2 connector supplies the LCD
+logic/backlight GND and VCC symmetrically at both ends, it looked powered in
+the wrong orientation. Rotating it 180 degrees—counterintuitively overlapping
+the MCU somewhat—made the untouched DVD example 18 work immediately.
