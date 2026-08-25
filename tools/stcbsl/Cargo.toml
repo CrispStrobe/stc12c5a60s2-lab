@@ -12,18 +12,48 @@ publish = false
 [features]
 # The pure protocol/codec layer has no dependencies at all; `cargo test
 # --no-default-features` exercises everything the replay tests cover, offline.
-default = ["serial"]
+default = ["serial", "transpile"]
 serial = ["dep:serialport", "dep:libc"]
+# The embedded JS transpiler: rquickjs (QuickJS, MIT) runs the ONE JS
+# transpiler (SB3Creator, vendored as a bundle) in-process, so this Rust CLI
+# turns Brickwright pseudocode into C without node, a network, or Python. It
+# pulls a C-compiled QuickJS, so it is kept OUT of the pure-protocol test path.
+transpile = ["dep:rquickjs"]
 
 [dependencies]
 serialport = { version = "4.9", optional = true }
 # Only for a real tcdrain(2) on the raw fd — serialport's flush() did not
 # guarantee the wire was empty on CH340/macOS (silicon, 2026-08-18).
 libc = { version = "0.2", optional = true }
+# High-level bindings to QuickJS (MIT). "bindgen" builds the interpreter from
+# its bundled C source; no system libquickjs needed.
+rquickjs = { version = "0.12", optional = true, features = ["bindgen"] }
 
+# The three serial bins each open a real port, so they need the `serial`
+# feature. Declaring required-features keeps `cargo test --no-default-features`
+# (the offline pure-protocol path) building — without it those bins compile
+# unconditionally and break that path.
 [[bin]]
 name = "stcbsl"
 path = "src/bin/stcbsl.rs"
+required-features = ["serial"]
+
+[[bin]]
+name = "stm32bsl"
+path = "src/bin/stm32bsl.rs"
+required-features = ["serial"]
+
+[[bin]]
+name = "rxprobe"
+path = "src/bin/rxprobe.rs"
+required-features = ["serial"]
+
+# The brickwright compiler front end: pseudocode -> C via the embedded JS
+# transpiler. Needs the `transpile` feature (and thus rquickjs).
+[[bin]]
+name = "bwc"
+path = "src/bin/bwc.rs"
+required-features = ["transpile"]
 
 [profile.release]
 opt-level = 2

@@ -44,6 +44,9 @@ pub mod session;
 #[cfg(feature = "serial")]
 pub mod transport;
 
+#[cfg(feature = "transpile")]
+pub mod transpile;
+
 pub use driver::{Error, Wire};
 pub use frame::{Frame, Receiver};
 pub use protocol::stc89::Stc89;
