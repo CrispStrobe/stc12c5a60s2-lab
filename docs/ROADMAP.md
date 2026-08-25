@@ -1354,6 +1354,19 @@ seams; nothing above them changes.
   momentum moved on. STM32 — via the labwired-core (MIT) adoption
   already seeded: G0/F103 (Blue Pill, the classroom classic) before
   F4; never hand-rolled.**
+  **SUPERSEDED IN PART (owner ruling 2026-08-25, recorded in bw-board
+  `STM32-PATH.md`): two tiers, permanently.** The "never hand-rolled"
+  line was overtaken by events — an STM32F030 machine WAS hand-rolled
+  (bw-board `cortex-m0-machine.js` around rp2040js's exports-hidden
+  ARMv6-M core + an RM0360 F0 board) and ships as the LIGHT tier:
+  M0-class chips running BrickWright-built firmware only, peripheral
+  set CAPPED at the codegen vocabulary (digital I/O, TIM3 tick, USART1
+  print, ADC, TIM3-compare PWM — complete as of 2026-08-25, chain-
+  proven blocks→gcc→machine→board). Everything beyond the cap —
+  foreign binaries, F103/G0/F4, displays, servo timers — still goes
+  through labwired, exactly as this entry planned: labwired-CLI as the
+  CI differential oracle first, a time-boxed wasm spike gating the
+  F103 phase. The G0-before-F4 ordering stands.
 * **MakeCode-extension survey (owner's Calliope list, 2026-08-14).**
   The ecosystem's extension list read as a PRIORITY SIGNAL. (1)
   CONFIRMATIONS — servo, neopixel, ky-040, dht11 exist as of today;
