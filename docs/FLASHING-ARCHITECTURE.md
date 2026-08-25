@@ -63,7 +63,7 @@ AN3155 ACK/NACK byte values for exactly this reason).
 
 ---
 
-## Decision 2 — the transpiler is ONE engine, reached over the service
+## Decision 2 — ONE transpiler, the JS SB3Creator, run in a JS host
 
 The `bw` commands split in two:
 
@@ -72,44 +72,37 @@ The `bw` commands split in two:
   lines) — the crown jewel.
 - **Hardware** (`flash`, `read`): serial/USB byte-pushing.
 
-A pure-Rust CLI **cannot** hold the transpiler without reimplementing it
-(enormous, unjustified). So it does not: it **calls the hosted service**, which
-already exposes `/compile` and `/transpile` and accepts `language:
-"pseudocode"`. A Rust CLI sends raw pseudocode + target + format and gets a
-binary back — full features, no JS, no SB3Creator dependency in Rust.
+There is exactly **one** transpiler, and it is the JS `SB3Creator`. It is
+never reimplemented in Rust and never replaced by a second engine — it runs
+in a **JS host**, whichever one the home provides:
 
-### The catch found while verifying this (2026-08-25): TWO transpilers, drifted
+| Home | JS host that runs SB3Creator |
+|---|---|
+| Web app | the browser |
+| Tauri app | the system webview |
+| node `bw` | node |
+| **Rust CLI** | **an embedded JS engine INSIDE the binary** — `rquickjs` (QuickJS, MIT, ~1 MB) or `boa` (pure-Rust, MIT) |
 
-The service transpiles pseudocode with its **own Python** engine
-(`stc_pseudocode.py`), NOT the JS SB3Creator. They have drifted: the Python
-one does **not** know `STM32F030` (or the recent ADC/PWM/retarget work), while
-SB3Creator does. So today:
+So a self-contained Rust CLI is real without giving up the JS transpiler: the
+binary embeds QuickJS, evals a bundled `SB3Creator.js` (esbuild → one file →
+`include_str!`), and calls `retargetPseudocode` / `generateC` in-process. No
+node subprocess, no network, no Python, no drift — the SAME transpiler the
+browser runs. C→binary afterwards is gcc/sdcc/cc65 (local toolchains, shelled
+to as `bw compile` already does), or the hosted service's C-only `/compile`
+(that step is compilation, not transpilation, and does not drift).
 
-- Browser app & node `bw`: transpile with **JS SB3Creator** (canonical,
-  current) → send C to the service → binary. Works for every target.
-- `language:"pseudocode"` on the service: uses the **stale Python** transpiler.
-  Misses STM32F030 and anything added to SB3Creator since the Python copy last
-  tracked it.
+### The Python transpiler on the hosted service is a dead end — retire it
 
-**For "Rust CLI (or any client) calls the service with pseudocode" to give
-full, current features, the service's transpile must be the canonical
-engine.** Options, cleanest first:
-
-1. **Run SB3Creator on the service** — a node serverless function alongside the
-   Python app (Vercel supports both), so `language:"pseudocode"` runs the SAME
-   engine the browser uses. One source of truth; the Rust CLI and the app get
-   identical, current transpile. Retires `stc_pseudocode.py` as a transpiler.
-2. **Keep `stc_pseudocode.py` and sync it to SB3Creator** — dual maintenance,
-   the exact drift CLAUDE.md warns about (the sb3-creator vendor lesson). Not
-   recommended.
-3. **Rust CLI sends C, transpiling elsewhere** — but Rust can't run SB3Creator,
-   so "elsewhere" is node or the service anyway. Circular.
-
-**Recommendation: option 1.** The service becomes the one place any headless
-client (Rust CLI, curl, CI) turns pseudocode into a binary, using the same
-transpiler the GUI uses.
-
----
+Found while verifying (2026-08-25): the hosted `stc-compiler` service has a
+SECOND transpiler, `stc_pseudocode.py` (Python), reached by
+`language:"pseudocode"`. It has drifted — it does not know `STM32F030` or the
+recent ADC/PWM/retarget work — and it CANNOT be the answer, for the reason the
+owner stated: **you cannot embed Python inside a Rust binary.** It is not the
+canonical engine and must not be made one. The browser and node `bw` already
+ignore it (they transpile with JS SB3Creator and send C to the service). The
+Rust CLI ignores it too, by embedding the JS. `stc_pseudocode.py` should be
+retired as a transpiler, or at most kept as the service's own convenience for
+`curl`, never a source of truth.
 
 ## What this makes possible
 
@@ -117,12 +110,12 @@ transpiler the GUI uses.
   Rust shims (flash); Settings picks JS-shim or native-Rust flashing.
 - **node `bw` CLI**: transpiles locally (SB3Creator), flashes via `flasher.js`
   or `--engine rust`.
-- **Rust CLI** (or `stcbsl` grown into one): transpiles by calling the service
-  (once it is canonical), flashes natively — a single self-contained binary
-  with no JS, for CI and headless benches.
+- **Rust CLI** (or `stcbsl` grown into one): transpiles by running the JS
+  SB3Creator in an EMBEDDED QuickJS engine, flashes natively — a single
+  self-contained binary that carries the same transpiler, for CI and benches.
 
-All three share: one transpiler (SB3Creator, on the service for headless
-clients), one flash-protocol spec (mirrored in JS and Rust, differentially
+All three share: one transpiler (JS SB3Creator, run in each home's JS host —
+an embedded QuickJS for a Rust binary), one flash-protocol spec (mirrored in JS and Rust, differentially
 checked), and the fully-permissive rule — no GPL tool bundled or invoked
 anywhere (avrdude is named only as the user's own optional tool).
 
@@ -132,7 +125,8 @@ anywhere (avrdude is named only as the user's own optional tool).
 2. Binary + parity + DTR Rust serial commands + `tauriSerialPort()` shim. — the
    serial flashers light up in the app.
 3. USB Rust commands (`nusb`) + `tauriUsbDevice()` shim. — USBasp/SWD in the app.
-4. SB3Creator on the service (node function), canonical pseudocode→binary. —
-   unblocks a full Rust CLI and retires the drift.
+4. Embed QuickJS (`rquickjs`) in the Rust CLI + a bundled `SB3Creator.js`
+   (esbuild → `include_str!`), transpile in-process. — the JS transpiler,
+   self-contained, no Python, no network.
 5. Grow `stcbsl` into the full flash family + a `compile` subcommand that calls
    the service. — the self-contained Rust CLI.
