@@ -6,7 +6,8 @@ Rust/Tauri," and the answer to two owner questions (2026-08-25):
 1. *Can we have both shims and native Rust, user-selectable, in GUI and CLI?*
    **Yes** — and the two implementations check each other.
 2. *Can the Rust binary have all the features the node `bw` CLI has?*
-   **Hardware yes; transpile via the hosted service, not reimplemented.**
+   **Yes — hardware natively; transpile by embedding the JS engine (the ONE
+   transpiler), not by reimplementing it and not via Python. Done: `bwc`.**
 
 ---
 
@@ -121,12 +122,18 @@ anywhere (avrdude is named only as the user's own optional tool).
 
 ## Build order (each a landable slice)
 
-1. `bw flash --engine js|rust` (node dispatch to `stcbsl`/`stm32bsl`). — small
+1. **DONE** — `bw flash --engine js|rust` (node dispatch to `stcbsl`/`stm32bsl`).
+   sb3-creator `main`.
 2. Binary + parity + DTR Rust serial commands + `tauriSerialPort()` shim. — the
    serial flashers light up in the app.
 3. USB Rust commands (`nusb`) + `tauriUsbDevice()` shim. — USBasp/SWD in the app.
-4. Embed QuickJS (`rquickjs`) in the Rust CLI + a bundled `SB3Creator.js`
-   (esbuild → `include_str!`), transpile in-process. — the JS transpiler,
-   self-contained, no Python, no network.
-5. Grow `stcbsl` into the full flash family + a `compile` subcommand that calls
-   the service. — the self-contained Rust CLI.
+4. **DONE** — embedded QuickJS (`rquickjs`) transpiler in the Rust CLI. The JS
+   side is `sb3-creator` `src/embed/` + `scripts/bundle-embed.mjs` (bare-engine
+   bundle, byte-identical to node, CI-guarded); the Rust side is
+   `tools/stcbsl/src/transpile.rs` + the `bwc` binary, with the bundle vendored
+   and drift-checked by `sync-transpiler.mjs`. `bwc <file.bw>` transpiles
+   pseudocode → C in-process — no node, no network, no Python. This is where the
+   earlier wrong turn (the service's Python transpiler) was corrected.
+5. Grow the Rust CLI into the full flash family + a `compile` subcommand
+   (C→binary via a local toolchain or the service's C-only compile), unifying
+   `bwc` + `stcbsl` + `stm32bsl` under one self-contained `bw`.
