@@ -34,6 +34,7 @@
 //! others can be added from their own captures later, not so that this one
 //! can be stretched to cover them.
 
+pub mod an3155;
 pub mod driver;
 pub mod frame;
 pub mod ihex;
