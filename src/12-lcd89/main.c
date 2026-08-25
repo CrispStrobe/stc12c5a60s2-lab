@@ -1,17 +1,11 @@
-// 12-lcd89 v2 — the A2's LCD1602, single-convention, conservative.
-// v1 swept six RS/RW/EN permutations and got row-of-blocks: a wrong
-// permutation can leave the controller output-driving the bus, and
-// the sweep poisons its own next attempt. The pin truth is now
-// TRIPLE-sourced (A2 silkscreen "RW/RS/EN P25-27", hongwenjun's
-// lcd1602a.h, markchan3, byr balance): DB=P0, RW=P2.5, RS=P2.6,
-// EN=P2.7, execute on EN's falling edge. So v2 does exactly that,
-// with datasheet-conservative timing (100 ms power-on, 5 ms between
-// the three 0x38s) and BUSY-FLAG polling before every write like the
-// reference driver. The banner rewrites every second — whatever
-// state the glass is in, it recovers within one.
+// 12-lcd89 v5 — A2 LCD1602 test derived from the HC6800EM3 vendor DVD.
 //
-//   line 1:  A2 LCD1602 OK
-//   line 2:  perm RW RS EN 567
+// The A2 schematic and DVD MCS51 examples agree:
+//   DB0..DB7=P0, RW=P2.5, RS=P2.6, EN=P2.7.
+// This version uses the DVD example's 4-bit bus and deliberately enormous
+// setup/enable times. It never reads from the LCD. Bench isolation later
+// confirmed that this board revision's buzzer shares LCD_RW/P2.5; the
+// recovered schematic's BZ1=P1.5 assignment does not apply here.
 
 #include <8051.h>
 
@@ -20,26 +14,19 @@
 #define LCD_RS P2_6
 #define LCD_EN P2_7
 
-#define TICK_50MS (65536u - 46080u)
+#define TIMER0_1MS (65536u - 922u)
 
-static void delay_50ms_ticks(unsigned char n)
+static void delay_ms(unsigned int ms)
 {
-    TMOD = (TMOD & 0xF0) | 0x01;
-    while (n--) {
-        TH0 = TICK_50MS >> 8;
-        TL0 = TICK_50MS & 0xFF;
+    while (ms--) {
+        TH0 = TIMER0_1MS >> 8;
+        TL0 = TIMER0_1MS & 0xFF;
         TF0 = 0;
         TR0 = 1;
         while (!TF0)
             ;
         TR0 = 0;
     }
-}
-
-static void dwell(unsigned char loops)
-{
-    while (loops--)
-        __asm__("nop");
 }
 
 static void putch(char c)
@@ -56,48 +43,37 @@ static void putstr(const char *s)
         putch(*s++);
 }
 
-static void puthex(unsigned char v)
+/* DB4..DB7 are P0.4..P0.7. Low P0 bits remain high/released. */
+static void lcd_nibble(unsigned char high_nibble)
 {
-    static const char hex[] = "0123456789ABCDEF";
-    putch(hex[v >> 4]);
-    putch(hex[v & 0x0F]);
+    LCD_EN = 0;
+    LCD_DB = (high_nibble & 0xF0) | 0x0F;
+    delay_ms(1);                /* vendor DVD: settle for a full millisecond */
+    LCD_EN = 1;
+    delay_ms(5);                /* vendor DVD: five-millisecond enable pulse */
+    LCD_EN = 0;
+    delay_ms(1);
 }
 
-static void lcd_busy(void)
+static void lcd_write(unsigned char value, unsigned char is_data)
 {
-    unsigned int guard = 0;
-    LCD_DB = 0xFF;              /* release the quasi bus for reading */
-    LCD_RS = 0;
-    LCD_RW = 1;
-    LCD_EN = 1;
-    while (LCD_DB & 0x80) {
-        if (++guard >= 1000)
-            break;              /* no LCD answering: don't hang */
-    }
-    LCD_EN = 0;
     LCD_RW = 0;
+    LCD_RS = is_data;
+    lcd_nibble(value);
+    lcd_nibble(value << 4);
+    delay_ms(2);
 }
 
 static void lcd_cmd(unsigned char cmd)
 {
-    lcd_busy();
-    LCD_RS = 0;
-    LCD_RW = 0;
-    LCD_DB = cmd;
-    LCD_EN = 1;
-    dwell(10);
-    LCD_EN = 0;
+    lcd_write(cmd, 0);
+    if (cmd == 0x01 || cmd == 0x02)
+        delay_ms(5);
 }
 
 static void lcd_dat(unsigned char dat)
 {
-    lcd_busy();
-    LCD_RS = 1;
-    LCD_RW = 0;
-    LCD_DB = dat;
-    LCD_EN = 1;
-    dwell(10);
-    LCD_EN = 0;
+    lcd_write(dat, 1);
 }
 
 static void lcd_text(unsigned char addr, const char *s)
@@ -107,49 +83,43 @@ static void lcd_text(unsigned char addr, const char *s)
         lcd_dat(*s++);
 }
 
+static void lcd_init(void)
+{
+    LCD_EN = 0;
+    LCD_RS = 0;
+    LCD_RW = 0;
+    LCD_DB = 0xFF;
+    delay_ms(100);
+
+    /* HD44780 reset from an unknown state, then select a 4-bit interface. */
+    lcd_nibble(0x30);
+    delay_ms(5);
+    lcd_nibble(0x30);
+    delay_ms(5);
+    lcd_nibble(0x30);
+    delay_ms(2);
+    lcd_nibble(0x20);
+
+    lcd_cmd(0x28);              /* 4-bit, 2 lines, 5x8 */
+    lcd_cmd(0x08);              /* display off while configuring */
+    lcd_cmd(0x01);              /* clear */
+    lcd_cmd(0x06);              /* increment, no shift */
+    lcd_cmd(0x0C);              /* display on, cursor off */
+}
+
 void main(void)
 {
+    TMOD = 0x21;
     SCON = 0x50;
-    TMOD = (TMOD & 0x0F) | 0x20;
     TH1 = 0xFD;
     TL1 = 0xFD;
     TR1 = 1;
 
-    delay_50ms_ticks(2);        /* >100 ms after power for the HD44780 */
-    lcd_cmd(0x38);              /* 8-bit, 2 lines, 5x8 */
-    delay_50ms_ticks(1);        /* datasheet wants >4.1 ms here */
-    lcd_cmd(0x38);
-    delay_50ms_ticks(1);
-    lcd_cmd(0x38);
-    lcd_cmd(0x0C);              /* display on, no cursor */
-    lcd_cmd(0x01);              /* clear */
-    delay_50ms_ticks(1);
-    lcd_cmd(0x06);              /* entry mode: increment */
+    lcd_init();
+    lcd_text(0x00, "A2 LCD1602 OK   ");
+    lcd_text(0x40, "DVD 4BIT P25-27");
+    putstr("lcd v5: DVD-style 4-bit init complete\r\n");
 
-    putstr("lcd v3 up\r\n");
-
-    for (;;) {
-        unsigned char st1, st2, d1, d2;
-        lcd_text(0x00, "A2 LCD1602 OK");
-        lcd_text(0x40, "perm RW RS EN567");
-
-        /* interrogate: status (busy+AC), then DDRAM back from 0x00 */
-        LCD_DB = 0xFF; LCD_RS = 0; LCD_RW = 1; LCD_EN = 1; dwell(10);
-        st1 = LCD_DB; LCD_EN = 0; dwell(10);
-        lcd_cmd(0x80);              /* AC := 0 */
-        LCD_DB = 0xFF; LCD_RS = 0; LCD_RW = 1; LCD_EN = 1; dwell(10);
-        st2 = LCD_DB; LCD_EN = 0; dwell(10);
-        LCD_DB = 0xFF; LCD_RS = 1; LCD_RW = 1; LCD_EN = 1; dwell(10);
-        d1 = LCD_DB; LCD_EN = 0; dwell(10);
-        LCD_DB = 0xFF; LCD_RS = 1; LCD_RW = 1; LCD_EN = 1; dwell(10);
-        d2 = LCD_DB; LCD_EN = 0; dwell(10);
-        LCD_RW = 0;
-
-        putstr("st=");
-        puthex(st1); putch(' '); puthex(st2);
-        putstr(" ddram=");
-        puthex(d1); putch(' '); puthex(d2);
-        putstr("\r\n");
-        delay_50ms_ticks(20);
-    }
+    for (;;)
+        ;
 }
