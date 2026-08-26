@@ -762,6 +762,23 @@ verifizierte Käuferbewertung meldet zudem Boards, die nicht den Angebotsfotos
 entsprachen; deshalb zählt die tatsächliche PCB-Revision, nicht Titel oder
 KI-Zusammenfassung.
 
+**Eine 40-polige STC/AT89-Entwicklungsplatine ist nicht automatisch ein
+STC-Programmiergerät.** Bei Platinen wie dem DollaTek-ZIF-Minimalsystem ist die
+beworbene 10-polige `ISP`-Buchse für den SPI-artigen Programmer des AT89S52.
+Einen STC12 kann sie nicht programmieren. Für ihn sind ZIF-Sockel,
+Netzschalter, Quarz-/Reset-Schaltung und herausgeführte Pins nützlich; ein
+externer UART muss trotzdem P3.0/P3.1 erreichen, und die Platine muss bei
+wartendem Loader kalt eingeschaltet werden.
+
+**Der USB-Writer1A benutzt keine alternative Rettungsschnittstelle.** Abschnitt
+2.2.17 des aktuellen STC12C5A60S2-Handbuchs zeichnet den Writer1A an MCU-VCC,
+GND, P3.0/RxD und P3.1/TxD (mit den erforderlichen Taktbauteilen); Abschnitt
+2.2.18 beschriftet dieselben Signale an seinem Programmieranschluss. Sein
+40-poliger ZIF-Sockel, die gesteuerte Zielversorgung und die offizielle
+STC-ISP-Integration automatisieren den gewöhnlichen ROM-UART-Bootloader. Damit
+ist er eine wertvolle unabhängige Referenz, kann aber keinen Chip retten,
+dessen ROM-Bootloader gar nicht anläuft.
+
 **Nicht von einer einzigen Handshake-Rate ausgehen.** stcgal verwendet 2400
 als Vorgabe, und das auf genau diesem Modell getestete `my1stcflash` ebenfalls.
 stcgals Protokollmitschnitt verwendet 9600; die erfolgreiche Sitzung in

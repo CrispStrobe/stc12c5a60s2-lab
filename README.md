@@ -734,6 +734,22 @@ One verified-purchase review also reports receiving boards that did not match
 the listing photographs, so identify the actual PCB revision rather than
 trusting the title or AI-generated overview.
 
+**A 40-pin STC/AT89 development board is not automatically an STC
+programmer.** On boards such as the DollaTek ZIF minimum system, the advertised
+10-pin `ISP` header is for the AT89S52's SPI-style programmer. It cannot program
+an STC12. For an STC12, the useful parts of such a board are the ZIF socket,
+power switch, crystal/reset circuit and pin breakouts; an external UART still
+has to reach P3.0/P3.1 and the board still has to be cold-started while the
+loader is waiting.
+
+**USB-Writer1A does not use an alternative rescue interface.** Section 2.2.17
+of STC's current STC12C5A60S2 manual draws the Writer1A connected to MCU-VCC,
+GND, P3.0/RxD and P3.1/TxD (with the required clock components), and section
+2.2.18 labels the same signals on its programming connector. Its 40-pin ZIF
+socket, controlled target supply and official STC-ISP integration automate the
+ordinary ROM UART bootloader. That makes it a valuable independent reference
+fixture, but it cannot recover a chip whose ROM bootloader never runs.
+
 **Do not assume one handshake rate.** stcgal defaults to 2400 and
 `my1stcflash`, tested by its author on this exact model, also uses 2400.
 stcgal's protocol capture uses 9600, and the successful session in
