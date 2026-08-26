@@ -12,7 +12,8 @@
 //! shows the last frame that went out and what was expected back is the
 //! difference between a bench session and a guessing game.
 
-use std::process::ExitCode;
+use std::path::{Path, PathBuf};
+use std::process::{Command, ExitCode};
 
 use stcbsl::ihex;
 use stcbsl::protocol::stc89::{Stc89, ERASE_BLOCK, WRITE_BLOCK};
@@ -38,8 +39,8 @@ USAGE:
 COMMANDS:
   identify                  handshake, report what the chip says, let it run
   erase [--blocks N]        erase code flash (whole chip unless --blocks)
-  write <FILE.hex>          erase what the image needs, program it, let it run
-  flash <FILE.hex>          alias for `write`
+  write <FILE.hex|FILE.bw>  compile pseudocode if needed, erase, program, run
+  flash <FILE.hex|FILE.bw>  alias for `write`
   explain <FILE.hex>        offline: show the block plan for an image; no port
   ports                     list serial ports on this machine
 
@@ -203,15 +204,140 @@ fn run(argv: &[String]) -> Result<(), String> {
             let path = args
                 .positional
                 .first()
-                .ok_or("`write` needs a .hex file")?
+                .ok_or("`write` needs a .hex/.ihx or .bw file")?
                 .clone();
-            let image = load_image(&path, args.quiet)?;
+            let image = load_flash_input(&path, args.quiet)?;
             cmd_session(
                 &args,
                 Job::Flash { image, write_options: args.write_options },
             )
         }
         other => Err(format!("unknown command {other:?}; try --help")),
+    }
+}
+
+fn load_flash_input(path: &str, quiet: bool) -> Result<Vec<u8>, String> {
+    if Path::new(path)
+        .extension()
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("bw"))
+    {
+        compile_pseudocode(path, quiet)
+    } else {
+        load_image(path, quiet)
+    }
+}
+
+/// Compile Brickwright pseudocode with the transpiler embedded in this Rust
+/// binary, then feed SDCC's Intel HEX output into the ordinary flash path.
+/// Node is deliberately not involved: `stcbsl flash program.bw` is the whole
+/// source-to-silicon operation.
+#[cfg(feature = "transpile")]
+fn compile_pseudocode(path: &str, quiet: bool) -> Result<Vec<u8>, String> {
+    use stcbsl::transpile::Transpiler;
+
+    let source = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+    let device = declared_device(&source)
+        .ok_or_else(|| format!("{path}: no DEVICE declaration"))?;
+    if !device.starts_with("stc89") {
+        return Err(format!(
+            "{path}: DEVICE {device} is not an STC89 target; this flasher currently implements the STC89 wire protocol"
+        ));
+    }
+
+    let c = Transpiler::new()
+        .map_err(|e| format!("could not start the embedded transpiler: {e}"))?
+        .transpile_c(&source, None)
+        .map_err(|e| format!("{path}: {e}"))?;
+    let build = TempBuild::new()?;
+    let c_path = build.path.join("main.c");
+    let ihx_path = build.path.join("main.ihx");
+    std::fs::write(&c_path, c).map_err(|e| format!("{}: {e}", c_path.display()))?;
+
+    let output = Command::new("sdcc")
+        .args([
+            "-mmcs51",
+            "--iram-size",
+            "256",
+            "--xram-size",
+            "256",
+            "--code-size",
+            "8192",
+            "-o",
+        ])
+        .arg(&ihx_path)
+        .arg(&c_path)
+        .output()
+        .map_err(|e| format!("could not run sdcc (install SDCC and ensure it is on PATH): {e}"))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        let detail = if !stderr.is_empty() { stderr } else { stdout };
+        return Err(format!("sdcc failed for {path}: {detail}"));
+    }
+    if !quiet {
+        println!("compiled: {path} -> Intel HEX with embedded Brickwright + SDCC");
+    }
+    load_image(
+        ihx_path
+            .to_str()
+            .ok_or_else(|| "temporary build path is not UTF-8".to_string())?,
+        quiet,
+    )
+}
+
+#[cfg(not(feature = "transpile"))]
+fn compile_pseudocode(_path: &str, _quiet: bool) -> Result<Vec<u8>, String> {
+    Err("this stcbsl build has no `transpile` feature; rebuild with default features".into())
+}
+
+fn declared_device(source: &str) -> Option<String> {
+    source.lines().find_map(|line| {
+        let mut words = line.split_whitespace();
+        if words.next()?.eq_ignore_ascii_case("DEVICE") {
+            Some(words.next()?.to_ascii_lowercase().replace('_', "-"))
+        } else {
+            None
+        }
+    })
+}
+
+struct TempBuild {
+    path: PathBuf,
+}
+
+impl TempBuild {
+    fn new() -> Result<Self, String> {
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|e| format!("clock error while making build directory: {e}"))?
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("stcbsl-{}-{nonce}", std::process::id()));
+        std::fs::create_dir(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        Ok(Self { path })
+    }
+}
+
+impl Drop for TempBuild {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.path);
+    }
+}
+
+#[cfg(test)]
+mod source_tests {
+    use super::declared_device;
+
+    #[test]
+    fn device_header_is_case_insensitive_and_normalized() {
+        assert_eq!(
+            declared_device("# comment\ndeViCe STC89C52RC\nWHEN flag clicked:\n"),
+            Some("stc89c52rc".into())
+        );
+        assert_eq!(
+            declared_device("DEVICE stc89_c52rc\n"),
+            Some("stc89-c52rc".into())
+        );
+        assert_eq!(declared_device("WHEN flag clicked:\n"), None);
     }
 }
 

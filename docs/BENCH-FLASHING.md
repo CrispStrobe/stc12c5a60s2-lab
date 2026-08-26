@@ -11,18 +11,17 @@ families that are entered three entirely different ways:
 |---|---|---|
 | ATmega328P, Uno, Nano | pulse DTR to reset into the bootloader | STK500v1 (optiboot) |
 | micro:bit, Raspberry Pi Pico | interrupt the running program | MicroPython raw REPL |
-| STC12C5A60S2, 5A16S2 | **cold power-on**, nothing else works | STC ISP |
+| STC89C52RC, STC12C5A60S2 | **cold power-on**, nothing else works | family-specific STC ISP |
 
 The micro:bit and the Pico share one path exactly, because at this level they
 are the same device: a MicroPython REPL over USB CDC. Everything that differs
 between them is in the *program*, which is the code generator's problem and
 not the flasher's.
 
-**None of the three has ever programmed a real board.** Every protocol was
-developed against a simulator and each is green in CI, which establishes that
-the bytes are right and says nothing about whether the wire is. This document
-is what a bench session needs to close that, and — more usefully — what to
-suspect first for each path, because the suspects are known and specific.
+The STC89 path is now verified on a real YL-39/STC89C52RC; the other paths in
+this document remain bench contracts rather than silicon claims. Green CI
+establishes that simulated bytes are right and says nothing about whether the
+wire is, which is why each family still needs its own changed-image test.
 
 It answers one question: *can a program be written to a board at all.* Everything
 that comes **after** a successful flash — the ADC's analog path, the cube's voxel
@@ -127,7 +126,7 @@ PWM slices, and a board where the tone stops the fade means they collided.
 
 ---
 
-## 3. STC12C5A60S2
+## 3. STC ISP (STC89 verified; STC12/STC15 pending)
 
 ```
 DEVICE STC12C5A60S2:
@@ -160,17 +159,25 @@ reference implementation rather than merely untested.
   reopen. Falling back to a single rate throughout is the obvious fix, and needs
   a transfer baud the BRT register can express: 691200 / (256 − BRT) at
   11.0592 MHz, so 115200 works and 2400 does not.
-- *An STC15 or STC89* is refused by name before anything is connected. Those
-  are different ISP protocols, not dialects, and `stcgal` remains the way in.
+- *An STC89* is auto-detected and uses its own 8-bit-checksum protocol. On
+  2026-08-26 a YL-39/STC89C52RC ran three visibly distinct images installed by
+  three routes: D3-D8 walking via the npm CLI's built-in JavaScript flasher,
+  D1/D3/D5/D7 versus D2/D4/D6/D8 via npm `--engine rust`, and D1-D4 versus
+  D5-D8 via direct `stcbsl flash program.bw`. The last route transpiled with
+  the JavaScript engine embedded in the Rust binary, invoked SDCC, and flashed
+  the resulting image in one command.
+- *An STC12* still needs the same changed-image test on real STC12 silicon.
+- *An STC15* is still refused by name. Its calibration, erase, write and option
+  sequence is a third protocol and needs its own implementation and bench
+  capture; `stcgal` remains the way in for now.
 
 ---
 
 ## What "verified" would mean
 
 A path is verified when a **changed** program has been written to a real board
-and observed to run, twice, on a cold start. Until then the honest status is
-what CI actually establishes: the protocol is right against a simulator, and
-for the STC it is byte-identical to what stcgal itself emits.
+and observed to run, twice, on a cold start. That bar is now met for STC89 in
+both the JavaScript and Rust flash engines; STC12 and STC15 remain pending.
 
 The STC transcript is committed at `scripts/fixtures/stc12-session.json` in the
 compiler repository, with the device simulator that produced it, so any bench

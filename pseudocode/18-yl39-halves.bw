@@ -1,0 +1,34 @@
+DEVICE STC89C52RC
+CLOCK 11059200
+PIN d1 = P1.0 OUTPUT ACTIVE LOW
+PIN d2 = P1.1 OUTPUT ACTIVE LOW
+PIN d3 = P1.2 OUTPUT ACTIVE LOW
+PIN d4 = P1.3 OUTPUT ACTIVE LOW
+PIN d5 = P1.4 OUTPUT ACTIVE LOW
+PIN d6 = P1.5 OUTPUT ACTIVE LOW
+PIN d7 = P1.6 OUTPUT ACTIVE LOW
+PIN d8 = P1.7 OUTPUT ACTIVE LOW
+
+# End-to-end flash proof for the YL-39: alternate the lower and upper
+# halves of its active-low P1 LED row. Visually distinct from both the
+# D1/D2 smoke test and the D3-D8 walking-light image.
+WHEN flag clicked:
+  FOREVER:
+    turn off d5
+    turn off d6
+    turn off d7
+    turn off d8
+    turn on d1
+    turn on d2
+    turn on d3
+    turn on d4
+    wait 500 ms
+    turn off d1
+    turn off d2
+    turn off d3
+    turn off d4
+    turn on d5
+    turn on d6
+    turn on d7
+    turn on d8
+    wait 500 ms

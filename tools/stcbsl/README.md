@@ -42,6 +42,7 @@ tools/stcbsl/
   src/protocol/mod.rs    the ProtocolFamily trait, Job, TargetInfo  no I/O
   src/protocol/stc89.rs  the STC89 family — v1's only member        no I/O
   src/ihex.rs            Intel HEX reader                           no I/O
+  src/transpile.rs       embedded Brickwright JS transpiler        QuickJS
   ------------------------------------------------------------------------
   src/driver.rs          walks a Session over a `Wire`              std + clock
   src/transport.rs       `Wire` over a real serial port             feature "serial"
@@ -88,8 +89,8 @@ stcbsl [OPTIONS] <COMMAND>
 
   identify                  handshake, report what the chip says, let it run
   erase [--blocks N]        erase code flash (whole chip unless --blocks)
-  write <FILE.hex>          erase what the image needs, program it, let it run
-  flash <FILE.hex>          alias for `write`
+  write <FILE.hex|FILE.bw>  compile pseudocode if needed, erase, program, run
+  flash <FILE.hex|FILE.bw>  alias for `write`
   explain <FILE.hex>        offline: show the block plan for an image; no port
   ports                     list serial ports on this machine
 
@@ -108,7 +109,14 @@ The happy path:
 stcbsl ports
 stcbsl --port /dev/cu.usbserial-1110 identify
 stcbsl --port /dev/cu.usbserial-1110 flash ../../build/stc89c52rc/01-blink/01-blink.hex
+stcbsl --port /dev/cu.usbserial-1110 flash ../../pseudocode/18-yl39-halves.bw
 ```
+
+For a `.bw` input, the Rust binary runs Brickwright's JavaScript transpiler in
+its embedded QuickJS engine, invokes local SDCC for C-to-8051 compilation, and
+passes the resulting Intel HEX image directly to its native flash engine. Node
+is not involved. This one-command source-to-silicon path was verified on the
+YL-39/STC89C52RC on 2026-08-26 with a changed LED pattern.
 
 `explain` needs no chip and no port, and is the cheap way to check an image
 before a bench session — it prints exactly which 128-byte blocks will be
@@ -164,8 +172,9 @@ nothing would be worse than not offering one.
 
 ```
 $ cargo test
-   15 unit tests   (frame codec, Intel HEX, the STC89 arithmetic)
-   17 replay tests (the nine captured sessions)
+   20 unit tests        (frame codec, Intel HEX, STC89 arithmetic, CLI source)
+   17 replay tests      (the nine captured sessions)
+    5 transpiler tests  (the embedded JavaScript engine)
 ```
 
 The replay tests read `docs/isp-captures/stc89c52rc/frames/*.jsonl` — the
@@ -259,18 +268,11 @@ captures, not so this one can be stretched over them. This matters for this
 repo specifically: its original target is an **STC12C5A60S2**, and `stcbsl`
 cannot flash one today.
 
-Carried forward from the spec's `[NEEDS-BENCH]` register, in the order they
-would bite:
+Carried forward from the spec's `[NEEDS-BENCH]` register:
 
-- **B-1 — parity and stop bits.** A host-tool log cannot show wire framing.
-  8N1 is the assumption; a wrong choice presents as "the chip never answers"
-  rather than as an error, which is why it is a single constant
-  (`transport::WIRE_PARITY`) with a `--parity` override beside it.
-- **B-2 — the `0x7F` pulse train.** Value, cadence and count come from public
-  write-ups, not from our captures, because the capturing tool does not dump
-  its own sync bytes. This is the **one part of a session `stcbsl` has no
-  fixture for**, and therefore the likeliest thing to be wrong on first
-  contact with silicon.
+- **B-1/B-2 — settled on silicon.** 8N1 and the `0x7F` pulse barrage opened
+  repeated sessions on the real STC89C52RC. They remain configurable because a
+  host-tool log cannot itself reveal wire framing or sync timing.
 - **B-3 — the reload formula.** `reload = round(256 − f_osc / (baud × 32))`
   fits both measured frequencies, but both round to `0xFD` at 115200, so the
   corpus confirms the formula without pinning it. One capture at 19200 settles
@@ -289,9 +291,10 @@ would bite:
 - **O-1 — the option-byte bit map.** Unknown, and the reason for the
   echo-only rule above.
 
-Nothing here has run on real silicon. The acceptance test is the same one the
-rest of this repo uses: `stcbsl flash` puts `01-blink` onto the bench's
-STC89C52RC and the owner watches it blink.
+The acceptance test has run repeatedly on real STC89C52RC silicon. On
+2026-08-26 it also ran from `.bw` source in one direct Rust CLI command; the
+owner observed the newly installed D1-D4/D5-D8 pattern replacing a distinct
+odd/even image.
 
 ## Releases
 
