@@ -167,12 +167,11 @@ Any 5 V-capable USB-TTL serial adapter works. The common three:
 > **For an STC12 the choice may be narrower than this table.** stcgal's FAQ
 > keeps its own list of tested bridge chips, and **CP2102 is the only one with
 > macOS listed as a tested platform**; CH340/CH341 are recorded for Windows and
-> Linux only. The reason to be careful is that the STC12 bootloader requires
-> **even parity** (§6) — the STC89 family does not, so a CH340 that reliably
-> flashes an STC89 (§9) proves nothing about an STC12. A CH341T module
-> enumerates on macOS 26 with no extra driver as `/dev/cu.wchusbserial*` (USB
-> `1a86:5523`, i.e. serial mode) — which establishes enumeration, not parity
-> capability.
+> Linux only. The STC12 bootloader requires **even parity** (§6), unlike the
+> STC89 family. On 2026-08-26 a CH341T (`1a86:5523`) on macOS 26 accepted an
+> 8E1 configuration and passed a byte-exact loopback test, and the same UART
+> path identified an STC89. That verifies the local driver and wiring, but not
+> STC12 compatibility: no STC12 bootloader reply was obtained.
 
 Some modules have **two** jumpers: one for voltage (3.3 V / 5 V) and one for
 mode (TTL / I²C). On a CH341T module both must be right — **5 V** and **TTL**.
@@ -258,14 +257,14 @@ So the flashing ritual is:
 
 1. Run `make flash`. It prints `Waiting for MCU, please cycle power:`.
 2. *Then* power-cycle the chip.
-3. `stcgal` catches the handshake at 2400 baud, negotiates up to 115200, and
+3. `stcgal` catches the handshake, negotiates a transfer rate, and
    writes the flash.
 
 > [!IMPORTANT]
-> **The 2400 is stcgal's default, not the chip's.** For the STC12C5A60S2
-> everything findable points at **9600** — including stcgal's own protocol
-> capture for this very model. On that family, set
-> `HANDSHAKE=9600 BAUD=9600`; details in §6.
+> **2400 is stcgal's default, not the only valid rate.** Successful sessions
+> with this exact part exist at 2400, 4800 and 9600 baud. One report needed
+> `-l 9600`, while `my1stcflash` uses 2400. Start with the default and try
+> `HANDSHAKE=9600 BAUD=9600` if detection fails; details are in §6.
 
 If you want to automate step 2, wire the adapter's **DTR** line to a
 transistor that switches the MCU's VCC, and add `-a` to the stcgal call — see
@@ -290,6 +289,8 @@ are none.
 | 2 | LEDs (any colour) |
 | 2 | 1 kΩ resistors — current limit for the LEDs |
 | 1 | 1 kΩ resistor — reset pull-down |
+| *opt.* | 1 kΩ resistor — series protection in adapter TXD |
+| *opt.* | 470 Ω resistor — VCC-to-GND bleeder for defeating phantom power |
 | 1 | 100 nF ceramic capacitor (marked `104`) — decoupling |
 | 1 | 10 µF electrolytic capacitor — bulk decoupling |
 | — | breadboard + jumper wires |
@@ -312,8 +313,11 @@ The STC12 needs almost nothing to run:
 ```
 
 * **Reset (pin 9):** reset is **active high** here, so it must be held low to
-  run. A 1 kΩ resistor to GND is all you need below 12 MHz. (The classic
-  10 kΩ + 10 µF RC network is for *active-low* 8051s — don't copy it here.)
+  run. A 1 kΩ resistor to GND is sufficient below 12 MHz because the chip has
+  an internal power-on reset. The traditional 10 kΩ-to-GND plus 10 µF-to-VCC
+  circuit is also active-high: it creates a short high pulse at power-up. It
+  is shown in STC's application circuit, but toggling RST does not enter ISP;
+  ISP still requires a real power-on event.
 * **Clock:** you can leave XTAL1/XTAL2 (pins 19/18) **completely empty**. The
   chip free-runs on its internal RC oscillator. That is fine for blinking.
   * The internal RC is only specified as **11–17 MHz at 5 V**, so timing will
@@ -330,7 +334,7 @@ Three wires. **TX and RX cross over.**
 ```
    USB-TTL adapter              STC12C5A60S2
    ───────────────              ────────────
-        TXD  ──────────────────▶  pin 10   P3.0 / RxD
+        TXD  ──[ 1k optional ]─▶  pin 10   P3.0 / RxD
         RXD  ◀──────────────────  pin 11   P3.1 / TxD
         GND  ──────────────────   pin 20   GND
         5V   ──────────────────   pin 40   VCC   (see note)
@@ -343,8 +347,13 @@ Three wires. **TX and RX cross over.**
 > adapter's GND to the MCU's GND, or the serial link has no common reference
 > and the handshake will never complete.
 
-If you power from the adapter, the "power cycle" in §2.3 is just unplugging
-the 5 V jumper wire for a second — that is the cleanest way to do it.
+If you power from the adapter, leave pin 40 permanently connected to the
+target VCC rail and remove/reapply the adapter's 5 V feed to that rail. UART
+pins can phantom-power the MCU even with the 5 V feed removed. A 1 kΩ series
+resistor in TXD and a 470 Ω bleeder from target VCC to GND are useful on a
+breadboard. Before trusting a cold-start test, measure pin 40 to pin 20: it
+must fall well below the 3.5 V operating range, preferably below 1 V. Merely
+moving a jumper is not evidence that the chip actually powered off.
 
 ### 3.4 The LEDs
 
@@ -530,9 +539,9 @@ Flashing build/stc12c5a60s2/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
 Waiting for MCU, please cycle power: done
 Target model:
   Name: STC12C5A60S2
-  Magic: F002
+  Magic: D17E
   Code flash: 60.0 KB
-  EEPROM flash: 1.0 KB
+  EEPROM flash: 2.0 KB
 Loading flash: 308 bytes
 Switching to 115200 baud: done
 Erasing flash: done
@@ -540,6 +549,12 @@ Writing flash: 308/308 bytes
 Setting options: done
 Disconnected!
 ```
+
+`stcgal` reports 2 KB for magic `D17E`, while STC's selection table describes
+1 KB of user EEPROM. The sample above mirrors the tool; the feature summary
+follows the vendor table. Treat the discrepancy conservatively until it is
+verified on STC12 silicon. The old sample incorrectly showed the STC89 entry
+`F002` here.
 
 ### Compiling without installing anything
 
@@ -656,7 +671,7 @@ whole chain from a Scratch project to a flashed chip is already in place.
 | `FOSC` | `11059200` | Clock in Hz — must match reality or delays are wrong |
 | `PORT` | first matching `/dev/cu.*` | Serial device |
 | `BAUD` | `115200` | Transfer rate. Drop to `19200` if flashing is flaky |
-| `HANDSHAKE` | `2400` | Bootloader handshake rate — leave alone |
+| `HANDSHAKE` | `2400` | Bootloader handshake rate; try `4800` or `9600` if detection fails |
 | `PROTOCOL` | `stc12` | stcgal protocol. `auto` also works |
 
 ### Flashing from a browser, without a terminal
@@ -667,12 +682,12 @@ and can write the result to a board over Web Serial — an STC12 over its ISP
 over the MicroPython REPL. Chrome or Edge only; Web Serial needs a secure
 context, which the hosted page has and a local copy of the file does not.
 
-**None of those three paths has yet programmed real hardware.** They are
-developed against simulators, and the STC one is checked byte for byte against
-a transcript `stcgal` itself produced — which establishes that the bytes are
-right and nothing about whether the wire is. `make flash` remains the way that
-is known to work. [docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md) is the
-procedure for settling it, and names what to suspect first for each board.
+The browser/Web Serial STC12 path has not yet programmed real STC12 hardware.
+It is checked byte for byte against a transcript `stcgal` produced, which
+establishes that the bytes are right and nothing about whether the wire is.
+The command-line JavaScript and Rust flash engines *have* both programmed an
+STC89 on real hardware; see §9 and
+[docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md).
 
 ---
 
@@ -700,14 +715,31 @@ answered, and what was actually wrong is still open. The points below are
 evidenced anyway — each from stcgal's source, the datasheet, or other people's
 session logs. They are recorded because together they cost several hours.
 
-**The handshake rate is not 2400 on an STC12.** stcgal's default is 2400, and
-§2.3 treated that as settled. stcgal's *own* protocol capture for this exact
-chip (`doc/reverse-engineering/stc12c5a60s2.txt`) says `Handshake: 9600` /
-`Transfer: 9600`, and three independent success reports for the STC12C5A60S2
-agree: [stcgal#12](https://github.com/grigorig/stcgal/issues/12) (`-l 9600`),
-[ledcube8x8x8#8](https://github.com/tomazas/ledcube8x8x8/issues/8), and the
-[tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8) README. So try
-this first:
+**YL-39 board controls are not STC12 protocol selectors.** The available
+[YL-39 manual](https://www.100y.com.tw/pdf_file/57-YL-39.pdf) assigns JP1 to
+the 8-LED bank, JP2 to the four-digit display and JP3 to the buzzer. They only
+connect peripherals and should be removed when those peripherals are unused.
+The separate `51/AVR` selector belongs in the `51` position. Programming is
+the ordinary STC UART sequence: turn board power off, start Download in
+STC-ISP, wait briefly, then turn board power on. The manual suggests setting
+both minimum and maximum baud to 2400 if download detection fails.
+
+There are materially different boards sold under this description. That
+manual advertises USB download for an `STC52` and names a PL2303 interface;
+the board tested here and current marketplace text name a CH340G and advertise
+the STC12C5A60S2. No documentation found describes a hidden STC12 jumper or a
+second programming connector. STC12 support therefore means socket/pinout,
+crystal, power switch and UART compatibility—not a different download mode.
+One verified-purchase review also reports receiving boards that did not match
+the listing photographs, so identify the actual PCB revision rather than
+trusting the title or AI-generated overview.
+
+**Do not assume one handshake rate.** stcgal defaults to 2400 and
+`my1stcflash`, tested by its author on this exact model, also uses 2400.
+stcgal's protocol capture uses 9600, and the successful session in
+[stcgal#12](https://github.com/grigorig/stcgal/issues/12) first connected with
+`-l 9600`; its later baud matrix connected at 2400, 4800 and 9600. Try the
+default first, then:
 
 ```bash
 make info HANDSHAKE=9600 BAUD=9600
@@ -732,14 +764,20 @@ distinguish "nothing comes back" from "garbage comes back". To separate those,
 write six lines that send `0x7f` and report *every* received byte. A valid
 reply begins `46 B9`.
 
-**Cutting power means cutting ground.** The adapter's TXD idles high and keeps
-feeding the chip through the clamp diode on its RxD pin, so the cold start
-never happens however often you pull the 5 V wire. stcgal's author confirms
-this in [stcgal#34](https://github.com/grigorig/stcgal/issues/34) and suggests
-1 kΩ series resistors in TXD and RXD. On a breadboard it is easier to
-power-cycle by pulling the **GND** wire instead: the sneak current then has no
-return path, and on reconnection the supply is already stable, which gives a
-sharper edge than re-seating the 5 V wire ever does.
+**A removed VCC wire does not prove that power is off.** Adapter TXD can feed
+the chip through the clamp diode on RxD. In the 2026-08-26 session pin 40 still
+measured about 5 V after the adapter's 5 V feed was removed. Use series
+resistance in TXD and, if necessary, a bleeder of less than 1 kΩ from target
+VCC to GND, as stcgal's FAQ recommends. Keep pin 40 connected to the target
+VCC rail and switch the supply *upstream* of that rail so the bleeder and both
+decoupling capacitors remain connected to the MCU while off. Verify the result
+at the chip: pin 40 to pin 20 must fall below the operating range before the
+next rising edge.
+
+Switching target GND with a proper low-side MOSFET is another documented
+solution. Pulling a random GND jumper by hand is not equivalent when LEDs,
+program-entry straps, crystal capacitors or other board wiring provide return
+paths.
 
 > [!CAUTION]
 > Do **not** short the supply rails to drain the bulk capacitor while the
@@ -753,6 +791,13 @@ header from the *target's* perspective; in
 TXD→TXD / RXD→RXD worked. A loopback test (join the two pins, read the bytes
 back) proves they are a UART pair — **not** which pin is which. When in doubt
 try both orientations, at 9600/8E1.
+
+**Check continuity on the actual IC legs after every swap.** A bent pin can
+look seated while missing the breadboard contact. During the 2026-08-26
+session an STC89 that had just been the positive control became completely
+silent after a swap because pin 40 was bent. Probing the breadboard row looked
+correct; probing the exposed metal of pin 40 did not. With all power removed,
+each supply leg must measure approximately 0 Ω to its own breadboard row.
 
 **A used chip may be set to an external clock.** If the `clock_source` option
 byte says `external` and there is no crystal on pins 19/18, nothing runs at
@@ -963,6 +1008,23 @@ from "cross-checked between two emulators" to **measured on a real chip**:
   against silicon through five real bugs — including macOS's CH340 driver
   silently ignoring bare-termios baud changes, which pyserial masks with
   an `IOSSIOSPEED` ioctl and every Rust serial program should know about.
+- **Three visibly different CLI flash paths on 2026-08-26**: the npm CLI's
+  built-in JavaScript flasher installed a D3–D8 walk; npm `--engine rust`
+  installed alternating odd/even LEDs; and direct
+  `stcbsl flash program.bw` transpiled pseudocode through its embedded
+  JavaScript engine, invoked SDCC and installed alternating D1–D4/D5–D8 in
+  one command. Each changed image was observed on the YL-39 STC89 board.
+
+The STC12 session on 2026-08-26 did **not** establish a working STC12 path.
+Three chips, all marked `12C5A60S2 35I-PDIP40 1901H4Y043`, stayed silent in a
+YL-39, a Prechin A2 and direct CH341T breadboard tests. The investigation found
+real confounders—phantom power, a split/indirect breadboard power path and a
+bent pin 40 after repeated swaps. The final CH341T circuit identified the
+STC89 through a 1 kΩ TXD resistor and a 470 Ω supply bleeder, but the planned
+STC12 repeat after that positive control was deliberately aborted. Therefore
+the common STC12 lot is suspect, but neither defective chips nor a broken
+STC12 protocol implementation is proven. Known-working programmed STC12
+chips were intentionally left untouched.
 
 Still waiting for an STC12 in the socket (the boards' sockets accept one
 pin-for-pin): the **ADC path** (`src/02-adc`), **PCA/PWM**, the **BRT**,

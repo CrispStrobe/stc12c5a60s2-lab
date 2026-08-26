@@ -175,12 +175,12 @@ Jeder 5-V-taugliche USB-TTL-Seriell-Adapter geht. Die drei üblichen:
 > **Für einen STC12 ist die Wahl womöglich enger als diese Tabelle.** stcgals
 > FAQ führt eine eigene Liste getesteter Brückenchips, und darin ist **CP2102
 > der einzige, bei dem macOS als getestete Plattform steht**; CH340/CH341 sind
-> nur für Windows und Linux vermerkt. Grund zur Vorsicht ist, dass der
-> STC12-Bootloader **gerade Parität** verlangt (§6) — die STC89-Familie tut das
-> nicht, weshalb ein CH340, der einen STC89 zuverlässig flasht (§9), für einen
-> STC12 noch nichts beweist. Ein CH341T-Modul meldet sich unter macOS 26 ohne
-> Zusatztreiber als `/dev/cu.wchusbserial*` (USB `1a86:5523`, also serieller
-> Modus) — das belegt die Enumeration, nicht die Paritätsfähigkeit.
+> nur für Windows und Linux vermerkt. Der STC12-Bootloader verlangt **gerade
+> Parität** (§6), anders als die STC89-Familie. Am 26.08.2026 nahm ein CH341T
+> (`1a86:5523`) unter macOS 26 eine 8E1-Konfiguration an und bestand einen
+> byte-genauen Loopback-Test; derselbe UART-Pfad identifizierte einen STC89.
+> Das verifiziert den lokalen Treiber und die Verdrahtung, aber nicht die
+> STC12-Kompatibilität: eine STC12-Bootloader-Antwort blieb aus.
 
 Manche Module haben **zwei** Jumper: einen für die Spannung (3,3 V / 5 V) und
 einen für die Betriebsart (TTL / I²C). Beim CH341T-Modul müssen beide stimmen —
@@ -270,14 +270,15 @@ Der Ablauf beim Flashen ist deshalb:
 
 1. `make flash` starten. Es erscheint `Waiting for MCU, please cycle power:`.
 2. *Erst dann* die Spannung des Chips aus- und wieder einschalten.
-3. `stcgal` fängt den Handshake mit 2400 Baud ab, handelt auf 115200 hoch und
+3. `stcgal` fängt den Handshake ab, handelt eine Übertragungsrate aus und
    schreibt den Flash.
 
 > [!IMPORTANT]
-> **Die 2400 sind stcgals Vorgabe, nicht die des Chips.** Für den STC12C5A60S2
-> deutet alles Auffindbare auf **9600** — einschließlich stcgals eigenem
-> Protokollmitschnitt für dieses Modell. Bei dieser Familie also
-> `HANDSHAKE=9600 BAUD=9600` setzen; Näheres in §6.
+> **2400 ist stcgals Vorgabe, nicht die einzig gültige Rate.** Erfolgreiche
+> Sitzungen mit genau diesem Typ gibt es bei 2400, 4800 und 9600 Baud. Ein
+> Bericht brauchte `-l 9600`, während `my1stcflash` 2400 verwendet. Mit der
+> Vorgabe beginnen und bei ausbleibender Erkennung
+> `HANDSHAKE=9600 BAUD=9600` probieren; Näheres in §6.
 
 Wer Schritt 2 automatisieren will, führt die **DTR**-Leitung des Adapters auf
 einen Transistor, der VCC des MCU schaltet, und hängt `-a` an den
@@ -302,6 +303,8 @@ dort keine Option. Ob Steuerleitungen vorhanden sind, verrät ein Blick auf
 | 2 | LEDs (beliebige Farbe) |
 | 2 | 1-kΩ-Widerstände — Vorwiderstände für die LEDs |
 | 1 | 1-kΩ-Widerstand — Pulldown für Reset |
+| *opt.* | 1-kΩ-Widerstand — in Reihe zu TXD des Adapters |
+| *opt.* | 470-Ω-Widerstand — VCC-GND-Entladung gegen Phantomversorgung |
 | 1 | 100-nF-Keramikkondensator (Aufdruck `104`) — Abblockung |
 | 1 | 10-µF-Elko — Stützkondensator |
 | — | Steckbrett und Steckbrücken |
@@ -324,9 +327,12 @@ Der STC12 braucht fast nichts, um zu laufen:
 ```
 
 * **Reset (Pin 9):** Reset ist hier **high-aktiv**, muss zum Laufen also auf
-  Low gehalten werden. Unterhalb von 12 MHz genügt ein 1-kΩ-Widerstand nach
-  Masse. (Das klassische 10 kΩ + 10 µF aus alten 8051-Schaltplänen gehört zu
-  *low-aktiven* Resets — hier bitte nicht übernehmen.)
+  Low gehalten werden. Unterhalb von 12 MHz genügt wegen des internen
+  Power-on-Resets ein 1-kΩ-Widerstand nach Masse. Auch die traditionelle
+  Schaltung mit 10 kΩ nach GND und 10 µF nach VCC ist high-aktiv: sie erzeugt
+  beim Einschalten einen kurzen High-Puls. Sie steht in STCs
+  Applikationsschaltung, doch ein RST-Puls startet ISP nicht; dafür braucht es
+  weiterhin ein echtes Einschalten.
 * **Takt:** XTAL1/XTAL2 (Pin 19/18) dürfen **komplett leer bleiben**. Der Chip
   läuft dann auf seinem internen RC-Oszillator. Zum Blinken reicht das.
   * Der interne RC ist nur mit **11–17 MHz bei 5 V** spezifiziert, die
@@ -343,7 +349,7 @@ Drei Leitungen. **TX und RX werden gekreuzt.**
 ```
    USB-TTL-Adapter              STC12C5A60S2
    ───────────────              ────────────
-        TXD  ──────────────────▶  Pin 10   P3.0 / RxD
+        TXD  ──[ 1k optional ]─▶  Pin 10   P3.0 / RxD
         RXD  ◀──────────────────  Pin 11   P3.1 / TxD
         GND  ──────────────────   Pin 20   GND
         5V   ──────────────────   Pin 40   VCC   (siehe Hinweis)
@@ -357,8 +363,13 @@ Drei Leitungen. **TX und RX werden gekreuzt.**
 > sonst hat die serielle Verbindung keinen gemeinsamen Bezugspunkt und der
 > Handshake kommt nie zustande.
 
-Wer aus dem Adapter versorgt, macht den „Power Cycle“ aus §2.3 einfach durch
-kurzes Abziehen der 5-V-Steckbrücke — das ist der sauberste Weg.
+Bei Versorgung aus dem Adapter bleibt Pin 40 dauerhaft mit der Ziel-VCC-Schiene
+verbunden; geschaltet wird die 5-V-Zuleitung des Adapters *vor* dieser Schiene.
+UART-Pins können den MCU trotz abgezogener 5-V-Zuleitung phantomversorgen. Ein
+1-kΩ-Widerstand in TXD und ein 470-Ω-Entladewiderstand von Ziel-VCC nach GND
+sind am Steckbrett hilfreich. Vor einem Kaltstart-Test an Pin 40 gegen Pin 20
+messen: die Spannung muss deutlich unter 3,5 V, vorzugsweise unter 1 V fallen.
+Eine umgesteckte Brücke allein beweist nicht, dass der Chip aus war.
 
 ### 3.4 Die LEDs
 
@@ -550,9 +561,9 @@ Flashing build/stc12c5a60s2/01-blink/01-blink.hex via /dev/cu.usbserial-1420 ...
 Waiting for MCU, please cycle power: done
 Target model:
   Name: STC12C5A60S2
-  Magic: F002
+  Magic: D17E
   Code flash: 60.0 KB
-  EEPROM flash: 1.0 KB
+  EEPROM flash: 2.0 KB
 Loading flash: 308 bytes
 Switching to 115200 baud: done
 Erasing flash: done
@@ -560,6 +571,12 @@ Writing flash: 308/308 bytes
 Setting options: done
 Disconnected!
 ```
+
+`stcgal` meldet für Magic `D17E` 2 KB, STCs Auswahltabelle dagegen 1 KB
+Benutzer-EEPROM. Das Beispiel oben folgt dem Werkzeug, die Funktionsübersicht
+der Herstellertabelle. Bis zur Prüfung auf STC12-Silizium ist die Abweichung
+konservativ zu behandeln. Das alte Beispiel zeigte hier fälschlich den
+STC89-Eintrag `F002`.
 
 ### Übersetzen, ohne etwas zu installieren
 
@@ -680,7 +697,7 @@ erzeugen, steht die gesamte Kette vom Scratch-Projekt bis zum geflashten Chip.
 | `FOSC` | `11059200` | Takt in Hz — muss der Realität entsprechen, sonst stimmen die Zeiten nicht |
 | `PORT` | erstes passendes `/dev/cu.*` | Serielles Gerät |
 | `BAUD` | `115200` | Übertragungsrate. Bei zickigem Flashen auf `19200` senken |
-| `HANDSHAKE` | `2400` | Handshake-Rate des Bootloaders — nicht anfassen |
+| `HANDSHAKE` | `2400` | Handshake-Rate; bei fehlender Erkennung auch `4800` oder `9600` probieren |
 | `PROTOCOL` | `stc12` | stcgal-Protokoll. `auto` geht auch |
 
 ### Flashen aus dem Browser, ohne Terminal
@@ -692,14 +709,11 @@ Arduino-Bootloader, einen micro:bit über die MicroPython-REPL. Nur Chrome oder
 Edge; Web Serial verlangt einen sicheren Kontext, den die gehostete Seite hat
 und eine lokale Kopie der Datei nicht.
 
-**Keiner dieser drei Wege hat bisher echte Hardware programmiert.** Sie werden
-gegen Simulatoren entwickelt, und der STC-Weg wird Byte für Byte gegen ein
-Protokoll geprüft, das `stcgal` selbst erzeugt hat — das belegt, dass die Bytes
-stimmen, und nichts darüber, ob es auf der Leitung funktioniert. `make flash`
-bleibt der Weg, der nachweislich geht. [docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md)
-beschreibt das Vorgehen, um das zu klären, und nennt für jedes Board den
-wahrscheinlichsten Verdacht. (Nur auf Englisch: es ist ein Prüfvertrag für eine
-Implementierung, kein Einstiegsdokument.)
+Der Browser-/Web-Serial-Pfad hat noch keine echte STC12-Hardware programmiert.
+Er wird Byte für Byte gegen ein von `stcgal` erzeugtes Protokoll geprüft — das
+belegt die Bytes, nicht die Leitung. Die JavaScript- und Rust-Flasher der
+Kommandozeile haben dagegen beide einen STC89 auf echter Hardware programmiert;
+siehe §9 und [docs/BENCH-FLASHING.md](docs/BENCH-FLASHING.md).
 
 ---
 
@@ -728,15 +742,32 @@ trotzdem belegt — jeder aus dem stcgal-Quelltext, dem Datenblatt oder fremden
 Sitzungsmitschnitten. Sie stehen hier, weil sie zusammen mehrere Stunden
 gekostet haben.
 
-**Die Handshake-Rate ist beim STC12 nicht 2400.** stcgals Vorgabe ist 2400, und
-§2.3 hat sie als gesetzt behandelt. stcgals *eigener* Protokollmitschnitt für
-genau diesen Chip (`doc/reverse-engineering/stc12c5a60s2.txt`) steht dagegen auf
-`Handshake: 9600` / `Transfer: 9600`, und drei unabhängige Erfolgsberichte für
-den STC12C5A60S2 sagen dasselbe:
-[stcgal#12](https://github.com/grigorig/stcgal/issues/12) (`-l 9600`),
-[ledcube8x8x8#8](https://github.com/tomazas/ledcube8x8x8/issues/8) und das
-README von [tomazas/ledcube8x8x8](https://github.com/tomazas/ledcube8x8x8).
-Also zuerst:
+**Die YL-39-Jumper wählen kein STC12-Protokoll.** Das verfügbare
+[YL-39-Handbuch](https://www.100y.com.tw/pdf_file/57-YL-39.pdf) ordnet JP1 der
+8-LED-Reihe, JP2 der vierstelligen Anzeige und JP3 dem Summer zu. Sie verbinden
+nur Peripherie und sollen bei Nichtbenutzung entfernt werden. Der getrennte
+Schalter `51/AVR` gehört auf `51`. Programmiert wird mit der gewöhnlichen
+STC-UART-Folge: Board ausschalten, in STC-ISP Download starten, kurz warten,
+dann das Board einschalten. Bei fehlender Erkennung empfiehlt das Handbuch,
+minimale und maximale Baudrate beide auf 2400 zu setzen.
+
+Unter dieser Beschreibung werden deutlich verschiedene Boards verkauft. Das
+Handbuch wirbt mit USB-Download für einen `STC52` und nennt eine
+PL2303-Schnittstelle; das hier geprüfte Board und aktuelle Marktplatztexte
+nennen einen CH340G und werben mit dem STC12C5A60S2. Kein gefundenes Dokument
+beschreibt einen versteckten STC12-Jumper oder zweiten Programmieranschluss.
+STC12-Unterstützung bedeutet daher Sockel-/Pin-Kompatibilität, Quarz,
+Netzschalter und UART-Kompatibilität — keinen anderen Downloadmodus. Eine
+verifizierte Käuferbewertung meldet zudem Boards, die nicht den Angebotsfotos
+entsprachen; deshalb zählt die tatsächliche PCB-Revision, nicht Titel oder
+KI-Zusammenfassung.
+
+**Nicht von einer einzigen Handshake-Rate ausgehen.** stcgal verwendet 2400
+als Vorgabe, und das auf genau diesem Modell getestete `my1stcflash` ebenfalls.
+stcgals Protokollmitschnitt verwendet 9600; die erfolgreiche Sitzung in
+[stcgal#12](https://github.com/grigorig/stcgal/issues/12) verband sich zuerst
+mit `-l 9600`, ihre spätere Baud-Matrix aber bei 2400, 4800 und 9600. Zuerst
+die Vorgabe, dann Folgendes probieren:
 
 ```bash
 make info HANDSHAKE=9600 BAUD=9600
@@ -761,14 +792,19 @@ sie unterscheidet nicht zwischen „nichts kommt zurück" und „es kommt Müll
 zurück". Wer das trennen will, schreibt sich sechs Zeilen, die `0x7f` senden
 und *jedes* empfangene Byte melden. Eine gültige Antwort beginnt mit `46 B9`.
 
-**Spannung trennen heißt Masse trennen.** TXD des Adapters ruht auf High und
-speist den Chip über die Schutzdiode am RxD-Pin weiter; der Kaltstart findet
-dann nie statt, egal wie oft man die 5-V-Leitung zieht. stcgals Autor
-bestätigt das in [stcgal#34](https://github.com/grigorig/stcgal/issues/34) und
-empfiehlt 1-kΩ-Vorwiderstände in TXD und RXD. Am Steckbrett ist es einfacher,
-zum Power-Cycle die **GND**-Leitung zu ziehen: dann fehlt dem Schleichstrom der
-Rückweg, und beim Wiederanstecken steht die Versorgung schon sauber an, was
-eine steilere Flanke ergibt als jedes Umstecken der 5-V-Leitung.
+**Eine abgezogene VCC-Leitung beweist nicht, dass der Chip aus ist.** TXD kann
+ihn über die Schutzdiode an RxD weiter speisen. In der Sitzung vom 26.08.2026
+lagen an Pin 40 noch etwa 5 V, nachdem die 5-V-Zuleitung des Adapters entfernt
+war. Wie stcgals FAQ empfiehlt: Serienwiderstand in TXD und nötigenfalls einen
+Entladewiderstand unter 1 kΩ von Ziel-VCC nach GND verwenden. Pin 40 bleibt an
+der Ziel-VCC-Schiene; geschaltet wird davor, damit Entladewiderstand und beide
+Abblockkondensatoren am MCU bleiben. Am Chip prüfen: Pin 40 gegen Pin 20 muss
+vor der nächsten steigenden Flanke unter den Arbeitsbereich fallen.
+
+Ziel-GND mit einem richtigen Low-Side-MOSFET zu schalten ist eine weitere
+dokumentierte Lösung. Eine beliebige GND-Steckbrücke von Hand zu ziehen ist
+nicht gleichwertig, wenn LEDs, ISP-Eingangsbrücken, Quarzkondensatoren oder
+andere Boardverdrahtung Rückwege schaffen.
 
 > [!CAUTION]
 > Die Versorgungsschienen **nicht** kurzschließen, um den Stützkondensator zu
@@ -783,6 +819,13 @@ beschriften die Leiste aus Sicht des *Ziels*; in
 nur TXD→TXD / RXD→RXD. Ein Loopback (die beiden Pins direkt verbinden, Bytes
 zurücklesen) beweist, dass es ein UART-Paar ist — **nicht**, welcher Pin welcher
 ist. Im Zweifel beide Richtungen probieren, und zwar bei 9600/8E1.
+
+**Nach jedem Chipwechsel die echten IC-Beine auf Durchgang prüfen.** Ein
+verbogener Pin kann eingesetzt aussehen und trotzdem die Feder im Steckbrett
+verfehlen. Am 26.08.2026 schwieg der STC89-Positivtest nach einem Wechsel
+vollständig, weil Pin 40 verbogen war. Die Steckbrettreihe sah messtechnisch
+richtig aus, das freiliegende Metall von Pin 40 nicht. Stromlos muss jedes
+Versorgungsbein zu seiner eigenen Steckbrettreihe ungefähr 0 Ω zeigen.
 
 **Ein gebrauchter Chip kann auf externen Takt eingestellt sein.** Steht das
 Optionsbyte `clock_source` auf `external` und sitzt kein Quarz an Pin 19/18,
@@ -1005,6 +1048,25 @@ Alles Folgende ist damit von „zwischen zwei Emulatoren gegengeprüft" zu
   CH340-Treiber von macOS, der nackte termios-Baudwechsel stillschweigend
   ignoriert; pyserial verdeckt das mit einem `IOSSIOSPEED`-ioctl, und
   jedes Rust-Serienprogramm sollte davon wissen.
+- **Drei sichtbar verschiedene CLI-Flash-Pfade am 26.08.2026**: der eingebaute
+  JavaScript-Flasher der npm-CLI installierte einen Lauf über D3–D8; npm
+  `--engine rust` installierte abwechselnd ungerade/gerade LEDs; und direktes
+  `stcbsl flash program.bw` übersetzte Pseudocode mit seiner eingebetteten
+  JavaScript-Engine, rief SDCC auf und installierte D1–D4/D5–D8 abwechselnd in
+  einem Befehl. Jedes geänderte Bild wurde auf dem YL-39-STC89 beobachtet.
+
+Die STC12-Sitzung vom 26.08.2026 hat **keinen** funktionierenden STC12-Pfad
+nachgewiesen. Drei Chips mit der gemeinsamen Aufschrift
+`12C5A60S2 35I-PDIP40 1901H4Y043` blieben im YL-39, im Prechin A2 und in
+direkten CH341T-Steckbrettversuchen stumm. Die Untersuchung fand echte
+Störgrößen: Phantomversorgung, einen indirekten/geteilten Versorgungspfad am
+Steckbrett und nach vielen Wechseln einen verbogenen Pin 40. Die endgültige
+CH341T-Schaltung identifizierte den STC89 durch 1 kΩ in TXD und 470 Ω zwischen
+den Versorgungsschienen; die danach geplante STC12-Wiederholung wurde bewusst
+abgebrochen. Die gemeinsame STC12-Charge ist damit verdächtig, aber weder
+defekte Chips noch eine kaputte STC12-Protokollimplementierung sind bewiesen.
+Bekannt funktionierende, fremd programmierte STC12 wurden absichtlich nicht
+angerührt.
 
 Noch offen, bis ein STC12 im Sockel steckt (die Sockel beider Boards
 nehmen ihn pinkompatibel auf): der **ADC-Pfad** (`src/02-adc`),
