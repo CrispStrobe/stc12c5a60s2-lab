@@ -71,6 +71,19 @@ must confirm whatever cabling the physical board actually has.
    stack after the OLED/EEPROM work.
 5. A2 first, EM3 later: the A2 is the same vendor's compact STC89 board;
    expect the same conventions, verify with discover89 in the first minute.
+6. **The DS1302's crystal and battery are now simulable, and are two more
+   things the bench should MEASURE rather than assume.** bw-board d85b08b
+   gave the model X1/X2 and VCC1: no crystal means the clock never advances
+   even with CH clear, and no cell means a power cut returns it halted at
+   zero with its RAM gone. The table above says "battery-backed", but that
+   line is research like everything else here — the header says so — and a
+   coin cell that reads 1.5 V buys nothing, which is exactly what "it kept
+   time for a year and then stopped" looks like. So: measure VCC1 with a
+   meter, and confirm the clock still runs after a power cycle. Until then
+   the simulator's PRECHIN-A2 preset wires neither pin, which the model
+   treats as "crystal assumed, VCC2 only" — right for a bench that is not
+   modelling them, and wrong the moment someone claims the preset shows
+   what the board does over a power cut.
 
 Sources: [SourceForge HC6800EM3 wiki](https://sourceforge.net/p/hc6800em3/wiki/Home/),
 [treideme/stc89c52-demos](https://github.com/treideme/stc89c52-demos) (HC6800-ES
